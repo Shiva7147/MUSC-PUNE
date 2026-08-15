@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Menu, X, Ticket, Flame } from 'lucide-react';
+import { ShoppingBag, Menu, X, Ticket, Flame, Plane } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 
 interface NavbarProps {
@@ -37,9 +37,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     { name: 'HOME', href: '/' },
     { name: 'ABOUT', href: '/#about' },
     { name: 'SCREENINGS', href: '/screenings' },
+    { name: 'TRIP TO OLD TRAFFORD', href: '/tours' },
     { name: 'MERCHANDISE', href: '/merchandise' },
     { name: 'CHANTS', href: '/chants' },
-    { name: 'GALLERY', href: '/#gallery' },
     { name: 'TEAM', href: '/team' },
     { name: 'JOIN REDS', href: '/contact' },
   ];
@@ -54,22 +54,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             🔴 NEXT MATCHDAY: MANCHESTER UNITED vs LIVERPOOL
           </span>
           <span>• SUN 15 MAR • THE IRISH HOUSE VIMAN NAGAR</span>
-          <span>• GATES OPEN 07:30 PM IST •</span>
-          <span className="text-amber-300 font-bold">RESERVE MATCH PASSES ONLINE</span>
+          <span className="text-amber-300 font-bold">• ✈️ AUTUMN 2026 OLD TRAFFORD TRIP REGISTRATION OPEN</span>
         </div>
       </div>
 
       <header
         className={`fixed top-7 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#08080A]/95 backdrop-blur-md border-b border-[#DA020E]/30 py-3 shadow-2xl'
-            : 'bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4'
+            ? 'bg-[#08080A]/95 backdrop-blur-md border-b border-[#DA020E]/40 py-3 shadow-2xl glow-red'
+            : 'bg-gradient-to-b from-black/90 via-black/50 to-transparent py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo Badge */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-xl font-bold text-white shadow-lg shadow-[#DA020E]/40 group-hover:scale-105 transition-transform border border-white/20">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-xl font-bold text-white shadow-lg shadow-[#DA020E]/50 group-hover:scale-105 transition-transform border border-white/20">
               MU
             </div>
             <div className="flex flex-col">
@@ -88,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav className="hidden xl:flex items-center gap-5">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -102,6 +101,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Action CTAs */}
           <div className="flex items-center gap-3 sm:gap-4">
+            {/* Old Trafford Trip Pill CTA */}
+            <Link
+              href="/tours"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 border border-[#DA020E]/50 text-xs font-mono text-amber-300 hover:bg-[#DA020E]/20 transition-all shadow"
+            >
+              <Plane className="w-3.5 h-3.5 text-[#DA020E]" />
+              <span className="font-bold">OLD TRAFFORD TRIP</span>
+            </Link>
+
             {/* Cart Trigger */}
             <button
               onClick={onOpenCart}
@@ -128,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 hover:text-white"
+              className="xl:hidden p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 hover:text-white"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-6 h-6" />
@@ -139,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-[#08080A] text-white animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#08080A] text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-800">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-lg font-bold">
@@ -159,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col justify-between">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {navLinks.map((link, idx) => (
                 <Link
                   key={link.name}
@@ -176,6 +184,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col gap-4">
+              <Link
+                href="/tours"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full bg-neutral-900 border border-[#DA020E] text-amber-300 font-display text-base tracking-wider font-bold py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plane className="w-5 h-5 text-[#DA020E]" />
+                TRIP TO OLD TRAFFORD
+              </Link>
+
               <Link
                 href="/screenings"
                 onClick={() => setMobileMenuOpen(false)}
