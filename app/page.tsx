@@ -1,211 +1,248 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Ticket, ArrowRight, ShoppingBag, Music } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { HeroSection } from '@/sections/HeroSection';
-import { ScreeningsSection } from '@/sections/ScreeningsSection';
-import { MerchandiseSection } from '@/sections/MerchandiseSection';
-import { OldTraffordToursSection } from '@/sections/OldTraffordToursSection';
 import { AboutSection } from '@/sections/AboutSection';
-import { CommunityExperienceSection } from '@/sections/CommunityExperienceSection';
-import { GallerySection } from '@/sections/GallerySection';
 import { AnnouncementsSection } from '@/sections/AnnouncementsSection';
-import { FanChantsSection } from '@/sections/FanChantsSection';
-import { TeamSection } from '@/sections/TeamSection';
-import { ContactSection } from '@/sections/ContactSection';
-import { CartDrawer } from '@/components/CartDrawer';
+import { GallerySection } from '@/sections/GallerySection';
 import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { ProductQuickViewModal } from '@/components/ProductQuickViewModal';
 import { GalleryLightbox } from '@/components/GalleryLightbox';
-import { EnquiryModal } from '@/components/EnquiryModal';
+import { CartDrawer } from '@/components/CartDrawer';
 import {
   upcomingScreenings,
   merchandiseProducts,
-  oldTraffordTours,
-  galleryImages,
   announcements,
-  fanChants,
-  teamMembers,
+  galleryImages,
 } from '@/lib/data';
-import { CartItem, Product, Screening } from '@/lib/types';
+import { Screening, Product, CartItem } from '@/lib/types';
 
 export default function Home() {
-  // Global State
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  // Modal States
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
-  const [isScreeningModalOpen, setIsScreeningModalOpen] = useState(false);
-
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartOpen, setCartOpen] = useState<boolean>(false);
 
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const featuredScreening = upcomingScreenings.find((s) => s.featured) || upcomingScreenings[0];
 
-  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
-  const [enquirySubject, setEnquirySubject] = useState('Old Trafford Tour Enquiry');
-
-  // Cart Operations
   const handleAddToCart = (product: Product, size: string, quantity: number) => {
     setCartItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (i) => i.product.id === product.id && i.size === size
-      );
-      if (existingIndex > -1) {
+      const existingIdx = prev.findIndex((item) => item.product.id === product.id && item.size === size);
+      if (existingIdx > -1) {
         const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
+        updated[existingIdx].quantity += quantity;
         return updated;
       }
       return [...prev, { product, size, quantity }];
     });
-  };
-
-  const handleUpdateQuantity = (productId: string, size: string, delta: number) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.product.id === productId && item.size === size) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
-  };
-
-  const handleRemoveItem = (productId: string, size: string) => {
-    setCartItems((prev) =>
-      prev.filter((i) => !(i.product.id === productId && i.size === size))
-    );
-  };
-
-  // Screening Ticket Modal Handlers
-  const handleOpenScreeningModal = (screening?: Screening) => {
-    setSelectedScreening(screening || upcomingScreenings[0]);
-    setIsScreeningModalOpen(true);
-  };
-
-  // Quick View Handlers
-  const handleOpenQuickView = (product: Product) => {
-    setQuickViewProduct(product);
-    setIsQuickViewOpen(true);
-  };
-
-  // Enquiry Handlers
-  const handleOpenEnquiry = (subject?: string) => {
-    if (subject) setEnquirySubject(subject);
-    setIsEnquiryModalOpen(true);
+    setCartOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-[#090909] text-white selection:bg-[#C8102E] selection:text-white">
-      {/* Sticky Global Navigation */}
+    <main className="min-h-screen bg-[#08080A] text-white">
+      {/* Top Navbar */}
       <Navbar
         cartItems={cartItems}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenScreeningModal={() => handleOpenScreeningModal()}
+        onOpenCart={() => setCartOpen(true)}
+        onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
       />
 
-      <main>
-        {/* Hero Section */}
-        <HeroSection
-          featuredScreening={upcomingScreenings[0]}
-          onOpenScreeningModal={() => handleOpenScreeningModal()}
-        />
+      {/* 1. Hero Section (Cleaned & De-cluttered with Crest Watermark) */}
+      <HeroSection
+        featuredScreening={featuredScreening}
+        onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
+      />
 
-        {/* Primary Feature 1: Matchday Screenings */}
-        <ScreeningsSection
-          screenings={upcomingScreenings}
-          onSelectScreening={(sc) => handleOpenScreeningModal(sc)}
-        />
+      {/* 2. About MUSC Pune Section */}
+      <AboutSection />
 
-        {/* Primary Feature 2: Official Merchandise */}
-        <MerchandiseSection
-          products={merchandiseProducts}
-          onQuickView={handleOpenQuickView}
-          onAddToCart={handleAddToCart}
-        />
+      {/* 3. Screenings Preview Slide */}
+      <section className="py-20 bg-[#0A0A0E] border-t border-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <span className="badge-united text-xs font-mono font-bold px-3 py-1 rounded">
+                MATCHDAY SCREENING HIGHLIGHT
+              </span>
+              <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mt-2 uppercase">
+                NEXT <span className="text-[#DA020E]">MATCHDAY STUB</span>
+              </h2>
+            </div>
 
-        {/* Primary Feature 3: Old Trafford Group Tours */}
-        <OldTraffordToursSection
-          tours={oldTraffordTours}
-          onOpenEnquiryModal={handleOpenEnquiry}
-        />
+            <Link
+              href="/screenings"
+              className="inline-flex items-center gap-2 text-sm font-mono font-bold text-[#DA020E] hover:text-white transition-colors"
+            >
+              <span>EXPLORE ALL SCREENINGS</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
-        {/* Community Narrative & Stats */}
-        <AboutSection />
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+            <div className="space-y-3 flex-1">
+              <span className="text-xs font-mono text-neutral-400">{featuredScreening.competition}</span>
+              <h3 className="font-display text-3xl sm:text-4xl font-bold text-white">
+                {featuredScreening.matchTitle}
+              </h3>
+              <p className="text-xs font-mono text-neutral-300">
+                {featuredScreening.date} • {featuredScreening.time} • {featuredScreening.venueName}
+              </p>
+            </div>
 
-        {/* Supporters Matchday Culture Pillars */}
-        <CommunityExperienceSection />
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="font-display text-2xl font-bold text-[#DA020E]">
+                ₹{featuredScreening.price}
+              </div>
+              <button
+                onClick={() => setSelectedScreening(featuredScreening)}
+                className="bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-sm tracking-wider font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 shadow-lg glow-united transition-all"
+              >
+                <Ticket className="w-4 h-4" />
+                <span>BOOK MATCH PASS</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        {/* Gallery */}
-        <GallerySection
-          galleryItems={galleryImages}
-          onOpenLightbox={(idx) => setLightboxIndex(idx)}
-        />
+      {/* 4. Merchandise Preview Slide */}
+      <section className="py-20 bg-[#08080A] border-t border-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <span className="badge-pune text-xs font-mono font-bold px-3 py-1 rounded">
+                OFFICIAL STREETWEAR
+              </span>
+              <h2 className="font-display text-4xl sm:text-5xl font-bold text-white mt-2 uppercase">
+                FEATURED <span className="text-[#DA020E]">MERCH DROP</span>
+              </h2>
+            </div>
 
-        {/* Live Bulletin & Announcements */}
-        <AnnouncementsSection announcements={announcements} />
+            <Link
+              href="/merchandise"
+              className="inline-flex items-center gap-2 text-sm font-mono font-bold text-[#DA020E] hover:text-white transition-colors"
+            >
+              <span>VISIT MERCH STORE</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
-        {/* Fan Chants Marquee & Lyrics Vault */}
-        <FanChantsSection chants={fanChants} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {merchandiseProducts.slice(0, 2).map((prod) => (
+              <div key={prod.id} className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 flex gap-6 items-center shadow-xl">
+                <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-black shrink-0">
+                  <Image src={prod.image} alt={prod.name} fill className="object-cover" />
+                </div>
+                <div className="space-y-2 flex-1">
+                  <h4 className="font-display text-xl font-bold text-white">{prod.name}</h4>
+                  <div className="font-display text-lg font-bold text-[#DA020E]">₹{prod.price}</div>
+                  <button
+                    onClick={() => handleAddToCart(prod, 'M', 1)}
+                    className="bg-[#DA020E] hover:bg-[#99000A] text-white text-xs font-display font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 transition-all"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>ADD TO CART</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* Committee & Team */}
-        <TeamSection members={teamMembers} />
+      {/* 5. Announcements Section */}
+      <AnnouncementsSection announcements={announcements} />
 
-        {/* Contact & Enquiries Form */}
-        <ContactSection />
-      </main>
+      {/* 6. Gallery Section */}
+      <GallerySection
+        galleryItems={galleryImages}
+        onOpenLightbox={(index) => setLightboxIdx(index)}
+      />
 
-      {/* Global Footer */}
+      {/* 7. Fan Chants Preview Slide */}
+      <section className="py-20 bg-[#0A0A0E] border-t border-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3">
+            <span className="badge-united text-xs font-mono font-bold px-3 py-1 rounded">
+              TERRACE NOISE VAULT
+            </span>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase">
+              LEARN THE <span className="text-[#DA020E]">PUNE REDS CHANTS</span>
+            </h2>
+            <p className="text-xs text-neutral-400 font-mono max-w-xl">
+              Listen to native Web Audio crowd synthesizers and practice matchday chant lyrics.
+            </p>
+          </div>
+
+          <Link
+            href="/chants"
+            className="bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-xl glow-united flex items-center gap-2 transition-all hover:scale-105 shrink-0"
+          >
+            <Music className="w-5 h-5" />
+            <span>OPEN CHANTS VAULT</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
       <Footer />
 
-      {/* Interactive Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-      />
-
-      {/* Screening Ticket Booking Modal */}
+      {/* Ticket Modal */}
       {selectedScreening && (
         <ScreeningTicketModal
-          isOpen={isScreeningModalOpen}
-          onClose={() => setIsScreeningModalOpen(false)}
+          isOpen={true}
           screening={selectedScreening}
+          onClose={() => setSelectedScreening(null)}
         />
       )}
 
-      {/* Product Quick View Modal */}
-      <ProductQuickViewModal
-        isOpen={isQuickViewOpen}
-        onClose={() => setIsQuickViewOpen(false)}
-        product={quickViewProduct}
-        onAddToCart={handleAddToCart}
-      />
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <ProductQuickViewModal
+          isOpen={true}
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+          onAddToCart={handleAddToCart}
+        />
+      )}
 
-      {/* Full-Screen Gallery Lightbox */}
-      {lightboxIndex !== null && (
+      {/* Lightbox */}
+      {lightboxIdx !== null && (
         <GalleryLightbox
-          isOpen={lightboxIndex !== null}
-          onClose={() => setLightboxIndex(null)}
+          isOpen={true}
           items={galleryImages}
-          currentIndex={lightboxIndex}
-          onNavigate={(newIdx) => setLightboxIndex(newIdx)}
+          currentIndex={lightboxIdx}
+          onClose={() => setLightboxIdx(null)}
+          onNavigate={(newIdx) => setLightboxIdx(newIdx)}
         />
       )}
 
-      {/* Tour / General Enquiry Modal */}
-      <EnquiryModal
-        isOpen={isEnquiryModalOpen}
-        onClose={() => setIsEnquiryModalOpen(false)}
-        defaultSubject={enquirySubject}
+      {/* Cart Drawer */}
+      <CartDrawer
+        isOpen={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={(productId, size, delta) => {
+          setCartItems((prev) =>
+            prev
+              .map((item) =>
+                item.product.id === productId && item.size === size
+                  ? { ...item, quantity: item.quantity + delta }
+                  : item
+              )
+              .filter((item) => item.quantity > 0)
+          );
+        }}
+        onRemoveItem={(productId, size) => {
+          setCartItems((prev) => prev.filter((item) => !(item.product.id === productId && item.size === size)));
+        }}
       />
-    </div>
+    </main>
   );
 }

@@ -1,35 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { Ticket, ChevronRight, Volume2, Flame } from 'lucide-react';
+import Link from 'next/link';
+import { Ticket, ChevronRight, Volume2, Shield } from 'lucide-react';
 import { Screening } from '@/lib/types';
 
 interface HeroSectionProps {
-  featuredScreening: Screening;
-  onOpenScreeningModal: () => void;
+  featuredScreening?: Screening;
+  onOpenScreeningModal?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  featuredScreening,
   onOpenScreeningModal,
 }) => {
-  // Live Ticking Scoreboard Countdown State (Target: March 15, 2026 21:00 IST)
-  const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 14, mins: 32, secs: 45 });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.secs > 0) return { ...prev, secs: prev.secs - 1 };
-        if (prev.mins > 0) return { ...prev, mins: 59, secs: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, mins: 59, secs: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, mins: 59, secs: 59 };
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   // Native Web Audio API Synthesizer for Stadium Crowd Roar
   const playCrowdRoar = () => {
     try {
@@ -68,13 +52,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center pt-28 pb-16 overflow-hidden bg-[#08080A]">
-      {/* Stadium Floodlight Sweep Lights */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[900px] bg-gradient-to-b from-[#DA020E]/30 via-[#DA020E]/10 to-transparent blur-3xl animate-floodlight pointer-events-none z-0" />
-      <div className="absolute top-0 right-1/4 w-[450px] h-[850px] bg-gradient-to-b from-white/10 via-[#DA020E]/10 to-transparent blur-3xl animate-floodlight pointer-events-none z-0" />
+    <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#08080A]">
+      {/* Stadium Spotlight Sweeps */}
+      <div className="absolute top-0 left-1/3 w-[600px] h-[900px] bg-gradient-to-b from-[#DA020E]/25 via-[#DA020E]/08 to-transparent blur-3xl animate-floodlight pointer-events-none z-0" />
 
-      {/* Red Smoke Particle Glows */}
-      <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#99000A]/40 rounded-full blur-[140px] animate-smoke pointer-events-none z-0" />
+      {/* Large Soft Watermark Manchester United Crest Graphic Background */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none z-0 select-none overflow-hidden">
+        <svg className="w-[650px] h-[650px] text-white" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50 5 L85 20 L85 55 C85 75 50 95 50 95 C50 95 15 75 15 55 L15 20 Z" fill="none" stroke="currentColor" strokeWidth="2" />
+          <path d="M30 40 L70 40 M35 55 L65 55 M50 25 L50 75" stroke="currentColor" strokeWidth="2" />
+          <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" strokeWidth="2" />
+        </svg>
+      </div>
 
       {/* Background Image Overlay */}
       <div className="absolute inset-0 z-0">
@@ -83,143 +72,59 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           alt="MUSC Pune Crowd"
           fill
           priority
-          className="object-cover object-center opacity-35 scale-105"
+          className="object-cover object-center opacity-25 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/70 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/75 to-black/85" />
       </div>
 
-      {/* Pitch Lines Vector Overlay */}
-      <div className="absolute inset-0 bg-pitch-lines opacity-20 pointer-events-none z-0" />
+      {/* Pitch Lines Grid */}
+      <div className="absolute inset-0 bg-pitch-lines opacity-15 pointer-events-none z-0" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-between min-h-[78vh]">
-        {/* Top Ticker Row & Web Audio Teaser */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-black/80 border border-[#DA020E]/40 text-[11px] font-mono font-bold text-white">
-            <span className="w-2 h-2 rounded-full bg-[#DA020E] animate-ping" />
-            <span>OFFICIAL SUPPORTERS CLUB • PUNE, MAHARASHTRA</span>
-          </div>
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center space-y-8 my-auto">
+        {/* Single Clean Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 border border-[#DA020E]/40 text-xs font-mono font-bold text-white shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-[#DA020E] animate-pulse" />
+          <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
+        </div>
 
-          {/* Web Audio Roar Teaser Button */}
+        {/* Clean Hero Headline */}
+        <div className="space-y-4">
+          <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white leading-none uppercase drop-shadow-2xl">
+            PUNE. <span className="text-[#DA020E]">UNITED.</span> ALWAYS.
+          </h1>
+
+          <p className="text-base sm:text-xl text-neutral-300 font-sans max-w-2xl mx-auto font-light leading-relaxed">
+            The home of Manchester United supporters in Pune. High-decibel screening venues, official merchandise drops, and group trips to Old Trafford.
+          </p>
+        </div>
+
+        {/* Hero CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
+          <Link
+            href="/screenings"
+            className="w-full sm:w-auto flex-1 bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-xl glow-united flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+          >
+            <Ticket className="w-5 h-5" />
+            <span>GET SCREENING TICKETS</span>
+          </Link>
+
+          <a
+            href="#about"
+            className="w-full sm:w-auto flex-1 bg-neutral-900/90 border border-neutral-700 text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 hover:border-[#DA020E] transition-all"
+          >
+            <span>DISCOVER MUSC PUNE</span>
+          </a>
+        </div>
+
+        {/* Sound Synth Audio Teaser Pill */}
+        <div className="pt-6">
           <button
             onClick={playCrowdRoar}
-            className="px-4 py-1.5 rounded-full bg-neutral-900/90 border border-[#DA020E]/50 hover:border-[#DA020E] text-xs font-mono text-white flex items-center gap-2 hover:bg-[#DA020E]/20 transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/90 border border-neutral-800 hover:border-[#DA020E] text-xs font-mono text-neutral-300 hover:text-white transition-all active:scale-95 shadow-md"
           >
             <Volume2 className="w-4 h-4 text-[#DA020E] animate-bounce" />
-            <span className="font-bold">TAP TO HEAR PUNE REDS ROAR</span>
+            <span>TAP TO HEAR PUNE REDS ROAR</span>
           </button>
-        </div>
-
-        {/* Main Hero Headlines & Rivalry Scoreboard Widget */}
-        <div className="my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 text-center sm:text-left space-y-6">
-            <div className="inline-block">
-              <span className="badge-united text-xs font-mono font-bold px-3.5 py-1.5 rounded-lg uppercase tracking-widest">
-                लाल पुणे • MATCHDAY TERRACE EXPERIENCE
-              </span>
-            </div>
-
-            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white leading-none uppercase drop-shadow-xl">
-              PUNE. <span className="text-[#DA020E]">UNITED.</span> ALWAYS.
-            </h1>
-
-            <p className="text-base sm:text-xl text-neutral-300 font-sans max-w-2xl font-light leading-relaxed">
-              Where Manchester United supporters in Pune come together. High-decibel screening venues, official merchandise drops, and group trips to Old Trafford.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
-              <button
-                onClick={onOpenScreeningModal}
-                className="w-full sm:w-auto bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-lg tracking-wider font-bold px-8 py-4 rounded-2xl shadow-2xl glow-united flex items-center justify-center gap-3 transition-all hover:scale-[1.03]"
-              >
-                <Ticket className="w-5 h-5" />
-                <span>GET SCREENING TICKETS</span>
-              </button>
-
-              <a
-                href="#about"
-                className="w-full sm:w-auto bg-neutral-900 border border-neutral-700 text-white font-display text-lg tracking-wider font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-2 hover:border-[#DA020E] transition-all"
-              >
-                <span>DISCOVER MUSC PUNE</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Scoreboard Countdown Widget */}
-          <div className="lg:col-span-4 bg-gradient-to-br from-neutral-900 via-black to-neutral-900 border-2 border-[#DA020E]/50 rounded-3xl p-6 shadow-2xl space-y-5 relative overflow-hidden">
-            <div className="absolute -right-6 -bottom-6 text-8xl font-display font-bold opacity-10 text-white select-none">
-              VS
-            </div>
-
-            <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-              <span className="text-[10px] font-mono tracking-widest text-[#DA020E] font-bold uppercase flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5" /> STADIUM SCOREBOARD
-              </span>
-              <span className="text-[10px] font-mono text-neutral-400">NEXT FIXTURE</span>
-            </div>
-
-            {/* Teams Clash Match Visual */}
-            <div className="flex items-center justify-between py-2 text-center">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-[#DA020E] flex items-center justify-center text-xl font-bold font-display shadow-lg mx-auto">
-                  MU
-                </div>
-                <div className="font-display text-sm font-bold text-white mt-1">MAN UTD</div>
-              </div>
-
-              <div className="font-display text-2xl font-bold text-[#DA020E] italic">VS</div>
-
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xl font-bold font-display shadow-lg mx-auto text-red-500">
-                  LFC
-                </div>
-                <div className="font-display text-sm font-bold text-white mt-1">LIVERPOOL</div>
-              </div>
-            </div>
-
-            {/* Countdown Ticker Units */}
-            <div className="grid grid-cols-4 gap-2 text-center pt-2">
-              <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800">
-                <div className="font-display text-2xl font-bold text-white">{String(timeLeft.days).padStart(2, '0')}</div>
-                <div className="text-[8px] font-mono text-neutral-500 uppercase">DAYS</div>
-              </div>
-              <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800">
-                <div className="font-display text-2xl font-bold text-white">{String(timeLeft.hours).padStart(2, '0')}</div>
-                <div className="text-[8px] font-mono text-neutral-500 uppercase">HOURS</div>
-              </div>
-              <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800">
-                <div className="font-display text-2xl font-bold text-white">{String(timeLeft.mins).padStart(2, '0')}</div>
-                <div className="text-[8px] font-mono text-neutral-500 uppercase">MINS</div>
-              </div>
-              <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-800">
-                <div className="font-display text-2xl font-bold text-[#DA020E] animate-pulse">{String(timeLeft.secs).padStart(2, '0')}</div>
-                <div className="text-[8px] font-mono text-neutral-500 uppercase">SECS</div>
-              </div>
-            </div>
-
-            <button
-              onClick={onOpenScreeningModal}
-              className="w-full bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-xs tracking-wider font-bold py-3 rounded-xl flex items-center justify-center gap-1.5 transition-all"
-            >
-              <span>RESERVE MATCH PASS (₹350)</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Pune Skyline & Network */}
-        <div className="pt-6 border-t border-neutral-800/80 flex flex-wrap items-center justify-between text-xs font-mono text-neutral-400 gap-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#DA020E]" />
-            <span>Viman Nagar • Koregaon Park • Baner</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#DA020E]" />
-            <span>Shaniwar Wada ➔ Old Trafford Route</span>
-          </div>
-          <div className="flex items-center gap-2 text-white font-bold">
-            <span>पुणे युनायटED SUPPORTERS NETWORK</span>
-          </div>
         </div>
       </div>
     </section>

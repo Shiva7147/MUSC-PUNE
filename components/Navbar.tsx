@@ -6,12 +6,16 @@ import { ShoppingBag, Menu, X, Ticket, Flame } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 
 interface NavbarProps {
-  cartItems: CartItem[];
-  onOpenCart: () => void;
-  onOpenScreeningModal: () => void;
+  cartItems?: CartItem[];
+  onOpenCart?: () => void;
+  onOpenScreeningModal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScreeningModal }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  cartItems = [],
+  onOpenCart = () => {},
+  onOpenScreeningModal = () => {},
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -19,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
+      if (window.scrollY > 30) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -30,15 +34,14 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
   }, []);
 
   const navLinks = [
-    { name: 'HOME', href: '#home' },
-    { name: 'ABOUT', href: '#about' },
-    { name: 'SCREENINGS', href: '#screenings' },
-    { name: 'MERCHANDISE', href: '#merchandise' },
-    { name: 'OLD TRAFFORD TOURS', href: '#tours' },
-    { name: 'GALLERY', href: '#gallery' },
-    { name: 'ANNOUNCEMENTS', href: '#announcements' },
-    { name: 'TEAM', href: '#team' },
-    { name: 'CONTACT', href: '#contact' },
+    { name: 'HOME', href: '/' },
+    { name: 'ABOUT', href: '/#about' },
+    { name: 'SCREENINGS', href: '/screenings' },
+    { name: 'MERCHANDISE', href: '/merchandise' },
+    { name: 'CHANTS', href: '/chants' },
+    { name: 'GALLERY', href: '/#gallery' },
+    { name: 'TEAM', href: '/team' },
+    { name: 'JOIN REDS', href: '/contact' },
   ];
 
   return (
@@ -51,21 +54,21 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
             🔴 NEXT MATCHDAY: MANCHESTER UNITED vs LIVERPOOL
           </span>
           <span>• SUN 15 MAR • THE IRISH HOUSE VIMAN NAGAR</span>
-          <span>• 85% PASSES BOOKED • GATES OPEN 07:30 PM IST •</span>
-          <span className="text-amber-300 font-bold">LIMITED SEATS REMAINING</span>
+          <span>• GATES OPEN 07:30 PM IST •</span>
+          <span className="text-amber-300 font-bold">RESERVE MATCH PASSES ONLINE</span>
         </div>
       </div>
 
       <header
         className={`fixed top-7 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#08080A]/90 backdrop-blur-md border-b border-[#DA020E]/30 py-3 shadow-2xl'
+            ? 'bg-[#08080A]/95 backdrop-blur-md border-b border-[#DA020E]/30 py-3 shadow-2xl'
             : 'bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo Badge */}
-          <Link href="#home" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-xl font-bold text-white shadow-lg shadow-[#DA020E]/40 group-hover:scale-105 transition-transform border border-white/20">
               MU
             </div>
@@ -79,21 +82,21 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
                 </span>
               </div>
               <span className="text-[10px] tracking-widest text-neutral-400 uppercase font-mono mt-0.5">
-                Official Supporters Club • EST. 2021
+                Official Supporters Club
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-7">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 className="text-xs font-semibold tracking-wider text-neutral-300 hover:text-[#DA020E] transition-colors uppercase relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#DA020E] hover:after:w-full after:transition-all"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -114,13 +117,13 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
             </button>
 
             {/* Main Header CTA */}
-            <button
-              onClick={onOpenScreeningModal}
+            <Link
+              href="/screenings"
               className="hidden sm:flex items-center gap-2 bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-sm tracking-wider font-semibold px-4 py-2.5 rounded-xl transition-all glow-united hover:scale-[1.03] active:scale-95 border border-white/20"
             >
               <Ticket className="w-4 h-4" />
-              <span>NEXT SCREENING</span>
-            </button>
+              <span>SCREENINGS</span>
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
@@ -134,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
         </div>
       </header>
 
-      {/* Premium Full-Screen Mobile Menu Drawer */}
+      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-[#08080A] text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-800">
@@ -156,36 +159,34 @@ export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScr
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col justify-between">
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4">
               {navLinks.map((link, idx) => (
-                <a
+                <Link
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-2xl tracking-wide text-neutral-200 hover:text-[#DA020E] transition-colors py-1 flex items-center justify-between group border-b border-neutral-900"
+                  className="font-display text-xl tracking-wide text-neutral-200 hover:text-[#DA020E] transition-colors py-2 flex items-center justify-between group border-b border-neutral-900"
                 >
                   <span>{link.name}</span>
                   <span className="text-xs font-mono text-neutral-600 group-hover:text-[#DA020E]">
                     0{idx + 1}
                   </span>
-                </a>
+                </Link>
               ))}
             </div>
 
             <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col gap-4">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenScreeningModal();
-                }}
+              <Link
+                href="/screenings"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-lg tracking-wider font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#DA020E]/40"
               >
                 <Ticket className="w-5 h-5" />
-                GET NEXT SCREENING TICKET
-              </button>
+                GET MATCHDAY TICKETS
+              </Link>
 
               <div className="text-center text-xs font-mono text-neutral-500">
-                MANCHESTER UNITED SUPPORTERS CLUB PUNE • LAL PUNE 🔴
+                MANCHESTER UNITED SUPPORTERS CLUB PUNE • 🔴
               </div>
             </div>
           </div>
