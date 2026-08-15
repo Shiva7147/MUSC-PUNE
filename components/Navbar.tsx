@@ -1,0 +1,196 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ShoppingBag, Menu, X, Ticket, Flame } from 'lucide-react';
+import { CartItem } from '@/lib/types';
+
+interface NavbarProps {
+  cartItems: CartItem[];
+  onOpenCart: () => void;
+  onOpenScreeningModal: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ cartItems, onOpenCart, onOpenScreeningModal }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 40) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: 'HOME', href: '#home' },
+    { name: 'ABOUT', href: '#about' },
+    { name: 'SCREENINGS', href: '#screenings' },
+    { name: 'MERCHANDISE', href: '#merchandise' },
+    { name: 'OLD TRAFFORD TOURS', href: '#tours' },
+    { name: 'GALLERY', href: '#gallery' },
+    { name: 'ANNOUNCEMENTS', href: '#announcements' },
+    { name: 'TEAM', href: '#team' },
+    { name: 'CONTACT', href: '#contact' },
+  ];
+
+  return (
+    <>
+      {/* Top Slim Matchday Ticker Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#DA020E] text-white text-[11px] font-mono py-1 px-4 flex items-center justify-between border-b border-white/20 shadow-md">
+        <div className="animate-marquee flex items-center gap-6 whitespace-nowrap">
+          <span className="flex items-center gap-1.5 font-bold">
+            <Flame className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            🔴 NEXT MATCHDAY: MANCHESTER UNITED vs LIVERPOOL
+          </span>
+          <span>• SUN 15 MAR • THE IRISH HOUSE VIMAN NAGAR</span>
+          <span>• 85% PASSES BOOKED • GATES OPEN 07:30 PM IST •</span>
+          <span className="text-amber-300 font-bold">LIMITED SEATS REMAINING</span>
+        </div>
+      </div>
+
+      <header
+        className={`fixed top-7 left-0 right-0 z-40 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-[#08080A]/90 backdrop-blur-md border-b border-[#DA020E]/30 py-3 shadow-2xl'
+            : 'bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Logo Badge */}
+          <Link href="#home" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-xl font-bold text-white shadow-lg shadow-[#DA020E]/40 group-hover:scale-105 transition-transform border border-white/20">
+              MU
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-display tracking-wider font-bold text-lg sm:text-xl text-white group-hover:text-[#DA020E] transition-colors leading-none">
+                  MUSC PUNE
+                </span>
+                <span className="badge-pune text-[9px] font-mono px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                  पुणे
+                </span>
+              </div>
+              <span className="text-[10px] tracking-widest text-neutral-400 uppercase font-mono mt-0.5">
+                Official Supporters Club • EST. 2021
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-7">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-xs font-semibold tracking-wider text-neutral-300 hover:text-[#DA020E] transition-colors uppercase relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#DA020E] hover:after:w-full after:transition-all"
+              >
+                {link.name}
+              </a>
+            ))}
+          </nav>
+
+          {/* Action CTAs */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Cart Trigger */}
+            <button
+              onClick={onOpenCart}
+              className="relative p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 hover:text-white hover:border-[#DA020E] transition-all group"
+              aria-label="View Shopping Cart"
+            >
+              <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#DA020E]" />
+              {totalCartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-[#DA020E] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce shadow-md">
+                  {totalCartCount}
+                </span>
+              )}
+            </button>
+
+            {/* Main Header CTA */}
+            <button
+              onClick={onOpenScreeningModal}
+              className="hidden sm:flex items-center gap-2 bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-sm tracking-wider font-semibold px-4 py-2.5 rounded-xl transition-all glow-united hover:scale-[1.03] active:scale-95 border border-white/20"
+            >
+              <Ticket className="w-4 h-4" />
+              <span>NEXT SCREENING</span>
+            </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 hover:text-white"
+              aria-label="Open Mobile Menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Premium Full-Screen Mobile Menu Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-[#08080A] text-white animate-in fade-in duration-200">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-800">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-lg font-bold">
+                MU
+              </div>
+              <div>
+                <div className="font-display tracking-wider font-bold text-lg">MUSC PUNE</div>
+                <div className="text-[10px] font-mono text-neutral-400">पुणे युनायटED</div>
+              </div>
+            </div>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col justify-between">
+            <div className="flex flex-col gap-5">
+              {navLinks.map((link, idx) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-display text-2xl tracking-wide text-neutral-200 hover:text-[#DA020E] transition-colors py-1 flex items-center justify-between group border-b border-neutral-900"
+                >
+                  <span>{link.name}</span>
+                  <span className="text-xs font-mono text-neutral-600 group-hover:text-[#DA020E]">
+                    0{idx + 1}
+                  </span>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col gap-4">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenScreeningModal();
+                }}
+                className="w-full bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-lg tracking-wider font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#DA020E]/40"
+              >
+                <Ticket className="w-5 h-5" />
+                GET NEXT SCREENING TICKET
+              </button>
+
+              <div className="text-center text-xs font-mono text-neutral-500">
+                MANCHESTER UNITED SUPPORTERS CLUB PUNE • LAL PUNE 🔴
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
