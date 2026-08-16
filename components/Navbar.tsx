@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, Menu, X, Ticket, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Menu, X, Ticket, Plane } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
 
@@ -16,7 +16,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   cartItems = [],
   onOpenCart = () => {},
-  onOpenScreeningModal = () => {},
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,13 +36,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { name: 'HOME', href: '/' },
-    { name: 'ABOUT', href: '/#about' },
+    { name: 'ABOUT', href: '/about' },
     { name: 'SCREENINGS', href: '/screenings' },
     { name: 'MERCH', href: '/merchandise' },
     { name: 'MEMBERSHIP', href: '/membership' },
-    { name: 'TOURS', href: '/tours' },
-    { name: 'GALLERY', href: '/#gallery' },
-    { name: 'TEAM', href: '/team' },
+    { name: 'TRIP TO OLD TRAFFORD', href: '/tours' },
+    { name: 'GALLERY', href: '/gallery' },
+    { name: 'CHANTS', href: '/chants' },
   ];
 
   return (
@@ -82,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden xl:flex items-center gap-5">
+          <nav className="hidden xl:flex items-center gap-4">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -94,15 +93,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
           </nav>
 
-          {/* Action CTAs */}
+          {/* Header Action Buttons */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Secondary CTA: JOIN THE REDS */}
+            {/* Header Action 1: TRIP TO OLD TRAFFORD */}
             <Link
-              href="/membership"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel border border-[#683F39]/50 text-xs font-mono text-[#E7E0CF] hover:border-[#C8102E] transition-all shadow"
+              href="/tours"
+              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 rounded-xl glass-panel border border-[#683F39]/50 text-xs font-mono text-[#E7E0CF] hover:border-[#C8102E] transition-all shadow"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#C8102E]" />
-              <span className="font-bold">JOIN THE REDS</span>
+              <Plane className="w-3.5 h-3.5 text-[#C8102E]" />
+              <span className="font-bold">TRIP TO OLD TRAFFORD</span>
             </Link>
 
             {/* Cart Trigger */}
@@ -119,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Primary CTA: GET SCREENING TICKETS */}
+            {/* Header Action 2: GET SCREENING TICKETS */}
             <Link
               href="/screenings"
               className="hidden sm:flex items-center gap-2 bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-sm tracking-wider font-semibold px-4 py-2.5 rounded-xl transition-all glow-united hover:scale-[1.03] active:scale-95 border border-white/20"
@@ -180,12 +179,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col gap-4">
               <Link
-                href="/membership"
+                href="/tours"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full glass-panel border border-[#683F39] text-[#E7E0CF] font-display text-base tracking-wider font-bold py-3 rounded-xl flex items-center justify-center gap-2"
               >
-                <ShieldCheck className="w-5 h-5 text-[#C8102E]" />
-                JOIN THE REDS
+                <Plane className="w-5 h-5 text-[#C8102E]" />
+                TRIP TO OLD TRAFFORD
               </Link>
 
               <Link

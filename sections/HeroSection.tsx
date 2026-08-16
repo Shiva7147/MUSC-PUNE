@@ -11,9 +11,7 @@ interface HeroSectionProps {
   onOpenScreeningModal?: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({
-  onOpenScreeningModal,
-}) => {
+export const HeroSection: React.FC<HeroSectionProps> = () => {
   // Native Web Audio API Synthesizer for Stadium Crowd Roar
   const playCrowdRoar = () => {
     try {
@@ -52,51 +50,32 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section id="home" className="relative min-h-[92vh] flex items-center justify-center pt-32 pb-24 overflow-hidden bg-[#161513]">
-      {/* Subtle Burgundy Haze & Controlled United Red Accent Spotlights */}
-      <div className="absolute top-0 left-1/3 w-[650px] h-[950px] bg-gradient-to-b from-[#683F39]/30 via-[#C8102E]/08 to-transparent blur-3xl animate-floodlight pointer-events-none z-0" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#683F39]/20 rounded-full blur-[140px] animate-smoke pointer-events-none z-0" />
-
-      {/* Large Soft Watermark Manchester United Crest Background */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-05 pointer-events-none z-0 select-none overflow-hidden" style={{ opacity: 0.05 }}>
-        <svg className="w-[650px] h-[650px] text-[#E7E0CF]" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 5 L85 20 L85 55 C85 75 50 95 50 95 C50 95 15 75 15 55 L15 20 Z" fill="none" stroke="currentColor" strokeWidth="2" />
-          <path d="M30 40 L70 40 M35 55 L65 55 M50 25 L50 75" stroke="currentColor" strokeWidth="2" />
-          <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      </div>
-
-      {/* Full Bleed REAL Photography Background Overlay */}
+    <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-24 overflow-hidden bg-[#161513]">
+      {/* Full Bleed REAL Photography Background Overlay — BRIGHT & VISIBLE (No Dark Tint!) */}
       <div className="absolute inset-0 z-0">
         <Image
           src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
-          alt="MUSC Pune Real Screening Crowd"
+          alt="MUSC Pune Real Matchday Crowd"
           fill
           priority
-          className="object-cover object-center opacity-30 scale-105"
+          className="object-cover object-center brightness-95 opacity-85 transition-transform duration-1000"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#161513] via-[#161513]/80 to-[#161513]/90" />
+        {/* Soft localized gradient at bottom and top for text readability without darkening image */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#161513]/70 via-transparent to-[#161513]/95" />
       </div>
 
       {/* Subtle Grain Overlay */}
-      <div className="absolute inset-0 bg-grain opacity-20 pointer-events-none z-0" />
-      <div className="absolute inset-0 bg-pitch-lines opacity-15 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-grain opacity-15 pointer-events-none z-0" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center space-y-8 my-auto">
-        {/* Floating Glass Metadata Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-[#683F39]/50 text-xs font-mono font-bold text-[#E7E0CF] shadow-xl">
-          <span className="w-2 h-2 rounded-full bg-[#C8102E] animate-pulse" />
-          <span>01 / MATCHDAY • PUNE, INDIA • EST. 2021</span>
-        </div>
-
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center space-y-8 my-auto">
         {/* Dynamic Editorial Headline in Jersey Ivory */}
         <div className="space-y-4">
-          <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-[#E7E0CF] leading-none uppercase drop-shadow-2xl">
+          <h1 className="font-display text-6xl sm:text-8xl md:text-9xl font-bold tracking-tight text-[#E7E0CF] leading-none uppercase drop-shadow-[0_10px_20px_rgba(0,0,0,0.9)]">
             PUNE. <span className="text-[#C8102E]">UNITED.</span> ALWAYS.
           </h1>
 
-          <p className="text-base sm:text-xl text-[#E7E0CF]/80 font-sans max-w-2xl mx-auto font-light leading-relaxed">
-            Where Manchester United supporters in Pune come together. High-decibel screening venues, official merchandise drops, and group trips to Old Trafford.
+          <p className="text-base sm:text-xl text-[#E7E0CF] font-sans max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]">
+            Where Manchester United supporters in Pune come together. High-decibel screening venues, official merchandise, and group trips to Old Trafford.
           </p>
         </div>
 
@@ -104,7 +83,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
           <Link
             href="/screenings"
-            className="w-full sm:w-auto flex-1 bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-xl glow-united flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+            className="w-full sm:w-auto flex-1 bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-2xl glow-united flex items-center justify-center gap-2 transition-all hover:scale-[1.03]"
           >
             <Ticket className="w-5 h-5" />
             <span>GET SCREENING TICKETS</span>
@@ -112,17 +91,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           <Link
             href="/membership"
-            className="w-full sm:w-auto flex-1 glass-card border border-[#683F39]/50 text-[#E7E0CF] font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 hover:border-[#C8102E] transition-all"
+            className="w-full sm:w-auto flex-1 glass-panel border border-[#E7E0CF]/40 text-[#E7E0CF] font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 hover:border-[#C8102E] hover:bg-black/60 transition-all shadow-xl"
           >
-            <span>JOIN THE REDS</span>
+            <span>JOIN MUSC PUNE</span>
           </Link>
         </div>
 
         {/* Audio Teaser */}
-        <div className="pt-4">
+        <div className="pt-2">
           <button
             onClick={playCrowdRoar}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border border-[#683F39]/40 hover:border-[#C8102E] text-xs font-mono text-[#E7E0CF]/80 hover:text-[#E7E0CF] transition-all active:scale-95 shadow-md"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border border-[#E7E0CF]/30 hover:border-[#C8102E] text-xs font-mono text-[#E7E0CF] transition-all active:scale-95 shadow-lg"
           >
             <Volume2 className="w-4 h-4 text-[#C8102E] animate-bounce" />
             <span>TAP TO HEAR PUNE REDS ROAR</span>

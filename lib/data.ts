@@ -19,7 +19,7 @@ export const upcomingScreenings: Screening[] = [
     price: 350,
     featured: true,
     status: 'FILLING_FAST',
-    description: 'The biggest fixture in world football! Join 300+ Pune Reds at The Irish House for an iconic stadium-like matchday screening with chant sessions, high-decibel surround audio, exclusive merchandise giveaways, and food vouchers.',
+    description: '90 minutes. One room. Everyone singing. Join 300+ Pune Reds at The Irish House for an iconic matchday screening with high-decibel audio, chant sessions, and food vouchers.',
     gateOpening: '07:30 PM IST',
     inclusions: [
       'Guaranteed Entry to Main Stadium Screening Arena',
@@ -50,7 +50,7 @@ export const upcomingScreenings: Screening[] = [
     price: 300,
     featured: false,
     status: 'UPCOMING',
-    description: 'A classic rivalry under the night lights of Koregaon Park. Big screen projection, open-air garden matchday atmosphere, live DJ pre-match chant sets, and cold beverages.',
+    description: 'A classic rivalry under the night lights of Koregaon Park. Big screen projection, open-air terrace atmosphere, and pre-match chant sets.',
     gateOpening: '08:30 PM IST',
     inclusions: [
       'Access to Open-Air Garden Screening Zone',
@@ -78,7 +78,7 @@ export const upcomingScreenings: Screening[] = [
     price: 400,
     featured: false,
     status: 'UPCOMING',
-    description: 'Derby Day in Pune! The city turns red as we battle for bragging rights. Massive LED screens, custom red stadium lighting, and 400+ passionate supporters singing loud and proud.',
+    description: 'Derby Day in Pune. The city turns red as we battle for bragging rights. Massive LED screens, custom stadium lighting, and 400+ passionate supporters.',
     gateOpening: '06:30 PM IST',
     inclusions: [
       'Prime Seating with Unobstructed LED View',
@@ -95,38 +95,37 @@ export const upcomingScreenings: Screening[] = [
 export const merchandiseProducts: Product[] = [
   {
     id: 'merch-scarf',
-    name: 'Official MUSC Pune Supporter Scarf',
+    name: 'Manchester United Supporter Scarf',
     category: 'Accessories',
     price: 799,
     originalPrice: 999,
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865350/pune-mufc-scarf-600x600_q27exs.png',
-    description: 'Heavy knit classic football terrace scarf with red, black, and ivory detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE". Essential matchday gear.',
+    description: 'Classic football terrace scarf with red, black, and ivory detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE". Essential matchday gear.',
     availableSizes: ['ONE SIZE'],
     inStock: true,
     badge: 'OFFICIAL MERCH • BESTSELLER',
     details: [
-      '100% High-bulk soft acrylic Jacquard knit',
-      '145 cm length with traditional tassels',
+      'High-bulk soft acrylic Jacquard knit',
+      'Traditional tassel finish',
       'Double-sided woven Pune Reds crest branding',
       'Essential matchday accessory for screenings'
     ]
   },
   {
     id: 'merch-mug',
-    name: 'Official MUSC Pune Ceramic Mug',
+    name: 'MUFC Mug',
     category: 'Accessories',
     price: 499,
     originalPrice: 649,
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865356/IMG_8440-600x600_klqhi3.jpg',
-    description: 'Official Supporters Club Pune ceramic mug with high-gloss finish, featuring the authentic Pune Reds emblem.',
-    availableSizes: ['350 ML'],
+    description: 'Official Supporters Club Pune ceramic mug with high-gloss finish, featuring the authentic emblem.',
+    availableSizes: ['STANDARD'],
     inStock: true,
     badge: 'OFFICIAL MERCH',
     details: [
       'High-grade ceramic construction',
-      'Microwave and dishwasher safe',
-      'High-density fade-proof emblem print',
-      'Official Supporters Club Pune authenticity seal'
+      'Fade-proof emblem print',
+      'Official Supporters Club Pune seal'
     ]
   }
 ];
@@ -134,19 +133,19 @@ export const merchandiseProducts: Product[] = [
 export const oldTraffordTours: TourPackage[] = [
   {
     id: 'tour-autumn-2026',
-    title: 'Old Trafford Pilgrimage — Autumn 2026',
+    title: 'Old Trafford Group Trip',
     duration: '7 Days / 6 Nights',
     nextBatch: 'October 18 – 24, 2026',
     matchHighlights: ['Stretford End Tier 1 Ticket', 'Private Museum & Stadium Tour', 'First-Team Training Session Access'],
     includedFeatures: [
-      'Guaranteed Category-1 Match Ticket for Premier League Fixture',
-      'Group Flight Trajectory Assistance (PNQ ➔ BOM ➔ MAN)',
-      '4-Star Hotel Stay at Salford Quays near Old Trafford',
-      'Exclusive Access to Manchester Local Supporters Meet',
-      'Guided City Tour & National Football Museum Pass'
+      'Guaranteed Match Ticket for Premier League Fixture',
+      'Group Flight Assistance (PNQ ➔ MAN)',
+      'Hotel Stay near Old Trafford',
+      'Exclusive Manchester Supporters Meetup',
+      'Guided City & Stadium Tour'
     ],
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
-    description: 'Fly out with fellow Pune Reds from PNQ to Manchester to witness United live at the Theatre of Dreams. From singing in the Stretford End to exploring Sir Matt Busby Way, experience the ultimate football pilgrimage.'
+    description: 'From Pune to Old Trafford. Fly out with fellow Pune Reds from PNQ to Manchester to witness United live at the Theatre of Dreams.'
   }
 ];
 
@@ -365,9 +364,9 @@ export const announcements: Announcement[] = [
     id: 'ann-03',
     category: 'MERCH DROP',
     date: 'February 10, 2026',
-    title: 'New Drop: Official MUSC Pune Scarves & Ceramic Mugs',
+    title: 'New Drop: Official Manchester United Supporter Scarves & MUFC Mugs',
     snippet: 'The official supporters club merchandise line featuring traditional woven scarves and emblem mugs has dropped on our storefront.',
-    content: 'Designed in Pune for Pune Reds. Our latest merch line celebrates the intersection of Red Football heritage and Pune city youth culture. Available for pickup at screenings or home delivery across Pune pin codes.',
+    content: 'Designed for Pune Reds. Our latest merch line celebrates the intersection of Red Football heritage and Pune city youth culture. Available for pickup at screenings or home delivery across Pune pin codes.',
     readTime: '1 min read'
   }
 ];
