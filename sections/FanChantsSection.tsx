@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, Play, Pause, Mic2, Activity } from 'lucide-react';
+import { Volume2, Play, Pause, Mic2 } from 'lucide-react';
 import { FanChant } from '@/lib/types';
 
 interface FanChantsSectionProps {
@@ -82,7 +82,10 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
   return (
     <section id="chants" className="py-24 bg-[#08080A] relative border-t border-neutral-900 overflow-hidden">
       {/* Giant Typography Background Overlays */}
-      <div className="absolute top-10 left-0 right-0 flex justify-between font-display text-8xl md:text-9xl font-bold opacity-05 text-white pointer-events-none select-none">
+      <div
+        className="absolute top-10 left-0 right-0 flex justify-between font-display text-8xl md:text-9xl font-bold text-white pointer-events-none select-none"
+        style={{ opacity: 0.04 }}
+      >
         <span>GGMU</span>
         <span>GLORY GLORY</span>
         <span>UNITED ROAD</span>

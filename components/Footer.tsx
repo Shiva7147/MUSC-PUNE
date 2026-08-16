@@ -2,13 +2,16 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Camera, Globe, Share2, Mail, MapPin, Heart, Shield } from 'lucide-react';
+import { Camera, Globe, Share2, Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-[#050507] text-white pt-20 pb-12 border-t border-neutral-900 relative overflow-hidden">
-      {/* Background Subtle Marathi Typography Texture */}
-      <div className="absolute top-10 right-10 font-display text-9xl font-bold opacity-05 select-none pointer-events-none text-white">
+      {/* Background Subtle Marathi Typography Texture - Strictly Soft Background Watermark */}
+      <div
+        className="absolute top-10 right-6 font-display text-8xl md:text-9xl font-bold select-none pointer-events-none text-white/5 z-0"
+        style={{ opacity: 0.04 }}
+      >
         पुणे युनायटED
       </div>
 
@@ -90,7 +93,10 @@ export const Footer: React.FC = () => {
 
         {/* Large Outlined Brand Statement Banner */}
         <div className="pt-12 text-center">
-          <div className="font-display text-5xl sm:text-7xl lg:text-9xl font-bold tracking-tighter text-white/05 uppercase select-none">
+          <div
+            className="font-display text-5xl sm:text-7xl lg:text-9xl font-bold tracking-tighter text-white/5 uppercase select-none"
+            style={{ opacity: 0.05 }}
+          >
             PUNE IS UNITED
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-neutral-500 pt-6 border-t border-neutral-900 gap-4">
