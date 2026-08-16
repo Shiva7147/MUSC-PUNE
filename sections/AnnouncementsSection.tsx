@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Bell, ArrowRight, X, Clock, Calendar } from 'lucide-react';
+import { Bell, Calendar, ArrowRight, X, Clock, Tag } from 'lucide-react';
 import { Announcement } from '@/lib/types';
 
 interface AnnouncementsSectionProps {
@@ -13,98 +13,135 @@ export const AnnouncementsSection: React.FC<AnnouncementsSectionProps> = ({
 }) => {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
 
+  const featured = announcements[0];
+  const supporting = announcements.slice(1);
+
   return (
-    <section id="announcements" className="py-24 bg-[#0B0B0B] relative border-t border-neutral-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="announcements" className="py-24 bg-[#0A0A0E] relative border-t border-neutral-900 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#C8102E] font-bold tracking-widest uppercase">
-            <Bell className="w-4 h-4" />
-            <span>CLUB BULLETIN</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-mono text-[#DA020E] font-bold tracking-widest uppercase">
+              <Bell className="w-4 h-4" />
+              <span>LIVE SUPPORTERS FEED</span>
+            </div>
+            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
+              PUNE REDS <span className="text-[#DA020E]">DISPATCHES</span>
+            </h2>
+            <p className="text-sm text-neutral-400 max-w-xl mt-2 font-sans">
+              Official notices regarding matchday screenings, Old Trafford tour registrations, kit drops, and club news.
+            </p>
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
-            COMMUNITY <span className="text-[#C8102E]">ANNOUNCEMENTS</span>
-          </h2>
-          <p className="text-sm text-neutral-400 max-w-xl mt-2 font-sans">
-            Stay updated with official matchday screening dates, merchandise drops, and tour applications.
-          </p>
+
+          <div className="badge-united text-xs font-mono px-3 py-1.5 rounded-lg font-bold">
+            🔴 LIVE EDITORIAL TIMELINE
+          </div>
         </div>
 
-        {/* Announcements Feed Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {announcements.map((ann) => (
-            <div
-              key={ann.id}
-              className="bg-neutral-900 border border-neutral-800 hover:border-[#C8102E]/40 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between space-y-4 shadow-xl"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-[10px] font-mono">
-                  <span className="px-2.5 py-1 rounded bg-[#C8102E]/10 border border-[#C8102E]/30 text-[#C8102E] font-bold uppercase">
-                    {ann.category}
+        {/* Editorial Feed Grid: 1 Large Feature + Supporting Stack */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Large Hero Featured Announcement */}
+          {featured && (
+            <div className="lg:col-span-7 glass-card rounded-3xl p-8 flex flex-col justify-between space-y-6 relative overflow-hidden border-2 border-[#DA020E]/50 shadow-2xl">
+              <div>
+                <div className="flex items-center justify-between border-b border-neutral-800 pb-3 mb-4">
+                  <span className="badge-united text-[10px] font-mono px-2.5 py-0.5 rounded font-bold uppercase">
+                    {featured.category}
                   </span>
-                  <span className="text-neutral-500">{ann.date}</span>
+                  <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+                    <Calendar className="w-3.5 h-3.5 text-[#DA020E]" />
+                    <span>{featured.date}</span>
+                  </div>
                 </div>
 
-                <h3 className="font-display text-xl font-bold text-white group-hover:text-[#C8102E] transition-colors leading-snug">
-                  {ann.title}
+                <h3 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight">
+                  {featured.title}
                 </h3>
 
-                <p className="text-xs text-neutral-400 line-clamp-3 leading-relaxed font-sans">
-                  {ann.snippet}
+                <p className="text-sm text-neutral-300 mt-4 leading-relaxed font-sans">
+                  {featured.snippet}
                 </p>
               </div>
 
               <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-neutral-400" />
-                  {ann.readTime}
-                </span>
+                <span className="text-xs font-mono text-neutral-500">{featured.readTime || '2 min read'}</span>
 
                 <button
-                  onClick={() => setSelectedAnnouncement(ann)}
-                  className="text-xs font-mono font-bold text-[#C8102E] hover:text-white flex items-center gap-1 transition-colors"
+                  onClick={() => setSelectedAnnouncement(featured)}
+                  className="bg-[#DA020E] hover:bg-[#8C0008] text-white font-display text-xs tracking-wider font-bold py-3 px-5 rounded-xl flex items-center gap-1.5 transition-all shadow-lg glow-united"
                 >
-                  <span>READ MORE</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>READ FULL DISPATCH</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
-          ))}
+          )}
+
+          {/* Supporting Side Timeline Stack */}
+          <div className="lg:col-span-5 space-y-4">
+            {supporting.map((ann) => (
+              <div
+                key={ann.id}
+                onClick={() => setSelectedAnnouncement(ann)}
+                className="glass-panel hover:border-[#DA020E]/60 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 cursor-pointer space-y-3 group"
+              >
+                <div className="flex items-center justify-between text-xs font-mono text-neutral-400">
+                  <span className="badge-pune text-[9px] px-2 py-0.5 rounded font-bold uppercase">
+                    {ann.category}
+                  </span>
+                  <span>{ann.date}</span>
+                </div>
+
+                <h4 className="font-display text-xl font-bold text-white group-hover:text-[#DA020E] transition-colors leading-snug">
+                  {ann.title}
+                </h4>
+
+                <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed">
+                  {ann.snippet}
+                </p>
+
+                <div className="pt-2 flex items-center gap-1 text-xs font-mono text-[#DA020E] font-bold">
+                  <span>READ DISPATCH</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Reader Modal */}
+      {/* Dispatch Modal */}
       {selectedAnnouncement && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-neutral-800 rounded-2xl max-w-lg w-full p-6 text-white space-y-4 relative animate-in zoom-in-95 duration-200">
+          <div className="bg-[#0F0F14] border border-[#DA020E]/40 rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative text-white">
             <button
               onClick={() => setSelectedAnnouncement(null)}
-              className="absolute top-4 right-4 p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white"
+              className="absolute top-6 right-6 p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-[10px] font-mono">
-              <span className="px-2.5 py-1 rounded bg-[#C8102E] text-white font-bold uppercase">
+            <div className="space-y-2">
+              <span className="badge-united text-[10px] font-mono px-2.5 py-0.5 rounded uppercase font-bold">
                 {selectedAnnouncement.category}
               </span>
-              <span className="text-neutral-500">{selectedAnnouncement.date}</span>
+              <div className="text-xs font-mono text-neutral-400">{selectedAnnouncement.date}</div>
+              <h3 className="font-display text-3xl font-bold text-white leading-tight">
+                {selectedAnnouncement.title}
+              </h3>
             </div>
 
-            <h3 className="font-display text-2xl font-bold text-white leading-tight">
-              {selectedAnnouncement.title}
-            </h3>
-
-            <div className="text-xs text-neutral-300 leading-relaxed font-sans border-t border-b border-neutral-800 py-4 my-2">
-              {selectedAnnouncement.content}
+            <div className="text-xs text-neutral-300 font-sans space-y-3 leading-relaxed border-t border-neutral-800 pt-4">
+              <p>{selectedAnnouncement.content}</p>
             </div>
 
-            <div className="flex justify-end">
+            <div className="pt-4 border-t border-neutral-800 flex justify-end">
               <button
                 onClick={() => setSelectedAnnouncement(null)}
-                className="bg-[#C8102E] hover:bg-[#870019] text-white font-display text-xs font-bold px-6 py-2.5 rounded-lg"
+                className="bg-[#DA020E] hover:bg-[#8C0008] text-white font-display text-xs font-bold px-6 py-2.5 rounded-xl"
               >
-                CLOSE BULLETIN
+                CLOSE DISPATCH
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, Play, Pause, Mic2, Activity, VolumeX } from 'lucide-react';
+import { Volume2, Play, Pause, Mic2, Activity } from 'lucide-react';
 import { FanChant } from '@/lib/types';
 
 interface FanChantsSectionProps {
@@ -12,7 +12,7 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [activeLineIdx, setActiveLineIdx] = useState<number>(0);
 
-  // Web Audio API Synthesizer for Chant / Whistle & Crowd Sounds
+  // Web Audio API Synthesizer for Chant & Crowd Sounds
   const playSynthesizedChant = (chantId: string) => {
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -69,7 +69,6 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
       setPlayingId(id);
       playSynthesizedChant(id);
 
-      // Simulate karaoke lyrics highlighting loop
       let line = 0;
       const interval = setInterval(() => {
         line = (line + 1) % 6;
@@ -81,39 +80,42 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
   };
 
   return (
-    <section id="chants" className="py-24 bg-[#070707] relative border-t border-neutral-900 overflow-hidden">
-      {/* Marquee Banner Top */}
-      <div className="bg-[#C8102E] text-white py-3 font-display text-xl font-bold tracking-wider uppercase overflow-hidden whitespace-nowrap mb-12 shadow-xl border-y border-white/20">
-        <div className="animate-marquee flex gap-8">
-          <span>🔴 GLORY GLORY MANCHESTER UNITED • 20 TIMES IN PUNE • TAKE ME HOME UNITED ROAD • OH KEANO MAGIC HAT • </span>
-          <span>🔴 GLORY GLORY MANCHESTER UNITED • 20 TIMES IN PUNE • TAKE ME HOME UNITED ROAD • OH KEANO MAGIC HAT • </span>
-        </div>
+    <section id="chants" className="py-24 bg-[#08080A] relative border-t border-neutral-900 overflow-hidden">
+      {/* Giant Typography Background Overlays */}
+      <div className="absolute top-10 left-0 right-0 flex justify-between font-display text-8xl md:text-9xl font-bold opacity-05 text-white pointer-events-none select-none">
+        <span>GGMU</span>
+        <span>GLORY GLORY</span>
+        <span>UNITED ROAD</span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header & Decibel Gauge Widget */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header & Soundwave Indicator */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-[#C8102E] font-bold tracking-widest uppercase">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#DA020E] font-bold tracking-widest uppercase">
               <Mic2 className="w-4 h-4" />
               <span>TERRACE NOISE VAULT</span>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
-              PUNE REDS <span className="text-[#C8102E]">FAN CHANTS</span>
+              PUNE REDS <span className="text-[#DA020E]">FAN CHANTS</span>
             </h2>
             <p className="text-sm text-neutral-400 max-w-xl mt-2 font-sans">
-              Learn the chant lyrics sung loudest at our Pune matchday screenings with real-time Web Audio synthesis.
+              Learn the chant lyrics sung loudest at our Pune matchday screenings with real-time Web Audio crowd synthesis.
             </p>
           </div>
 
-          {/* Decibel Noise Gauge */}
-          <div className="p-4 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-[#C8102E]/20 text-[#C8102E] border border-[#C8102E]/40">
-              <Activity className="w-6 h-6 animate-pulse" />
+          {/* Sound Wave Frequency Graphic */}
+          <div className="p-4 rounded-2xl glass-panel border border-neutral-800 flex items-center gap-4">
+            <div className="flex items-end gap-1 h-8">
+              <span className="w-1 bg-[#DA020E] h-4 animate-pulse" />
+              <span className="w-1 bg-[#DA020E] h-7 animate-pulse" />
+              <span className="w-1 bg-[#DA020E] h-3 animate-pulse" />
+              <span className="w-1 bg-[#DA020E] h-8 animate-pulse" />
+              <span className="w-1 bg-[#DA020E] h-5 animate-pulse" />
             </div>
             <div>
-              <div className="text-[10px] font-mono text-neutral-400 uppercase">MAX DECIBELS RECORDED</div>
-              <div className="font-display text-2xl font-bold text-white">
+              <div className="text-[10px] font-mono text-neutral-400 uppercase">MAX TERRACE NOISE</div>
+              <div className="font-display text-xl font-bold text-white">
                 118 dB <span className="text-xs font-mono text-amber-400 font-normal">@ EFFINGUT KP</span>
               </div>
             </div>
@@ -127,9 +129,9 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
             return (
               <div
                 key={ch.id}
-                className={`bg-neutral-900 border ${
-                  isPlaying ? 'border-[#C8102E] shadow-2xl glow-neon-red' : 'border-neutral-800'
-                } rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between space-y-6 relative overflow-hidden`}
+                className={`glass-card rounded-3xl p-6 flex flex-col justify-between space-y-6 relative overflow-hidden ${
+                  isPlaying ? 'border-[#DA020E] shadow-2xl glow-united' : ''
+                }`}
               >
                 <div>
                   <div className="flex items-center justify-between border-b border-neutral-800 pb-3 mb-4">
@@ -137,13 +139,12 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
                       {ch.origin}
                     </span>
 
-                    {/* Interactive Web Audio Synthesizer Button */}
                     <button
                       onClick={() => togglePlay(ch.id)}
                       className={`p-3 rounded-full border transition-all ${
                         isPlaying
-                          ? 'bg-[#C8102E] text-white border-[#C8102E] animate-pulse'
-                          : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:text-white hover:border-[#C8102E]'
+                          ? 'bg-[#DA020E] text-white border-[#DA020E] animate-pulse'
+                          : 'glass-panel text-neutral-300 border-neutral-700 hover:text-white hover:border-[#DA020E]'
                       }`}
                     >
                       {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
@@ -151,16 +152,15 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
                   </div>
 
                   <h3 className="font-display text-2xl font-bold text-white mb-1">{ch.title}</h3>
-                  <p className="text-[11px] font-mono text-[#C8102E] mb-4">{ch.popularContext}</p>
+                  <p className="text-[11px] font-mono text-[#DA020E] mb-4">{ch.popularContext}</p>
 
-                  {/* Karaoke Highlight Lyrics Box */}
-                  <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-850 space-y-2 font-mono text-xs text-neutral-300 italic">
+                  <div className="bg-neutral-950/90 p-4 rounded-2xl border border-neutral-850 space-y-2 font-mono text-xs text-neutral-300 italic">
                     {ch.lyrics.map((line, idx) => (
                       <p
                         key={idx}
                         className={`transition-colors ${
                           isPlaying && activeLineIdx === idx
-                            ? 'text-[#C8102E] font-bold not-italic scale-[1.02] bg-[#C8102E]/10 p-1 rounded border-l-2 border-[#C8102E]'
+                            ? 'text-[#DA020E] font-bold not-italic scale-[1.02] bg-[#DA020E]/10 p-1 rounded border-l-2 border-[#DA020E]'
                             : idx % 2 === 0
                             ? 'text-white font-semibold'
                             : 'text-neutral-400'
@@ -174,10 +174,10 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
 
                 <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-2 border-t border-neutral-800">
                   <span className="flex items-center gap-1.5 text-neutral-300">
-                    <Volume2 className="w-3.5 h-3.5 text-[#C8102E]" />
-                    {isPlaying ? 'WEB AUDIO SYNTH ROAR PLAYING...' : 'AUDIO SYNTH READY'}
+                    <Volume2 className="w-3.5 h-3.5 text-[#DA020E]" />
+                    {isPlaying ? 'WEB AUDIO SYNTH PLAYING...' : 'AUDIO SYNTH READY'}
                   </span>
-                  <span className="text-[#C8102E] font-bold">PUNE ULTRAS</span>
+                  <span className="text-[#DA020E] font-bold">PUNE ULTRAS</span>
                 </div>
               </div>
             );

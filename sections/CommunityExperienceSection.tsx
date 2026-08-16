@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Tv, Mic, Sparkles, Plane, ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
+import { Users, Tv, Mic2, Plane, Shirt } from 'lucide-react';
 
 export const CommunityExperienceSection: React.FC = () => {
   const pillars = [
@@ -9,85 +10,78 @@ export const CommunityExperienceSection: React.FC = () => {
       num: '01',
       title: 'WATCH TOGETHER',
       icon: Tv,
-      tag: 'SCREENINGS',
-      desc: '300+ Reds packed under red-lit venues in Viman Nagar & Koregaon Park with dual projectors and surround audio.',
-      accent: 'border-[#C8102E]/30 hover:border-[#C8102E]',
+      desc: '300+ Pune Reds packed into Viman Nagar and Koregaon Park screening arenas under high-decibel sound systems.',
+      image: '/images/screening.jpg',
     },
     {
       num: '02',
       title: 'SING TOGETHER',
-      icon: Mic,
-      tag: 'FAN CHANTS',
-      desc: 'From "20 Times" to "Glory Glory", chant loud and proud led by our Pune Ultra chant leaders every matchday.',
-      accent: 'border-[#C8102E]/30 hover:border-[#C8102E]',
+      icon: Mic2,
+      desc: 'Terrace ultras chanting 20 Times and Glory Glory Man United till midnight.',
+      image: '/images/hero.jpg',
     },
     {
       num: '03',
-      title: 'CELEBRATE TOGETHER',
-      icon: Sparkles,
-      tag: 'CULTURE & MERCH',
-      desc: 'Exclusive matchday jersey giveaways, banner painting sessions, and limited Pune x United gear drops.',
-      accent: 'border-[#C8102E]/30 hover:border-[#C8102E]',
+      title: 'TRAVEL TOGETHER',
+      icon: Plane,
+      desc: 'Group pilgrimages from Pune (PNQ) directly to Old Trafford and Sir Matt Busby Way.',
+      image: '/images/tour.jpg',
     },
     {
       num: '04',
-      title: 'TRAVEL TOGETHER',
-      icon: Plane,
-      tag: 'OLD TRAFFORD',
-      desc: 'Fly out as an official Pune delegation to Manchester, walk down Sir Matt Busby Way, and take your seat in Stretford End.',
-      accent: 'border-[#C8102E]/30 hover:border-[#C8102E]',
+      title: 'REPRESENT TOGETHER',
+      icon: Shirt,
+      desc: 'Wearing the official 300 GSM heavyweight Pune Reds matchday streetwear kit.',
+      image: '/images/merchandise.jpg',
     },
   ];
 
   return (
-    <section className="py-24 bg-[#0B0B0B] relative border-t border-neutral-900">
+    <section className="py-24 bg-[#0A0A0E] relative border-t border-neutral-900 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs font-mono text-[#C8102E] font-bold tracking-widest uppercase">
-            THE FOUR PILLARS OF PUNE REDS
-          </span>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-2 uppercase">
-            SUPPORTERS <span className="text-[#C8102E]">MATCHDAY CULTURE</span>
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 text-xs font-mono text-[#DA020E] font-bold tracking-widest uppercase">
+            <Users className="w-4 h-4" />
+            <span>PUNE REDS CULTURE PILLARS</span>
+          </div>
+          <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase">
+            ONE CLUB. <span className="text-[#DA020E]">ONE COMMUNITY.</span>
           </h2>
-          <p className="text-sm text-neutral-400 mt-3 font-sans">
-            Built by supporters, for supporters. Here is how we live the Manchester United experience in Pune.
+          <p className="text-sm text-neutral-400 font-sans">
+            How Manchester United supporters come together across Pune, Maharashtra.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Asymmetrical Campaign Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {pillars.map((p) => {
-            const IconComponent = p.icon;
+            const IconComp = p.icon;
             return (
               <div
                 key={p.num}
-                className={`bg-neutral-900/70 border ${p.accent} rounded-2xl p-8 transition-all duration-300 hover:-translate-y-1.5 group flex flex-col justify-between space-y-6 shadow-xl relative overflow-hidden`}
+                className="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-6 relative overflow-hidden group hover:border-[#DA020E]"
               >
-                <div className="absolute right-4 top-4 font-display text-6xl font-bold text-neutral-800/40 select-none group-hover:text-[#C8102E]/10 transition-colors">
-                  {p.num}
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black border border-neutral-800">
+                  <Image
+                    src={p.image}
+                    alt={p.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                  <span className="absolute top-3 left-3 bg-[#DA020E] text-white font-mono text-xs font-bold px-2.5 py-0.5 rounded">
+                    {p.num}
+                  </span>
                 </div>
 
-                <div className="space-y-4 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-[#C8102E]/10 border border-[#C8102E]/30 flex items-center justify-center text-[#C8102E]">
-                    <IconComponent className="w-6 h-6" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-display font-bold text-[#DA020E]">
+                    <IconComp className="w-4 h-4" />
+                    <span>{p.title}</span>
                   </div>
-
-                  <div>
-                    <span className="text-[10px] font-mono tracking-widest text-neutral-500 uppercase">
-                      {p.tag}
-                    </span>
-                    <h3 className="font-display text-2xl font-bold text-white group-hover:text-[#C8102E] transition-colors mt-0.5">
-                      {p.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs text-neutral-300 leading-relaxed font-sans">
+                  <p className="text-xs text-neutral-400 font-mono leading-relaxed">
                     {p.desc}
                   </p>
-                </div>
-
-                <div className="pt-4 border-t border-neutral-800/80 flex items-center justify-between text-xs font-mono text-neutral-400 group-hover:text-white transition-colors relative z-10">
-                  <span>MUSC PUNE EXPERIENCE</span>
-                  <ArrowUpRight className="w-4 h-4 text-[#C8102E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
             );

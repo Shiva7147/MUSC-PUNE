@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Ticket, ChevronRight, Volume2, Shield } from 'lucide-react';
+import { Ticket, ArrowRight, Volume2, Shield } from 'lucide-react';
 import { Screening } from '@/lib/types';
 
 interface HeroSectionProps {
@@ -52,11 +52,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#08080A]">
-      {/* Stadium Spotlight Sweeps */}
-      <div className="absolute top-0 left-1/3 w-[600px] h-[900px] bg-gradient-to-b from-[#DA020E]/25 via-[#DA020E]/08 to-transparent blur-3xl animate-floodlight pointer-events-none z-0" />
+    <section id="home" className="relative min-h-[92vh] flex items-center justify-center pt-32 pb-24 overflow-hidden bg-[#08080A]">
+      {/* Stadium Spotlight Sweeps & Ambient Red Haze */}
+      <div className="absolute top-0 left-1/3 w-[650px] h-[950px] bg-gradient-to-b from-[#DA020E]/30 via-[#DA020E]/08 to-transparent blur-3xl animate-floodlight pointer-events-none z-0" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#8C0008]/30 rounded-full blur-[140px] animate-smoke pointer-events-none z-0" />
 
-      {/* Large Soft Watermark Manchester United Crest Graphic Background */}
+      {/* Large Soft Watermark Manchester United Crest Background */}
       <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none z-0 select-none overflow-hidden">
         <svg className="w-[650px] h-[650px] text-white" viewBox="0 0 100 100" fill="currentColor">
           <path d="M50 5 L85 20 L85 55 C85 75 50 95 50 95 C50 95 15 75 15 55 L15 20 Z" fill="none" stroke="currentColor" strokeWidth="2" />
@@ -65,36 +66,37 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </svg>
       </div>
 
-      {/* Background Image Overlay */}
+      {/* Full Bleed Real Photography Background Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero.jpg"
           alt="MUSC Pune Crowd"
           fill
           priority
-          className="object-cover object-center opacity-25 scale-105"
+          className="object-cover object-center opacity-30 scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/75 to-black/85" />
       </div>
 
-      {/* Pitch Lines Grid */}
+      {/* Subtle Grain Overlay */}
+      <div className="absolute inset-0 bg-grain opacity-20 pointer-events-none z-0" />
       <div className="absolute inset-0 bg-pitch-lines opacity-15 pointer-events-none z-0" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center space-y-8 my-auto">
-        {/* Single Clean Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/80 border border-[#DA020E]/40 text-xs font-mono font-bold text-white shadow-lg">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center space-y-8 my-auto">
+        {/* Floating Glass Metadata Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-[#DA020E]/40 text-xs font-mono font-bold text-white shadow-xl">
           <span className="w-2 h-2 rounded-full bg-[#DA020E] animate-pulse" />
-          <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
+          <span>01 / MATCHDAY • PUNE, INDIA • EST. 2021</span>
         </div>
 
-        {/* Clean Hero Headline */}
+        {/* Dynamic Editorial Headline */}
         <div className="space-y-4">
           <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-white leading-none uppercase drop-shadow-2xl">
             PUNE. <span className="text-[#DA020E]">UNITED.</span> ALWAYS.
           </h1>
 
           <p className="text-base sm:text-xl text-neutral-300 font-sans max-w-2xl mx-auto font-light leading-relaxed">
-            The home of Manchester United supporters in Pune. High-decibel screening venues, official merchandise drops, and group trips to Old Trafford.
+            Where Manchester United supporters in Pune come together. High-decibel screening venues, official merchandise drops, and group trips to Old Trafford.
           </p>
         </div>
 
@@ -102,25 +104,25 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
           <Link
             href="/screenings"
-            className="w-full sm:w-auto flex-1 bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-xl glow-united flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+            className="w-full sm:w-auto flex-1 bg-[#DA020E] hover:bg-[#8C0008] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-xl glow-united flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
           >
             <Ticket className="w-5 h-5" />
             <span>GET SCREENING TICKETS</span>
           </Link>
 
-          <a
-            href="#about"
-            className="w-full sm:w-auto flex-1 bg-neutral-900/90 border border-neutral-700 text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 hover:border-[#DA020E] transition-all"
+          <Link
+            href="/membership"
+            className="w-full sm:w-auto flex-1 glass-card border border-neutral-700 text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 hover:border-[#DA020E] transition-all"
           >
-            <span>DISCOVER MUSC PUNE</span>
-          </a>
+            <span>JOIN THE REDS</span>
+          </Link>
         </div>
 
-        {/* Sound Synth Audio Teaser Pill */}
-        <div className="pt-6">
+        {/* Audio Teaser */}
+        <div className="pt-4">
           <button
             onClick={playCrowdRoar}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/90 border border-neutral-800 hover:border-[#DA020E] text-xs font-mono text-neutral-300 hover:text-white transition-all active:scale-95 shadow-md"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border border-neutral-800 hover:border-[#DA020E] text-xs font-mono text-neutral-300 hover:text-white transition-all active:scale-95 shadow-md"
           >
             <Volume2 className="w-4 h-4 text-[#DA020E] animate-bounce" />
             <span>TAP TO HEAR PUNE REDS ROAR</span>

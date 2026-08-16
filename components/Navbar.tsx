@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Menu, X, Ticket, Flame, Plane } from 'lucide-react';
+import { ShoppingBag, Menu, X, Ticket, ShieldCheck, Plane } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 
 interface NavbarProps {
@@ -37,32 +37,20 @@ export const Navbar: React.FC<NavbarProps> = ({
     { name: 'HOME', href: '/' },
     { name: 'ABOUT', href: '/#about' },
     { name: 'SCREENINGS', href: '/screenings' },
-    { name: 'TRIP TO OLD TRAFFORD', href: '/tours' },
-    { name: 'MERCHANDISE', href: '/merchandise' },
-    { name: 'CHANTS', href: '/chants' },
+    { name: 'MERCH', href: '/merchandise' },
+    { name: 'MEMBERSHIP', href: '/membership' },
+    { name: 'TOURS', href: '/tours' },
+    { name: 'GALLERY', href: '/#gallery' },
     { name: 'TEAM', href: '/team' },
-    { name: 'JOIN REDS', href: '/contact' },
   ];
 
   return (
     <>
-      {/* Top Slim Matchday Ticker Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#DA020E] text-white text-[11px] font-mono py-1 px-4 flex items-center justify-between border-b border-white/20 shadow-md">
-        <div className="animate-marquee flex items-center gap-6 whitespace-nowrap">
-          <span className="flex items-center gap-1.5 font-bold">
-            <Flame className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-            🔴 NEXT MATCHDAY: MANCHESTER UNITED vs LIVERPOOL
-          </span>
-          <span>• SUN 15 MAR • THE IRISH HOUSE VIMAN NAGAR</span>
-          <span className="text-amber-300 font-bold">• ✈️ AUTUMN 2026 OLD TRAFFORD TRIP REGISTRATION OPEN</span>
-        </div>
-      </div>
-
       <header
-        className={`fixed top-7 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#08080A]/95 backdrop-blur-md border-b border-[#DA020E]/40 py-3 shadow-2xl glow-red'
-            : 'bg-gradient-to-b from-black/90 via-black/50 to-transparent py-4'
+            ? 'glass-panel bg-[#08080A]/90 border-b border-[#DA020E]/40 py-3 shadow-2xl glow-red'
+            : 'bg-gradient-to-b from-black/90 via-black/50 to-transparent py-5'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -101,19 +89,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Action CTAs */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Old Trafford Trip Pill CTA */}
+            {/* Secondary CTA: JOIN THE REDS */}
             <Link
-              href="/tours"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900 border border-[#DA020E]/50 text-xs font-mono text-amber-300 hover:bg-[#DA020E]/20 transition-all shadow"
+              href="/membership"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel border border-[#DA020E]/40 text-xs font-mono text-white hover:border-[#DA020E] transition-all shadow"
             >
-              <Plane className="w-3.5 h-3.5 text-[#DA020E]" />
-              <span className="font-bold">OLD TRAFFORD TRIP</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-[#DA020E]" />
+              <span className="font-bold">JOIN THE REDS</span>
             </Link>
 
             {/* Cart Trigger */}
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 hover:text-white hover:border-[#DA020E] transition-all group"
+              className="relative p-2.5 rounded-xl glass-panel border border-neutral-800 text-neutral-200 hover:text-white hover:border-[#DA020E] transition-all group"
               aria-label="View Shopping Cart"
             >
               <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#DA020E]" />
@@ -124,19 +112,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Main Header CTA */}
+            {/* Primary CTA: GET SCREENING TICKETS */}
             <Link
               href="/screenings"
-              className="hidden sm:flex items-center gap-2 bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-sm tracking-wider font-semibold px-4 py-2.5 rounded-xl transition-all glow-united hover:scale-[1.03] active:scale-95 border border-white/20"
+              className="hidden sm:flex items-center gap-2 bg-[#DA020E] hover:bg-[#8C0008] text-white font-display text-sm tracking-wider font-semibold px-4 py-2.5 rounded-xl transition-all glow-united hover:scale-[1.03] active:scale-95 border border-white/20"
             >
               <Ticket className="w-4 h-4" />
-              <span>SCREENINGS</span>
+              <span>GET SCREENING TICKETS</span>
             </Link>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-200 hover:text-white"
+              className="xl:hidden p-2.5 rounded-xl glass-panel border border-neutral-800 text-neutral-200 hover:text-white"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-6 h-6" />
@@ -147,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#08080A] text-white animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#08080A]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-800">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-[#DA020E] flex items-center justify-center font-display text-lg font-bold">
@@ -160,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white"
+              className="p-2 rounded-xl glass-panel border border-neutral-800 text-neutral-400 hover:text-white"
             >
               <X className="w-6 h-6" />
             </button>
@@ -173,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-xl tracking-wide text-neutral-200 hover:text-[#DA020E] transition-colors py-2 flex items-center justify-between group border-b border-neutral-900"
+                  className="font-display text-2xl tracking-wide text-neutral-200 hover:text-[#DA020E] transition-colors py-2 flex items-center justify-between group border-b border-neutral-900"
                 >
                   <span>{link.name}</span>
                   <span className="text-xs font-mono text-neutral-600 group-hover:text-[#DA020E]">
@@ -185,21 +173,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="mt-8 pt-6 border-t border-neutral-800 flex flex-col gap-4">
               <Link
-                href="/tours"
+                href="/membership"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full bg-neutral-900 border border-[#DA020E] text-amber-300 font-display text-base tracking-wider font-bold py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full glass-panel border border-[#DA020E] text-white font-display text-base tracking-wider font-bold py-3 rounded-xl flex items-center justify-center gap-2"
               >
-                <Plane className="w-5 h-5 text-[#DA020E]" />
-                TRIP TO OLD TRAFFORD
+                <ShieldCheck className="w-5 h-5 text-[#DA020E]" />
+                JOIN THE REDS
               </Link>
 
               <Link
                 href="/screenings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full bg-[#DA020E] hover:bg-[#99000A] text-white font-display text-lg tracking-wider font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#DA020E]/40"
+                className="w-full bg-[#DA020E] hover:bg-[#8C0008] text-white font-display text-lg tracking-wider font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg glow-united"
               >
                 <Ticket className="w-5 h-5" />
-                GET MATCHDAY TICKETS
+                GET SCREENING TICKETS
               </Link>
 
               <div className="text-center text-xs font-mono text-neutral-500">
