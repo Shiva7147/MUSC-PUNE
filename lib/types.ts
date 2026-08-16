@@ -54,7 +54,7 @@ export interface TourPackage {
 export interface GalleryItem {
   id: string;
   title: string;
-  category: 'Screenings' | 'Matchday Vibe' | 'Tours' | 'Community';
+  category: 'Screenings' | 'Matchday Vibe' | 'Tours' | 'Community' | 'Legends';
   imageUrl: string;
   location: string;
   date: string;

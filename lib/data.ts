@@ -1,5 +1,7 @@
 import { Screening, Product, TourPackage, GalleryItem, Announcement, FanChant, TeamMember } from './types';
 
+export const officialLogoUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865410/WhatsApp_Image_2026-08-16_at_11.53.51_AM_8_cbamed.jpg';
+
 export const upcomingScreenings: Screening[] = [
   {
     id: 'screening-mufc-lfc',
@@ -92,92 +94,39 @@ export const upcomingScreenings: Screening[] = [
 
 export const merchandiseProducts: Product[] = [
   {
-    id: 'merch-01',
-    name: 'MUSC Pune "Pune is Red" Matchday Tee',
-    category: 'Apparel',
-    price: 899,
-    originalPrice: 1199,
-    image: '/images/merchandise.jpg',
-    description: 'Official Supporters Club Pune premium 300 GSM combed heavyweight cotton matchday t-shirt. Features minimal front crest print and dramatic typography on back: "LAL PUNE, UNITED ALWAYS".',
-    availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    inStock: true,
-    badge: 'DROP 01 • BESTSELLER',
-    details: [
-      '300 GSM Heavyweight Combed Cotton',
-      'Breathable screen print with high-density red rubber finish',
-      'Regular athletic fit for matchday comfort',
-      'Sewn-in woven Pune Reds authenticity label'
-    ]
-  },
-  {
-    id: 'merch-02',
-    name: 'MUSC Pune Heritage Woven Supporter Scarf',
+    id: 'merch-scarf',
+    name: 'Official MUSC Pune Supporter Scarf',
     category: 'Accessories',
-    price: 649,
-    originalPrice: 799,
-    image: '/images/merchandise.jpg',
-    description: 'Heavy knit classic football scarf with red and black fringe detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE" on one side and Marathi typography on reverse.',
+    price: 799,
+    originalPrice: 999,
+    image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865350/pune-mufc-scarf-600x600_q27exs.png',
+    description: 'Heavy knit classic football terrace scarf with red, black, and ivory detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE". Essential matchday gear.',
     availableSizes: ['ONE SIZE'],
     inStock: true,
-    badge: 'TERRACE ESSENTIAL',
+    badge: 'OFFICIAL MERCH • BESTSELLER',
     details: [
-      '100% High-bulk soft acrylic yarn',
-      '145 cm length with 8 cm traditional tassels',
-      'Double-sided Jacquard woven design',
+      '100% High-bulk soft acrylic Jacquard knit',
+      '145 cm length with traditional tassels',
+      'Double-sided woven Pune Reds crest branding',
       'Essential matchday accessory for screenings'
     ]
   },
   {
-    id: 'merch-03',
-    name: 'MUSC Pune Training Jersey 2026/27',
-    category: 'Apparel',
-    price: 1199,
-    originalPrice: 1499,
-    image: '/images/merchandise.jpg',
-    description: 'High-performance moisture-wicking micro-polyester kit with subtle Pune city street map geometric pattern sublimated into the fabric.',
-    availableSizes: ['S', 'M', 'L', 'XL'],
-    inStock: true,
-    badge: 'NEW KIT DROP',
-    details: [
-      'Quick-dry anti-odor DRI-FIT polyester',
-      'Sublimated Pune urban grid design',
-      'Silicone heat-pressed club emblem',
-      'Lightweight athletic performance cut'
-    ]
-  },
-  {
-    id: 'merch-04',
-    name: 'MUSC Pune Crest Curved Cap',
+    id: 'merch-mug',
+    name: 'Official MUSC Pune Ceramic Mug',
     category: 'Accessories',
     price: 499,
-    originalPrice: 699,
-    image: '/images/merchandise.jpg',
-    description: 'Classic 6-panel unstructured dad cap in matte black cotton twill with 3D raised red embroidered club logo and adjustable brass strap.',
-    availableSizes: ['ONE SIZE'],
+    originalPrice: 649,
+    image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865356/IMG_8440-600x600_klqhi3.jpg',
+    description: 'Official Supporters Club Pune ceramic mug with high-gloss finish, featuring the authentic Pune Reds emblem.',
+    availableSizes: ['350 ML'],
     inStock: true,
+    badge: 'OFFICIAL MERCH',
     details: [
-      '100% Premium Cotton Twill',
-      'High-density 3D embroidery',
-      'Custom metal buckle slider strap',
-      'Structured visor curve'
-    ]
-  },
-  {
-    id: 'merch-05',
-    name: 'MUSC Pune All-Weather Stadium Windbreaker',
-    category: 'Apparel',
-    price: 1899,
-    originalPrice: 2499,
-    image: '/images/merchandise.jpg',
-    description: 'Matte black water-resistant lightweight windbreaker jacket built for Pune monsoon screening nights and late night match commutes.',
-    availableSizes: ['M', 'L', 'XL'],
-    inStock: true,
-    badge: 'LIMITED EDITION',
-    details: [
-      'Waterproof nylon shell with soft mesh lining',
-      'Reflective rear safety strip with "PUNE REDS"',
-      'Dual zip pockets and adjustable hood cinch',
-      'Folds into internal compact pouch'
+      'High-grade ceramic construction',
+      'Microwave and dishwasher safe',
+      'High-density fade-proof emblem print',
+      'Official Supporters Club Pune authenticity seal'
     ]
   }
 ];
@@ -196,47 +145,200 @@ export const oldTraffordTours: TourPackage[] = [
       'Exclusive Access to Manchester Local Supporters Meet',
       'Guided City Tour & National Football Museum Pass'
     ],
-    image: '/images/tour.jpg',
+    image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
     description: 'Fly out with fellow Pune Reds from PNQ to Manchester to witness United live at the Theatre of Dreams. From singing in the Stretford End to exploring Sir Matt Busby Way, experience the ultimate football pilgrimage.'
   }
 ];
 
 export const galleryImages: GalleryItem[] = [
   {
-    id: 'gal-01',
-    title: 'Derby Night Screening Roar',
-    category: 'Screenings',
-    imageUrl: '/images/screening.jpg',
-    location: 'The Irish House, Viman Nagar',
-    date: '15.09.2026',
-    caption: '300+ Pune Reds celebrating a last-minute winner in the Premier League!'
-  },
-  {
-    id: 'gal-02',
-    title: 'Old Trafford Group Delegation',
+    id: 'gal-ot-main',
+    title: 'Old Trafford Group Pilgrimage',
     category: 'Tours',
-    imageUrl: '/images/tour.jpg',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
     location: 'Old Trafford, Manchester',
     date: '10.11.2025',
-    caption: 'Pune Reds standing tall outside the Holy Trinity statue at Old Trafford.'
+    caption: 'Pune Reds delegation standing outside the Holy Trinity statue at Old Trafford.'
   },
   {
-    id: 'gal-03',
-    title: 'Koregaon Park Pre-Match Warmup',
-    category: 'Matchday Vibe',
-    imageUrl: '/images/hero.jpg',
-    location: 'FC Road / Koregaon Park, Pune',
+    id: 'gal-ot-team',
+    title: 'Pune Reds Team at Old Trafford',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg',
+    location: 'Sir Matt Busby Way, Manchester',
+    date: '10.11.2025',
+    caption: 'Group trip delegation representing MUSC Pune outside the stadium.'
+  },
+  {
+    id: 'gal-dressing-room',
+    title: 'Inside Old Trafford Dressing Room',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_1_eibvrj.jpg',
+    location: 'First-Team Dressing Room, Old Trafford',
+    date: '11.11.2025',
+    caption: 'Pune Reds members inside the sacred United dressing room.'
+  },
+  {
+    id: 'gal-legend-1',
+    title: 'Meeting United Legends',
+    category: 'Legends',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_3_eivq1o.jpg',
+    location: 'Manchester, UK',
+    date: '12.11.2025',
+    caption: 'MUSC Pune members alongside Manchester United club legends.'
+  },
+  {
+    id: 'gal-legend-2',
+    title: 'United Legend Interaction',
+    category: 'Legends',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865410/WhatsApp_Image_2026-08-16_at_11.53.51_AM_7_jjrpdm.jpg',
+    location: 'Manchester, UK',
+    date: '12.11.2025',
+    caption: 'Exclusive meet and greet with United legends.'
+  },
+  {
+    id: 'gal-legend-3',
+    title: 'Matchday Lounge with Legends',
+    category: 'Legends',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865410/WhatsApp_Image_2026-08-16_at_11.53.51_AM_9_grsajx.jpg',
+    location: 'Old Trafford Executive Suites',
+    date: '12.11.2025',
+    caption: 'Unforgettable moments with Manchester United icons.'
+  },
+  {
+    id: 'gal-legend-4',
+    title: 'Supporters Club Legend Meet',
+    category: 'Legends',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.36_PM_mwibep.jpg',
+    location: 'Old Trafford, Manchester',
+    date: '12.11.2025',
+    caption: 'Representing Pune with Manchester United legends.'
+  },
+  {
+    id: 'gal-legend-5',
+    title: 'Terrace Stories with Legends',
+    category: 'Legends',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.31.36_PM_y5q6c3.jpg',
+    location: 'Manchester, UK',
+    date: '12.11.2025',
+    caption: 'Sharing matchday passion with United greats.'
+  },
+  {
+    id: 'gal-screening-1',
+    title: 'Pune Matchday Screening Roar',
+    category: 'Screenings',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
+    location: 'The Irish House, Viman Nagar',
+    date: '15.09.2026',
+    caption: '300+ Pune Reds celebrating United in action.'
+  },
+  {
+    id: 'gal-screening-2',
+    title: 'Screening Night Chant Session',
+    category: 'Screenings',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg',
+    location: 'Koregaon Park Screening Arena',
     date: '04.12.2025',
-    caption: 'Matchday evening meetup at Koregaon Park before kickoff.'
+    caption: 'High-decibel chant sessions echoing through the night.'
   },
   {
-    id: 'gal-04',
-    title: 'Terrace Banner Crafting Session',
-    category: 'Community',
-    imageUrl: '/images/community.jpg',
-    location: 'Baner, Pune',
-    date: '20.02.2026',
-    caption: 'Supporters crafting new matchday banners for the upcoming derby screening.'
+    id: 'gal-screening-3',
+    title: 'Matchday Crowd Atmosphere',
+    category: 'Screenings',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.50_AM_w0didk.jpg',
+    location: 'Baner Brewhouse, Pune',
+    date: '20.01.2026',
+    caption: 'Packed venue singing Glory Glory Man United.'
+  },
+  {
+    id: 'gal-screening-4',
+    title: 'Pune Reds Terrace Passion',
+    category: 'Screenings',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.53_AM_yo00ls.jpg',
+    location: 'Viman Nagar Hub',
+    date: '01.02.2026',
+    caption: 'Unmatched energy at our official screening hubs.'
+  },
+  {
+    id: 'gal-screening-5',
+    title: 'Post-Match Victory Celebration',
+    category: 'Screenings',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.52_AM_zynksd.jpg',
+    location: 'Pune Screening Hub',
+    date: '10.02.2026',
+    caption: 'Red Devils fans celebrating another glorious win.'
+  },
+  {
+    id: 'gal-tour-1',
+    title: 'Old Trafford Museum Exploration',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865405/WhatsApp_Image_2026-08-16_at_11.53.51_AM_11_hyrhv3.jpg',
+    location: 'United Museum, Old Trafford',
+    date: '10.11.2025',
+    caption: 'Walking through United history at the club museum.'
+  },
+  {
+    id: 'gal-tour-2',
+    title: 'Pitchside at the Theatre of Dreams',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_12_uiaixq.jpg',
+    location: 'Pitchside, Old Trafford',
+    date: '10.11.2025',
+    caption: 'Standing by the pitch where legends have walked.'
+  },
+  {
+    id: 'gal-tour-3',
+    title: 'Manchester City Center Delegation',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.53_AM_1_mqldzl.jpg',
+    location: 'Manchester, UK',
+    date: '11.11.2025',
+    caption: 'Pune Reds exploring the streets of Manchester.'
+  },
+  {
+    id: 'gal-tour-4',
+    title: 'Sir Alex Ferguson Stand Experience',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.54_AM_1_plh32w.jpg',
+    location: 'Old Trafford, Manchester',
+    date: '11.11.2025',
+    caption: 'Standing below the iconic Sir Alex Ferguson Stand.'
+  },
+  {
+    id: 'gal-tour-5',
+    title: 'Old Trafford Megastore Visit',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.53_AM_2_mfgcqv.jpg',
+    location: 'Megastore, Old Trafford',
+    date: '11.11.2025',
+    caption: 'Official merchandise shopping at the Old Trafford Megastore.'
+  },
+  {
+    id: 'gal-tour-6',
+    title: 'Matchday Tunnel Walk',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.54_AM_kypxsg.jpg',
+    location: 'Player Tunnel, Old Trafford',
+    date: '11.11.2025',
+    caption: 'Walking out of the player tunnel onto the pitch perimeter.'
+  },
+  {
+    id: 'gal-tour-7',
+    title: 'Old Trafford Press Room Seat',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865410/WhatsApp_Image_2026-08-16_at_11.53.51_AM_4_ptnbsy.jpg',
+    location: 'Press Room, Old Trafford',
+    date: '11.11.2025',
+    caption: 'Inside the press conference room at Old Trafford.'
+  },
+  {
+    id: 'gal-tour-8',
+    title: 'Stretford End Stand View',
+    category: 'Tours',
+    imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_2_g2oiht.jpg',
+    location: 'Stretford End, Old Trafford',
+    date: '11.11.2025',
+    caption: 'Taking in the view from the famous Stretford End.'
   }
 ];
 
@@ -263,8 +365,8 @@ export const announcements: Announcement[] = [
     id: 'ann-03',
     category: 'MERCH DROP',
     date: 'February 10, 2026',
-    title: 'New Drop: 2026/27 Training Kit & "Pune is Red" Supporter Tees',
-    snippet: 'The new collection featuring custom Pune urban grid motifs and heavyweight cotton scarves has dropped on our official storefront.',
+    title: 'New Drop: Official MUSC Pune Scarves & Ceramic Mugs',
+    snippet: 'The official supporters club merchandise line featuring traditional woven scarves and emblem mugs has dropped on our storefront.',
     content: 'Designed in Pune for Pune Reds. Our latest merch line celebrates the intersection of Red Football heritage and Pune city youth culture. Available for pickup at screenings or home delivery across Pune pin codes.',
     readTime: '1 min read'
   }
@@ -318,46 +420,46 @@ export const teamMembers: (TeamMember & {
 })[] = [
   {
     id: 'team-01',
-    name: 'Rohan Deshmukh',
-    role: 'Club President & Community Lead',
+    name: 'MUSC Pune Delegation',
+    role: 'Club Leadership & Community',
     ovr: 99,
     position: 'PRES',
     stats: { pac: 98, cht: 99, scr: 97, psn: 99 },
-    photoUrl: '/images/community.jpg',
+    photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg',
     bioPlaceholder: 'Building Maharashtra&apos;s most energetic football supporters club since 2021.',
     socials: { instagram: '#', twitter: '#', linkedin: '#' }
   },
   {
     id: 'team-02',
-    name: 'Aditya Kulkarni',
-    role: 'Screening Operations & Venue Lead',
+    name: 'Old Trafford Tour Squad',
+    role: 'Travel & Matchday Operations',
     ovr: 97,
     position: 'OPS',
     stats: { pac: 95, cht: 96, scr: 99, psn: 98 },
-    photoUrl: '/images/community.jpg',
-    bioPlaceholder: 'Managing screening venue partnerships across Koregaon Park, Baner, and Viman Nagar.',
+    photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
+    bioPlaceholder: 'Managing Old Trafford pilgrimages and screening venue partnerships.',
     socials: { instagram: '#', twitter: '#' }
   },
   {
     id: 'team-03',
-    name: 'Tanvi Joshi',
-    role: 'Merchandise & Creative Director',
+    name: 'Screenings Ultras Lead',
+    role: 'Matchday Atmosphere & Chants',
     ovr: 96,
     position: 'MERCH',
     stats: { pac: 94, cht: 95, scr: 93, psn: 99 },
-    photoUrl: '/images/community.jpg',
-    bioPlaceholder: 'Crafting unique Pune x Manchester United apparel and supporters terrace gear.',
+    photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
+    bioPlaceholder: 'Leading Pune Reds chants and terrace soundscapes during screenings.',
     socials: { instagram: '#', linkedin: '#' }
   },
   {
     id: 'team-04',
-    name: 'Vikram Shinde',
-    role: 'Old Trafford Tours & Travel Admin',
+    name: 'Dressing Room Delegation',
+    role: 'Legends & Heritage Admin',
     ovr: 98,
     position: 'TOURS',
     stats: { pac: 96, cht: 97, scr: 95, psn: 99 },
-    photoUrl: '/images/community.jpg',
-    bioPlaceholder: 'Coordinating group travel logistics for Pune Reds visiting Manchester.',
+    photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_1_eibvrj.jpg',
+    bioPlaceholder: 'Connecting Pune supporters with Manchester United club legends.',
     socials: { twitter: '#', linkedin: '#' }
   }
 ];

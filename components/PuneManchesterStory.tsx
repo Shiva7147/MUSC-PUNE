@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Navigation, Plane, MapPin } from 'lucide-react';
+import { Navigation, Plane } from 'lucide-react';
 
 export const PuneManchesterStory: React.FC = () => {
   const visualPairs = [
@@ -12,8 +12,8 @@ export const PuneManchesterStory: React.FC = () => {
       puneTitle: 'FC ROAD & KOREGAON PARK',
       mufcTitle: 'SIR MATT BUSBY WAY',
       subtitle: 'From Pune street meetups to Old Trafford matchday march',
-      imagePune: '/images/hero.jpg',
-      imageMufc: '/images/tour.jpg',
+      imagePune: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
+      imageMufc: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
     },
     {
       puneTag: 'PUNE REDS',
@@ -21,24 +21,24 @@ export const PuneManchesterStory: React.FC = () => {
       puneTitle: 'VIMAN NAGAR ARENA',
       mufcTitle: 'STRETFORD END TIER 1',
       subtitle: 'High-decibel chant sessions echoing 8,000 miles across oceans',
-      imagePune: '/images/screening.jpg',
-      imageMufc: '/images/community.jpg',
+      imagePune: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg',
+      imageMufc: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg',
     },
   ];
 
   return (
-    <section className="py-24 bg-[#08080A] relative border-t border-neutral-900 overflow-hidden">
+    <section className="py-24 bg-[#161513] relative border-t border-[#683F39]/30 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="mb-16 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-xs font-mono text-[#DA020E] font-bold tracking-widest uppercase mb-3">
+          <div className="inline-flex items-center gap-2 text-xs font-mono text-[#C8102E] font-bold tracking-widest uppercase mb-3">
             <Navigation className="w-4 h-4" />
             <span>PUNE × MANCHESTER CULTURAL BRIDGE</span>
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase leading-tight">
-            MATCHDAY HERE <span className="text-[#DA020E]">➔ MATCHDAY THERE</span>
+          <h2 className="font-display text-4xl sm:text-6xl font-bold text-[#E7E0CF] uppercase leading-tight">
+            MATCHDAY HERE <span className="text-[#C8102E]">➔ MATCHDAY THERE</span>
           </h2>
-          <p className="text-sm text-neutral-400 mt-3 font-sans">
+          <p className="text-sm text-[#E7E0CF]/70 mt-3 font-sans">
             Connecting Pune&apos;s urban football culture directly with Old Trafford&apos;s terrace traditions.
           </p>
         </div>
@@ -50,18 +50,18 @@ export const PuneManchesterStory: React.FC = () => {
               key={idx}
               className="glass-card rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+              <div className="flex items-center justify-between border-b border-[#683F39]/40 pb-4">
                 <span className="badge-pune text-xs font-mono px-3 py-1 rounded font-bold">
                   📍 {pair.puneTag}
                 </span>
-                <Plane className="w-5 h-5 text-[#DA020E] animate-pulse" />
+                <Plane className="w-5 h-5 text-[#C8102E] animate-pulse" />
                 <span className="badge-gold text-xs font-mono px-3 py-1 rounded font-bold">
                   📍 {pair.mufcTag}
                 </span>
               </div>
 
               {/* Side by Side Split Photos */}
-              <div className="grid grid-cols-2 gap-3 relative aspect-[16/9] rounded-2xl overflow-hidden border border-neutral-800">
+              <div className="grid grid-cols-2 gap-3 relative aspect-[16/9] rounded-2xl overflow-hidden border border-[#683F39]/40">
                 <div className="relative h-full">
                   <Image
                     src={pair.imagePune}
@@ -70,7 +70,7 @@ export const PuneManchesterStory: React.FC = () => {
                     className="object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                  <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold text-white bg-black/70 px-2 py-0.5 rounded">
+                  <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold text-[#E7E0CF] bg-black/70 px-2 py-0.5 rounded">
                     {pair.puneTitle}
                   </span>
                 </div>
@@ -83,17 +83,17 @@ export const PuneManchesterStory: React.FC = () => {
                     className="object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                  <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold text-amber-300 bg-black/70 px-2 py-0.5 rounded">
+                  <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold text-[#E7E0CF] bg-black/70 px-2 py-0.5 rounded">
                     {pair.mufcTitle}
                   </span>
                 </div>
               </div>
 
               <div className="space-y-1 pt-2">
-                <h3 className="font-display text-2xl font-bold text-white uppercase">
-                  {pair.puneTitle} <span className="text-[#DA020E]">➔</span> {pair.mufcTitle}
+                <h3 className="font-display text-2xl font-bold text-[#E7E0CF] uppercase">
+                  {pair.puneTitle} <span className="text-[#C8102E]">➔</span> {pair.mufcTitle}
                 </h3>
-                <p className="text-xs text-neutral-400 font-mono">
+                <p className="text-xs text-[#E7E0CF]/70 font-mono">
                   {pair.subtitle}
                 </p>
               </div>
