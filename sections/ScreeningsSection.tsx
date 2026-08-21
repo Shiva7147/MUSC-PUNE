@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Ticket, Calendar, MapPin, Flame, ArrowRight, Barcode } from 'lucide-react';
 import { Screening } from '@/lib/types';
+import { upcomingScreenings } from '@/lib/data';
 
 interface ScreeningsSectionProps {
   screenings: Screening[];
@@ -14,8 +15,9 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
   screenings,
   onSelectScreening,
 }) => {
-  const featured = screenings.find((s) => s.featured) || screenings[0];
-  const upcomingList = screenings.filter((s) => s.id !== featured.id);
+  const activeList = screenings && screenings.length > 0 ? screenings : upcomingScreenings;
+  const featured = activeList.find((s) => s.featured) || activeList[0] || upcomingScreenings[0];
+  const upcomingList = activeList.filter((s) => s.id !== featured.id);
 
   return (
     <section id="screenings" className="py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">

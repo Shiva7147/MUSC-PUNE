@@ -19,6 +19,7 @@ import {
   Download as DownIcon,
   Lock as LockIcon,
   Sparkles as SparkIcon,
+  Upload as UploadIcon,
 } from 'lucide-react';
 import {
   getTicketStore,
@@ -135,7 +136,7 @@ export default function AdminDashboardPage() {
       setCameraActive(true);
     } catch (err) {
       console.error('Camera Scanner Error:', err);
-      alert('Unable to access camera. Please allow camera permissions in your browser or use manual Ticket ID entry.');
+      alert('Unable to access live camera. Please allow camera permissions or use the "SCAN IMAGE FILE" option below.');
     }
   };
 
@@ -164,6 +165,21 @@ export default function AdminDashboardPage() {
     if (!codeToTest.trim()) return;
     const res = verifyTicketScan(codeToTest, 'Gate Admin 1');
     setScanResult(res);
+  };
+
+  // Handle File Upload QR Scanning
+  const handleFileUploadScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const html5QrCode = new Html5Qrcode('qr-file-helper');
+      const decodedText = await html5QrCode.scanFile(file, true);
+      handleVerifyCode(decodedText);
+    } catch (err) {
+      console.error('File scan error:', err);
+      alert('Could not decode a valid QR code from the uploaded image file. Try another image or use manual entry.');
+    }
   };
 
   // Export Tickets to CSV
@@ -266,6 +282,7 @@ export default function AdminDashboardPage() {
   return (
     <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
       <Navbar />
+      <div id="qr-file-helper" className="hidden" />
 
       <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Header */}
@@ -402,29 +419,42 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Camera Viewport & Verification */}
                 <div className="lg:col-span-7 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
-                      <h2 className="font-display text-2xl font-bold text-white uppercase">MATCHDAY GATE CAMERA SCANNER</h2>
-                      <p className="text-xs text-white/60 font-sans">Point phone camera at attendee ticket QR code</p>
+                      <h2 className="font-display text-2xl font-bold text-white uppercase">MATCHDAY GATE SCANNER</h2>
+                      <p className="text-xs text-white/60 font-sans">Point camera at QR pass or upload a ticket image file</p>
                     </div>
 
-                    {!cameraActive ? (
-                      <button
-                        onClick={startCameraScanner}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow"
-                      >
-                        <CamIcon className="w-4 h-4" />
-                        <span>START CAMERA</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={stopCameraScanner}
-                        className="bg-red-600 hover:bg-red-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow"
-                      >
-                        <XIcon className="w-4 h-4" />
-                        <span>STOP CAMERA</span>
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {!cameraActive ? (
+                        <button
+                          onClick={startCameraScanner}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow"
+                        >
+                          <CamIcon className="w-4 h-4" />
+                          <span>START CAMERA</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={stopCameraScanner}
+                          className="bg-red-600 hover:bg-red-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow"
+                        >
+                          <XIcon className="w-4 h-4" />
+                          <span>STOP CAMERA</span>
+                        </button>
+                      )}
+
+                      <label className="bg-[#050505] hover:bg-black border border-white/20 text-[#FFC400] font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow">
+                        <UploadIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>SCAN IMAGE</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUploadScan}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   {/* HTML5 Camera Viewport Box */}
@@ -434,7 +464,7 @@ export default function AdminDashboardPage() {
                       <div className="text-center space-y-2 p-6">
                         <QrIcon className="w-16 h-16 text-[#E60012] mx-auto animate-pulse" />
                         <p className="text-xs font-sans text-white/70">
-                          Click &quot;START CAMERA&quot; to scan QR passes live or use manual search below.
+                          Click &quot;START CAMERA&quot; to scan passes live, or &quot;SCAN IMAGE&quot; to upload a saved ticket QR pass!
                         </p>
                       </div>
                     )}

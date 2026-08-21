@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { Screening, Announcement, GalleryItem, TicketBooking } from './types';
+import { Screening, Announcement, GalleryItem } from './types';
 import { upcomingScreenings, announcements as defaultAnnouncements, galleryImages as defaultGallery } from './data';
 
 export interface AdminTicketRecord {
@@ -64,7 +64,9 @@ const notifyListeners = () => {
 
 export const subscribeStore = (listener: Listener) => {
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 };
 
 // -------------------------------------------------------------
@@ -81,23 +83,16 @@ export const generateTicketPass = async (
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const ticketId = `MUSCPUN-${randomNum}`;
 
-  // Embedded QR Payload Data Structure
-  const qrPayload = JSON.stringify({
-    ticketId,
-    screeningId: screening.id,
-    matchTitle: screening.matchTitle,
-    userName,
-    userPhone,
-    quantity,
-    issuedAt: new Date().toISOString(),
-  });
+  // Clean Payload: High Contrast & Robust Scanning
+  const qrPayload = ticketId;
 
-  // Generate authentic high-res QR Data URL
+  // Generate ultra crisp high-contrast black/white QR code
   const qrDataUrl = await QRCode.toDataURL(qrPayload, {
-    width: 400,
+    width: 450,
     margin: 2,
+    errorCorrectionLevel: 'H',
     color: {
-      dark: '#E60012',
+      dark: '#000000',
       light: '#FFFFFF',
     },
   });
@@ -114,7 +109,7 @@ export const generateTicketPass = async (
     userName,
     userEmail,
     userPhone,
-    bookingDate: new Date().toLocaleString(),
+    bookingDate: new Date().toLocaleString('en-IN'),
     qrDataUrl,
     checkedIn: false,
   };
@@ -134,23 +129,20 @@ export const verifyTicketScan = (
   scannedCode: string,
   adminName: string = 'Gate Admin 1'
 ): { status: 'VALID' | 'ALREADY_USED' | 'INVALID'; ticket?: AdminTicketRecord; checkedInAt?: string } => {
-  let ticketId = scannedCode.trim();
+  if (!scannedCode) return { status: 'INVALID' };
 
-  // Try parsing JSON payload if scanned from camera
-  try {
-    if (scannedCode.startsWith('{')) {
-      const parsed = JSON.parse(scannedCode);
-      if (parsed.ticketId) {
-        ticketId = parsed.ticketId;
-      }
-    }
-  } catch {
-    // use raw string
+  const rawText = scannedCode.trim();
+  let ticketId = rawText;
+
+  // Extract Ticket ID using regex if payload contains extra data or JSON
+  const match = rawText.match(/MUSCPUN-\d+/i);
+  if (match) {
+    ticketId = match[0].toUpperCase();
   }
 
   const allTickets = getTicketStore();
   const foundIndex = allTickets.findIndex(
-    (t) => t.ticketId.toUpperCase() === ticketId.toUpperCase() || t.userPhone.includes(ticketId)
+    (t) => t.ticketId.toUpperCase() === ticketId.toUpperCase() || (t.userPhone && t.userPhone.includes(ticketId))
   );
 
   if (foundIndex === -1) {
