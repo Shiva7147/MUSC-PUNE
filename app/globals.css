@@ -1,159 +1,238 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Barlow+Condensed:wght@700;800&family=Roboto:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* PHASE 1 - JERSEY DERIVED BRAND SYSTEM */
-  --color-ivory: #E7E0CF;
-  --color-charcoal: #161513;
-  --color-burgundy: #683F39;
-  --color-united-red: #C8102E;
+  /* MANCHESTER UNITED 2023/24 KIT TYPOGRAPHY THEME */
+  --font-display: 'Teko', 'Barlow Condensed', sans-serif;
+  --font-body: 'Roboto', sans-serif;
 
-  --color-primary: #E7E0CF;
-  --color-accent: #683F39;
-  --color-surface: #161513;
-  --color-red: #C8102E;
+  --color-black: #050505;
+  --color-charcoal: #171717;
+  --color-united-red: #E60012;
+  --color-gold: #FFC400;
+  --color-white: #F5F5F5;
 
-  --bg-dark: #161513;
-  --bg-surface: #1C1B18;
-  --bg-card: #22201D;
+  /* Mappings */
+  --bg-dark: #050505;
+  --bg-surface: #171717;
+  --bg-card: #1F1F1F;
 
   /* Glass material system translucencies */
-  --glass-dark: rgba(22, 21, 19, 0.65);
-  --glass-ivory: rgba(231, 224, 207, 0.08);
-  --glass-burgundy: rgba(104, 63, 57, 0.18);
-  --glass-red: rgba(200, 16, 46, 0.14);
+  --glass-dark: rgba(23, 23, 23, 0.85);
+  --glass-red: rgba(230, 0, 18, 0.15);
+  --glass-highlight: rgba(255, 255, 255, 0.12);
 }
 
 @theme {
-  --font-display: 'Oswald', sans-serif;
-  --font-sans: 'Inter', sans-serif;
-  --color-ivory: #E7E0CF;
-  --color-charcoal: #161513;
-  --color-burgundy: #683F39;
-  --color-united-red: #C8102E;
-  --color-primary: #E7E0CF;
-  --color-accent: #683F39;
-  --color-surface: #161513;
-  --color-dark-bg: #161513;
-  --color-dark-surface: #1C1B18;
-  --color-dark-card: #22201D;
+  --font-display: 'Teko', 'Barlow Condensed', sans-serif;
+  --font-sans: 'Roboto', sans-serif;
+  --color-black: #050505;
+  --color-charcoal: #171717;
+  --color-united-red: #E60012;
+  --color-gold: #FFC400;
+  --color-ivory: #F5F5F5;
+  --color-primary: #F5F5F5;
+  --color-accent: #E60012;
+  --color-surface: #171717;
+  --color-dark-bg: #050505;
+  --color-dark-surface: #171717;
+  --color-dark-card: #1F1F1F;
 }
 
 html, body {
-  background-color: var(--color-charcoal);
-  color: var(--color-ivory);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--color-black);
+  color: var(--color-white);
+  font-family: 'Roboto', sans-serif;
   overflow-x: hidden !important;
   width: 100%;
   max-width: 100vw;
 }
 
-/* Football-Editorial Typography */
-h1, h2, h3, .font-display {
-  font-family: 'Oswald', sans-serif;
+/* High Contrast Input Placeholders for WCAG AA Accessibility */
+input::placeholder, textarea::placeholder {
+  color: #A3A3A3 !important;
+  opacity: 1 !important;
+}
+
+/* Headings: Manchester United 2023/24 Kit Font Style (Tall, Condensed, Sharp Chamfered Letterforms) */
+h1, h2, h3, h4, .font-display, .mufc-kit-font {
+  font-family: 'Teko', 'Barlow Condensed', sans-serif;
+  font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--color-ivory);
+  color: var(--color-white);
+  line-height: 0.95;
+}
+
+/* Body & Micro Typography */
+p, span, li, button, input, label {
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Subtle Film Grain Texture Overlay */
 .bg-grain {
-  background-image: radial-gradient(rgba(231, 224, 207, 0.04) 1px, transparent 0);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
   background-size: 20px 20px;
 }
 
-/* Editorial Glass Visual System (Physical Translucent Materials) */
+/* Editorial Glass Visual System & Premium Polished Cards */
 .glass-panel {
   background: var(--glass-dark);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(231, 224, 207, 0.12);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
 }
 
+/* AMAZING POLISHED CARD EFFECT */
 .glass-card {
-  background: rgba(28, 27, 24, 0.70);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(104, 63, 57, 0.35);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.9) 0%, rgba(14, 14, 14, 0.95) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Polished Card Hover Shimmer Sweep Effect */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  transition: left 0.75s ease-in-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.glass-card:hover::before {
+  left: 150%;
 }
 
 .glass-card:hover {
-  border-color: rgba(200, 16, 46, 0.5);
-  box-shadow: 0 16px 40px -10px rgba(200, 16, 46, 0.25);
-  transform: translateY(-4px);
+  border-color: rgba(230, 0, 18, 0.8);
+  box-shadow: 
+    0 25px 50px -12px rgba(230, 0, 18, 0.35),
+    0 0 20px rgba(230, 0, 18, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  transform: translateY(-6px) scale(1.01);
 }
 
-.editorial-glass {
-  background: var(--glass-ivory);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(231, 224, 207, 0.1);
+/* Gold Tier Polished Card Effect */
+.glass-card-gold {
+  background: linear-gradient(145deg, rgba(35, 30, 15, 0.9) 0%, rgba(18, 15, 8, 0.95) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(255, 196, 0, 0.4);
+  box-shadow: 
+    0 20px 40px -15px rgba(255, 196, 0, 0.2),
+    inset 0 1px 2px rgba(255, 196, 0, 0.4);
 }
 
-.glass-burgundy {
-  background: var(--glass-burgundy);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(104, 63, 57, 0.4);
+.glass-card-gold:hover {
+  border-color: #FFC400;
+  box-shadow: 
+    0 25px 55px -10px rgba(255, 196, 0, 0.4),
+    0 0 25px rgba(255, 196, 0, 0.25),
+    inset 0 1px 3px rgba(255, 196, 0, 0.5);
 }
 
-.glass-red {
-  background: var(--glass-red);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(200, 16, 46, 0.4);
+/* Ticket Notch Cutout Fixes */
+.ticket-notch-left::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-black);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.8);
+  z-index: 20;
 }
 
-/* Controlled Accent Spotlights & Haze */
+.ticket-notch-right::after {
+  content: '';
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-black);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.8);
+  z-index: 20;
+}
+
+/* Controlled Stadium Red Glow */
 .glow-red {
-  box-shadow: 0 0 35px rgba(200, 16, 46, 0.35);
+  box-shadow: 0 8px 30px rgba(230, 0, 18, 0.3);
 }
 
 .glow-united {
-  box-shadow: 0 0 25px rgba(200, 16, 46, 0.5);
-}
-
-.glow-ivory {
-  box-shadow: 0 0 25px rgba(231, 224, 207, 0.3);
+  box-shadow: 0 8px 30px rgba(230, 0, 18, 0.4);
 }
 
 /* Supporter Micro Badges */
 .badge-united {
-  background: var(--color-united-red);
+  background: linear-gradient(135deg, #E60012 0%, #99000A 100%);
   color: #FFFFFF;
+  font-family: 'Teko', 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  box-shadow: 0 4px 15px rgba(200, 16, 46, 0.35);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(230, 0, 18, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .badge-pune {
-  background: rgba(104, 63, 57, 0.25);
-  border: 1px solid rgba(104, 63, 57, 0.5);
-  color: var(--color-ivory);
+  background: rgba(23, 23, 23, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
+  font-family: 'Teko', 'Barlow Condensed', sans-serif;
   font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .badge-gold {
-  background: rgba(231, 224, 207, 0.15);
-  border: 1px solid rgba(231, 224, 207, 0.4);
-  color: var(--color-ivory);
+  background: linear-gradient(135deg, rgba(255, 196, 0, 0.25) 0%, rgba(180, 135, 0, 0.15) 100%);
+  border: 1px solid rgba(255, 196, 0, 0.6);
+  color: #FFC400;
+  font-family: 'Teko', 'Barlow Condensed', sans-serif;
   font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.2);
 }
 
-/* Pitch Line Vector Pattern */
-.bg-pitch-lines {
-  background-image: 
-    linear-gradient(to right, rgba(104, 63, 57, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(104, 63, 57, 0.08) 1px, transparent 1px);
-  background-size: 64px 64px;
-}
-
-/* FIFA FUT Shield Card System */
-.perspective-1000 {
-  perspective: 1200px;
+/* FUT 3D Card Hover Flip System for Team Section */
+.fut-card-container {
+  perspective: 1000px;
 }
 
 .fut-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
   transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-style: preserve-3d;
 }
@@ -163,18 +242,16 @@ h1, h2, h3, .font-display {
 }
 
 .fut-card-front, .fut-card-back {
-  backface-visibility: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 1.5rem;
 }
 
 .fut-card-back {
   transform: rotateY(180deg);
-}
-
-.fut-shield-shape {
-  background: linear-gradient(135deg, #E7E0CF 0%, #683F39 40%, #161513 80%, #C8102E 100%);
-  border-radius: 20px 20px 100px 100px / 20px 20px 60px 60px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(104, 63, 57, 0.4);
 }
 
 /* Continuous Marquee Ticker Track */
@@ -193,36 +270,28 @@ h1, h2, h3, .font-display {
   animation-play-state: paused;
 }
 
-/* Supporters Film Strip Horizontal Motion */
-@keyframes filmStripScroll {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+/* Custom Scrollbar & Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.animate-film-strip {
-  display: flex;
-  width: 200%;
-  animation: filmStripScroll 30s linear infinite;
-}
-
-.animate-film-strip:hover {
-  animation-play-state: paused;
-}
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-charcoal);
+  background: var(--color-black);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2824;
+  background: #262626;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-burgundy);
+  background: #E60012;
 }

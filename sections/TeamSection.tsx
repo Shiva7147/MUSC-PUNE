@@ -2,153 +2,101 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Camera, Globe, Share2, Shield, Flame } from 'lucide-react';
+import { Shield, Award, Globe, Share2, ExternalLink } from 'lucide-react';
 import { teamMembers } from '@/lib/data';
-import { TeamMember } from '@/lib/types';
 
-interface TeamSectionProps {
-  members?: (TeamMember & {
-    ovr: number;
-    position: string;
-    stats: { pac: number; cht: number; scr: number; psn: number };
-  })[];
-}
-
-export const TeamSection: React.FC<TeamSectionProps> = ({ members = teamMembers }) => {
-  const displayMembers = members && members.length > 0 ? members : teamMembers;
-
+export const TeamSection: React.FC = () => {
   return (
-    <section id="team" className="py-24 bg-[#08080A] relative border-t border-neutral-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 text-xs font-mono text-[#DA020E] font-bold tracking-widest uppercase mb-2">
-            <Shield className="w-4 h-4" />
-            <span>AUTHENTIC FIFA FUT ULTIMATE TEAM CARDS</span>
+    <section id="team" className="py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-display text-[#FFC400] font-bold tracking-wider uppercase">
+              <Shield className="w-4 h-4 text-[#E60012]" />
+              <span>CLUB LEADERSHIP & DELEGATION</span>
+            </div>
+            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
+              PUNE REDS <span className="text-[#E60012]">DELEGATION</span>
+            </h2>
+            <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
+              Meet the team driving screening matchdays, Old Trafford pilgrimages, and terrace culture across Pune.
+            </p>
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase">
-            PUNE REDS <span className="text-[#DA020E]">FUT COMMITTEE</span>
-          </h2>
-          <p className="text-sm text-neutral-400 mt-2 font-sans">
-            The organizers driving MUSC Pune matchdays. Hover or tap any FUT card to reveal full supporter stats!
-          </p>
+
+          <div className="badge-gold text-xs font-display px-3.5 py-1.5 rounded-lg font-bold">
+            🛡️ ULTRAS EXECUTIVE COMMITTEE
+          </div>
         </div>
 
-        {/* FUT Squad Cards Grid */}
+        {/* FUT-Style 3D Flip Card Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {displayMembers.map((m) => (
-            <div key={m.id} className="fut-card-container h-[460px] perspective-1000 cursor-pointer">
-              <div className="fut-card-inner relative w-full h-full">
-                {/* FUT Card Front (Authentic Gold Shield Layout) */}
-                <div className="fut-card-front absolute inset-0 fut-shield-shape p-5 text-black flex flex-col justify-between overflow-hidden relative border-2 border-[#D4AF37]/80">
-                  {/* Top Bar: Rating, Position, Flag & Badge */}
-                  <div className="flex items-start justify-between relative z-10 border-b border-[#8C641D]/30 pb-2">
-                    <div className="flex flex-col items-center leading-none">
-                      <span className="font-display text-4xl font-extrabold text-[#1A1405] drop-shadow-sm">
-                        {m.ovr || 99}
-                      </span>
-                      <span className="font-display text-xs font-bold text-[#4D3605] tracking-wider uppercase mt-0.5">
-                        {m.position || 'PRES'}
-                      </span>
-
-                      {/* Indian Flag & Crest Badges */}
-                      <div className="mt-2 flex flex-col gap-1 items-center">
-                        <span className="text-xs" title="India">🇮🇳</span>
-                        <div className="w-6 h-6 rounded-full bg-[#DA020E] flex items-center justify-center font-display text-[9px] font-bold text-white shadow">
-                          MU
-                        </div>
-                      </div>
+          {teamMembers.map((member) => (
+            <div key={member.id} className="fut-card-container h-[420px] cursor-pointer">
+              <div className="fut-card-inner">
+                {/* Front Card Face */}
+                <div className="fut-card-front bg-[#171717] border-2 border-[#FFC400]/40 p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <div className="flex items-center gap-1">
+                      <span className="font-display text-2xl font-bold text-[#FFC400]">{member.ovr}</span>
+                      <span className="font-display text-xs text-white/70 uppercase font-bold">{member.position}</span>
                     </div>
-
-                    {/* Cutout Photo Frame */}
-                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-[#1A1405]/30 shadow-lg bg-black/40">
-                      <Image
-                        src={m.photoUrl}
-                        alt={m.name}
-                        fill
-                        className="object-cover object-center"
-                      />
-                    </div>
+                    <span className="badge-united text-[9px] font-display px-2 py-0.5 rounded uppercase font-bold">
+                      🔴 MUSC
+                    </span>
                   </div>
 
-                  {/* Player Name Banner on Gold Ribbon */}
-                  <div className="relative z-10 text-center my-2">
-                    <div className="bg-[#1A1405] text-[#F3E0AA] font-display text-xl font-bold py-1 px-3 rounded uppercase tracking-wider shadow-md truncate">
-                      {m.name}
-                    </div>
-                    <div className="text-[10px] font-mono text-[#3D2B05] font-bold uppercase tracking-widest mt-1">
-                      {m.role}
-                    </div>
+                  <div className="relative w-full aspect-square my-2 rounded-2xl overflow-hidden bg-black border border-white/10">
+                    <Image
+                      src={member.photoUrl}
+                      alt={member.name}
+                      fill
+                      quality={90}
+                      className="object-cover object-center"
+                    />
                   </div>
 
-                  {/* FUT Stat Matrix Grid */}
-                  <div className="relative z-10 bg-[#1A1405]/95 text-[#F3E0AA] p-3 rounded-xl border border-[#D4AF37]/50 grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-mono">
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">PAC</span>
-                      <span className="font-bold text-white">{m.stats?.pac || 95}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">CHT</span>
-                      <span className="font-bold text-[#DA020E]">{m.stats?.cht || 98}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">SCR</span>
-                      <span className="font-bold text-white">{m.stats?.scr || 97}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-neutral-400">PSN</span>
-                      <span className="font-bold text-amber-400">{m.stats?.psn || 99}</span>
-                    </div>
+                  <div className="text-center space-y-1">
+                    <h3 className="font-display text-xl font-bold text-white tracking-tight truncate">{member.name}</h3>
+                    <p className="text-xs font-sans text-[#FFC400] font-semibold truncate">{member.role}</p>
                   </div>
 
-                  <div className="text-[9px] font-mono text-center text-[#4D3605] font-bold uppercase tracking-widest pt-1">
-                    HOVER FOR SUPPORTER BIO ➔
+                  {/* FUT Stats Bar */}
+                  <div className="grid grid-cols-4 gap-1 text-center pt-2 border-t border-white/10 text-[10px] font-display text-white/80">
+                    <div><span className="text-[#FFC400]">{member.stats.pac}</span> PAC</div>
+                    <div><span className="text-[#FFC400]">{member.stats.cht}</span> CHT</div>
+                    <div><span className="text-[#FFC400]">{member.stats.scr}</span> SCR</div>
+                    <div><span className="text-[#FFC400]">{member.stats.psn}</span> PSN</div>
                   </div>
                 </div>
 
-                {/* FUT Card Back (Stats & Details) */}
-                <div className="fut-card-back absolute inset-0 bg-gradient-to-b from-[#141414] via-[#08080A] to-black border-2 border-[#DA020E] rounded-3xl p-6 shadow-2xl flex flex-col justify-between text-white">
-                  <div>
-                    <div className="flex justify-between items-center border-b border-neutral-800 pb-3 mb-4">
-                      <span className="font-display text-lg font-bold text-[#DA020E]">{m.name}</span>
-                      <span className="text-[10px] font-mono text-amber-400 font-bold">OVR {m.ovr || 99}</span>
+                {/* Back Card Face (Revealed on Hover) */}
+                <div className="fut-card-back bg-[#171717] border-2 border-[#E60012] p-6 flex flex-col justify-between shadow-2xl relative text-white">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-display text-[#FFC400] font-bold">
+                      <Award className="w-4 h-4 text-[#E60012]" />
+                      <span>OFFICIAL BIO</span>
                     </div>
 
-                    {/* Stats Matrix Grid */}
-                    <div className="grid grid-cols-2 gap-3 text-xs font-mono mb-4">
-                      <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-850 flex justify-between">
-                        <span className="text-neutral-500">PAC (PACE)</span>
-                        <span className="font-bold text-white">{m.stats?.pac || 95}</span>
-                      </div>
-                      <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-850 flex justify-between">
-                        <span className="text-neutral-500">CHT (CHANTS)</span>
-                        <span className="font-bold text-amber-400">{m.stats?.cht || 98}</span>
-                      </div>
-                      <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-850 flex justify-between">
-                        <span className="text-neutral-500">SCR (SCREEN)</span>
-                        <span className="font-bold text-white">{m.stats?.scr || 97}</span>
-                      </div>
-                      <div className="bg-neutral-950 p-2.5 rounded-xl border border-neutral-850 flex justify-between">
-                        <span className="text-neutral-500">PSN (PASSION)</span>
-                        <span className="font-bold text-[#DA020E]">{m.stats?.psn || 99}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-neutral-400 font-mono italic leading-relaxed">
-                      &quot;{m.bioPlaceholder}&quot;
+                    <h4 className="font-display text-xl font-bold text-white">{member.name}</h4>
+                    <p className="text-xs font-sans text-white/80 leading-relaxed">
+                      {member.bioPlaceholder}
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-neutral-800 flex justify-center gap-3">
-                    <a href="#" className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white">
-                      <Camera className="w-4 h-4" />
-                    </a>
-                    <a href="#" className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white">
-                      <Globe className="w-4 h-4" />
-                    </a>
-                    <a href="#" className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white">
-                      <Share2 className="w-4 h-4" />
-                    </a>
+                  <div className="space-y-3 pt-4 border-t border-white/10">
+                    <div className="text-[10px] font-display text-white/60 font-bold uppercase">CONNECT:</div>
+                    <div className="flex items-center gap-3">
+                      <a href="#" className="p-2 rounded-xl bg-[#050505] text-white hover:text-[#E60012] transition-colors border border-white/10">
+                        <Globe className="w-4 h-4" />
+                      </a>
+                      <a href="#" className="p-2 rounded-xl bg-[#050505] text-white hover:text-[#E60012] transition-colors border border-white/10">
+                        <Share2 className="w-4 h-4" />
+                      </a>
+                      <a href="#" className="p-2 rounded-xl bg-[#050505] text-white hover:text-[#E60012] transition-colors border border-white/10">
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

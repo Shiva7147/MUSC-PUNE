@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Ticket, Volume2 } from 'lucide-react';
+import { Ticket, Plane, Volume2 } from 'lucide-react';
 import { Screening } from '@/lib/types';
 
 interface HeroSectionProps {
@@ -50,62 +50,74 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-24 overflow-hidden bg-[#161513]">
-      {/* Full Bleed REAL Photography Background Overlay — BRIGHT & VISIBLE (No Dark Tint!) */}
+    <section id="home" className="relative min-h-[92vh] flex items-center justify-center pt-32 pb-24 overflow-hidden bg-[#050505]">
+      {/* Full Bleed Ultra High-Resolution Cloudinary Background Photography */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
-          alt="MUSC Pune Real Matchday Crowd"
+          src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_2400/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg"
+          alt="MUSC Pune Old Trafford Delegation Hero"
           fill
           priority
-          className="object-cover object-center brightness-95 opacity-85 transition-transform duration-1000"
+          quality={100}
+          sizes="100vw"
+          className="object-cover object-[center_60%] brightness-95 opacity-95 transition-transform duration-1000"
         />
-        {/* Soft localized gradient at bottom and top for text readability without darkening image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#161513]/70 via-transparent to-[#161513]/95" />
+        {/* Soft localized gradient overlay to ensure supporters & Indian flag remain clearly visible */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/75 md:bg-gradient-to-r md:from-[#050505]/85 md:via-transparent md:to-transparent" />
       </div>
 
       {/* Subtle Grain Overlay */}
       <div className="absolute inset-0 bg-grain opacity-15 pointer-events-none z-0" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center space-y-8 my-auto">
-        {/* Dynamic Editorial Headline in Jersey Ivory */}
-        <div className="space-y-4">
-          <h1 className="font-display text-6xl sm:text-8xl md:text-9xl font-bold tracking-tight text-[#E7E0CF] leading-none uppercase drop-shadow-[0_10px_20px_rgba(0,0,0,0.9)]">
-            PUNE. <span className="text-[#C8102E]">UNITED.</span> ALWAYS.
-          </h1>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
+        <div className="max-w-3xl text-left space-y-8">
+          {/* Dynamic Editorial Headline in Roboto Condensed 700 */}
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel border border-white/15 text-xs font-sans text-white/80 uppercase tracking-wider font-semibold">
+              <span>MANCHESTER UNITED SUPPORTERS CLUB PUNE</span>
+              <span className="text-[#E60012]">🔴</span>
+            </div>
 
-          <p className="text-base sm:text-xl text-[#E7E0CF] font-sans max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)]">
-            Where Manchester United supporters in Pune come together. High-decibel screening venues, official merchandise, and group trips to Old Trafford.
-          </p>
-        </div>
+            <h1 className="font-display text-6xl sm:text-8xl md:text-9xl font-bold tracking-tight text-[#F5F5F5] leading-none uppercase drop-shadow-[0_10px_25px_rgba(0,0,0,0.95)]">
+              PUNE. <span className="text-[#E60012]">UNITED.</span> ALWAYS.
+            </h1>
 
-        {/* Hero CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
-          <Link
-            href="/screenings"
-            className="w-full sm:w-auto flex-1 bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl shadow-2xl glow-united flex items-center justify-center gap-2 transition-all hover:scale-[1.03]"
-          >
-            <Ticket className="w-5 h-5" />
-            <span>GET SCREENING TICKETS</span>
-          </Link>
+            <p className="text-base sm:text-xl text-[#F5F5F5]/90 font-sans max-w-xl font-normal leading-relaxed drop-shadow-[0_4px_12px_rgba(0,0,0,0.95)]">
+              Where Manchester United supporters in Pune come together. High-decibel screening venues, official merchandise, and group trips to Old Trafford.
+            </p>
+          </div>
 
-          <Link
-            href="/membership"
-            className="w-full sm:w-auto flex-1 glass-panel border border-[#E7E0CF]/40 text-[#E7E0CF] font-display text-base tracking-wider font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 hover:border-[#C8102E] hover:bg-black/60 transition-all shadow-xl"
-          >
-            <span>JOIN MUSC PUNE</span>
-          </Link>
-        </div>
+          {/* Hero Action Buttons Sitting Together as One Visual Unit */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2 max-w-lg">
+            {/* Primary Button */}
+            <Link
+              href="/screenings"
+              className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold h-14 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+            >
+              <Ticket className="w-5 h-5 shrink-0" />
+              <span>GET MATCHDAY TICKETS</span>
+            </Link>
 
-        {/* Audio Teaser */}
-        <div className="pt-2">
-          <button
-            onClick={playCrowdRoar}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border border-[#E7E0CF]/30 hover:border-[#C8102E] text-xs font-mono text-[#E7E0CF] transition-all active:scale-95 shadow-lg"
-          >
-            <Volume2 className="w-4 h-4 text-[#C8102E] animate-bounce" />
-            <span>TAP TO HEAR PUNE REDS ROAR</span>
-          </button>
+            {/* Secondary Button */}
+            <Link
+              href="/tours"
+              className="flex-1 bg-[#171717] hover:bg-black border border-[#E60012] text-[#FFC400] font-display text-base tracking-wider font-bold h-14 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-xl hover:scale-[1.02]"
+            >
+              <Plane className="w-5 h-5 text-[#E60012] shrink-0" />
+              <span>TRIP TO OLD TRAFFORD</span>
+            </Link>
+          </div>
+
+          {/* Audio Teaser */}
+          <div className="pt-1">
+            <button
+              onClick={playCrowdRoar}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border border-white/20 hover:border-[#E60012] text-xs font-sans font-semibold text-[#F5F5F5] transition-all active:scale-95 shadow-lg"
+            >
+              <Volume2 className="w-4 h-4 text-[#E60012] animate-bounce" />
+              <span>TAP TO HEAR PUNE REDS ROAR</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>

@@ -4,15 +4,14 @@ import React from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { TeamSection } from '@/sections/TeamSection';
-import { teamMembers } from '@/lib/data';
 
 export default function TeamPage() {
   return (
-    <main className="min-h-screen bg-[#08080A] text-white">
+    <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
       <Navbar />
 
-      <div className="pt-16">
-        <TeamSection members={teamMembers} />
+      <div className="pt-20">
+        <TeamSection />
       </div>
 
       <Footer />

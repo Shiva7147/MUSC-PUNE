@@ -2,154 +2,149 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, ExternalLink, Award, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Ticket, Award, Star } from 'lucide-react';
 
 export const MembershipSection: React.FC = () => {
-  return (
-    <section id="membership" className="py-24 bg-[#161513] relative border-t border-[#683F39]/30 overflow-hidden">
-      {/* Background Burgundy Haze */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#683F39]/15 blur-[160px] pointer-events-none z-0" />
+  const tiers = [
+    {
+      id: 'basic',
+      name: 'LOCAL RED PASS',
+      price: '₹499',
+      period: '/ year',
+      badge: 'SEASON PASS',
+      badgeClass: 'badge-pune',
+      description: 'Essential membership for Pune-based supporters attending local matchday screenings.',
+      features: [
+        'Priority Screening Ticket Access (24h early)',
+        '₹100 Voucher for every Pune Screening',
+        'Official MUSC Pune Sticker & Badge Pack',
+        'Access to Private Pune Reds WhatsApp Community'
+      ],
+      highlight: false,
+      ctaText: 'JOIN LOCAL REDS'
+    },
+    {
+      id: 'official-red',
+      name: 'OFFICIAL MUSC PUNE',
+      price: '₹1,299',
+      period: '/ year',
+      badge: 'MOST POPULAR',
+      badgeClass: 'badge-united',
+      description: 'Complete membership with official physical membership kit and Old Trafford tour eligibility.',
+      features: [
+        'All Local Red Pass Privileges Included',
+        'Official MUSC Pune Physical Membership Kit',
+        'Old Trafford Group Pilgrimage Tour Eligibility',
+        '10% Discount on Official Supporter Merch',
+        'Exclusive Entry into Season Jersey Raffles'
+      ],
+      highlight: true,
+      ctaText: 'BECOME OFFICIAL MEMBER'
+    },
+    {
+      id: 'gold-tier',
+      name: 'GOLD PATRON PASS',
+      price: '₹2,499',
+      period: '/ year',
+      badge: 'PATRON TIER',
+      badgeClass: 'badge-gold',
+      description: 'VIP patron pass for dedicated supporters seeking VIP screening access and travel priority.',
+      features: [
+        'All Official MUSC Pune Privileges Included',
+        'VIP Reserved Seating at All Screenings',
+        'Priority Match Ticket Allocation for Old Trafford Tours',
+        'Complimentary Matchday Supporter Scarf',
+        'Invitation to Annual Legends Gala Dinner'
+      ],
+      highlight: false,
+      ctaText: 'JOIN AS GOLD PATRON'
+    }
+  ];
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Title */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 text-xs font-mono text-[#C8102E] font-bold tracking-widest uppercase">
-            <Award className="w-4 h-4" />
-            <span>OFFICIAL SUPPORTERS NETWORK</span>
+  return (
+    <section id="membership" className="py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-display text-[#FFC400] font-bold tracking-wider uppercase">
+              <ShieldCheck className="w-4 h-4 text-[#E60012]" />
+              <span>OFFICIAL SUPPORTERS CLUB PASS</span>
+            </div>
+            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
+              MEMBERSHIP <span className="text-[#E60012]">TIERS</span>
+            </h2>
+            <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
+              Join 500+ supporters across Pune. Receive priority screening tickets, physical membership kits, and Old Trafford tour access.
+            </p>
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-[#E7E0CF] uppercase">
-            JOIN <span className="text-[#C8102E]">THE REDS</span>
-          </h2>
-          <p className="text-sm text-[#E7E0CF]/70 font-sans">
-            Choose your membership tier to represent Manchester United locally in Pune and globally at Old Trafford.
-          </p>
+
+          <div className="badge-united text-xs font-display px-3.5 py-1.5 rounded-lg font-bold">
+            🔴 2025/26 MEMBERSHIPS OPEN
+          </div>
         </div>
 
-        {/* Membership Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* 1. Official Manchester United Membership Card */}
-          <div className="glass-card rounded-3xl p-8 flex flex-col justify-between space-y-8 relative overflow-hidden border-2 border-[#E7E0CF]/40 shadow-2xl">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-[#E7E0CF]/20 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-black border border-[#E7E0CF]/60 flex items-center justify-center font-display text-xl font-bold text-[#C8102E] shadow">
-                    MU
+        {/* Tier Cards Grid with Equal Heights */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {tiers.map((tier) => (
+            <div
+              key={tier.id}
+              className={`glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6 relative border ${
+                tier.highlight
+                  ? 'border-[#E60012] bg-[#171717] shadow-[0_8px_30px_rgba(230,0,18,0.25)] scale-[1.02]'
+                  : 'border-white/10 bg-[#171717]/80'
+              }`}
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className={`${tier.badgeClass} text-[10px] font-display px-3 py-1 rounded font-bold uppercase tracking-wider`}>
+                    {tier.badge}
+                  </span>
+                  {tier.highlight && <Star className="w-5 h-5 text-[#FFC400] fill-[#FFC400]" />}
+                </div>
+
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">{tier.name}</h3>
+                  <div className="flex items-baseline gap-1 mt-2">
+                    <span className="font-display text-4xl font-bold text-[#E60012]">{tier.price}</span>
+                    <span className="text-xs text-white/60 font-sans">{tier.period}</span>
                   </div>
-                  <div>
-                    <h3 className="font-display text-2xl font-bold text-[#E7E0CF] uppercase">
-                      OFFICIAL MANCHESTER UNITED
-                    </h3>
-                    <div className="text-[10px] font-mono text-[#E7E0CF]/80 font-bold uppercase tracking-widest">
-                      GLOBAL OFFICIAL CLUB MEMBERSHIP
+                </div>
+
+                <p className="text-xs text-[#F5F5F5]/80 font-sans leading-relaxed pt-2 border-t border-white/10">
+                  {tier.description}
+                </p>
+
+                {/* Features Checklist with High Contrast Text */}
+                <div className="space-y-2.5 pt-4">
+                  <div className="text-[10px] font-display text-[#FFC400] font-bold uppercase tracking-wider">
+                    TIER BENEFITS:
+                  </div>
+                  {tier.features.map((feat, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs font-sans text-white/90">
+                      <CheckCircle2 className="w-4 h-4 text-[#E60012] shrink-0 mt-0.5" />
+                      <span>{feat}</span>
                     </div>
-                  </div>
+                  ))}
                 </div>
-
-                <span className="badge-gold text-xs font-mono px-3 py-1 rounded uppercase font-bold">
-                  GLOBAL TIER
-                </span>
               </div>
 
-              <div className="space-y-3 text-xs font-mono text-[#E7E0CF]/80">
-                <div className="text-sm font-display text-[#E7E0CF] uppercase font-bold text-[#E7E0CF] mb-2">
-                  MEMBERSHIP BENEFITS (PLACEHOLDER)
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#E7E0CF] shrink-0 mt-0.5" />
-                  <span>Access to official Manchester United match ticket ballots at Old Trafford</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#E7E0CF] shrink-0 mt-0.5" />
-                  <span>Digital United Membership Card & official club communications pack</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#E7E0CF] shrink-0 mt-0.5" />
-                  <span>10% discount at the Megastore online and Old Trafford Megastore</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#E7E0CF] shrink-0 mt-0.5" />
-                  <span>Exclusive access to MUTV audio streams & matchday programs</span>
-                </div>
+              {/* Bottom CTA Button Aligned across all cards */}
+              <div className="pt-6 border-t border-white/10">
+                <Link
+                  href="/membership"
+                  className={`w-full py-4 px-6 rounded-xl font-display text-xs tracking-wider font-bold flex items-center justify-center gap-2 transition-all hover:scale-[1.02] ${
+                    tier.highlight
+                      ? 'bg-[#E60012] hover:bg-[#C40010] text-white shadow-[0_4px_20px_rgba(230,0,18,0.35)]'
+                      : 'bg-[#050505] hover:bg-[#E60012] text-white border border-white/10'
+                  }`}
+                >
+                  <Award className="w-4 h-4" />
+                  <span>{tier.ctaText}</span>
+                </Link>
               </div>
             </div>
-
-            <div className="pt-4 border-t border-[#683F39]/40 space-y-3">
-              <a
-                href="https://www.manutd.com/en/memberships"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-[#E7E0CF] hover:bg-[#D8D0BE] text-[#161513] font-display text-base tracking-wider font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl transition-all"
-              >
-                <span>JOIN OFFICIAL MUFC GLOBAL</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-
-              <div className="text-[10px] font-mono text-center text-[#E7E0CF]/50">
-                Redirects to ManUtd.com official membership portal
-              </div>
-            </div>
-          </div>
-
-          {/* 2. Official MUSC Pune Membership Card */}
-          <div className="glass-card rounded-3xl p-8 flex flex-col justify-between space-y-8 relative overflow-hidden border-2 border-[#C8102E]/60 shadow-2xl">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-[#C8102E]/40 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#C8102E] flex items-center justify-center font-display text-xl font-bold text-white shadow-lg">
-                    MU
-                  </div>
-                  <div>
-                    <h3 className="font-display text-2xl font-bold text-[#E7E0CF] uppercase">
-                      OFFICIAL MUSC PUNE
-                    </h3>
-                    <div className="text-[10px] font-mono text-[#C8102E] font-bold uppercase tracking-widest">
-                      LOCAL SUPPORTERS CLUB MEMBERSHIP
-                    </div>
-                  </div>
-                </div>
-
-                <span className="badge-united text-xs font-mono px-3 py-1 rounded uppercase font-bold">
-                  LOCAL TIER
-                </span>
-              </div>
-
-              <div className="space-y-3 text-xs font-mono text-[#E7E0CF]/80">
-                <div className="text-sm font-display text-[#E7E0CF] uppercase font-bold text-[#C8102E] mb-2">
-                  SUPPORTERS CLUB BENEFITS (PLACEHOLDER)
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                  <span>Priority gate entrance at all Pune screening matchdays (Viman Nagar, KP, Baner)</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                  <span>15% discount on official MUSC Pune streetwear drops and terrace scarves</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                  <span>Priority registration for Old Trafford group pilgrimage tours (PNQ ➔ MAN)</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                  <span>Verified Digital Red Card pass with instant QR code credential</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-[#683F39]/40 space-y-3">
-              <Link
-                href="/contact"
-                className="w-full bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-base tracking-wider font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl glow-united transition-all"
-              >
-                <ShieldCheck className="w-5 h-5" />
-                <span>JOIN MUSC PUNE SUPPORTERS</span>
-              </Link>
-
-              <div className="text-[10px] font-mono text-center text-[#E7E0CF]/50">
-                Instant digital Red Card pass generation
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

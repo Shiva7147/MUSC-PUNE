@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Ticket, ArrowRight, ShoppingBag, Music, Plane, ShieldCheck, Camera, Bell } from 'lucide-react';
+import { Ticket, ArrowRight, ShoppingBag, Plane, ShieldCheck, Camera, Bell } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { HeroMarquee } from '@/components/HeroMarquee';
@@ -15,9 +15,8 @@ import { EnquiryModal } from '@/components/EnquiryModal';
 import {
   upcomingScreenings,
   merchandiseProducts,
-  announcements,
-  galleryImages,
   oldTraffordTours,
+  officialClubDetails,
 } from '@/lib/data';
 import { Screening, Product, CartItem } from '@/lib/types';
 
@@ -45,65 +44,90 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#161513] text-[#E7E0CF]">
+    <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
       {/* Floating Glass Navbar */}
       <Navbar
         cartItems={cartItems}
         onOpenCart={() => setCartOpen(true)}
       />
 
-      {/* 1. HERO SECTION (Clear real background photo without dark tint) */}
+      {/* 1. HERO SECTION */}
       <HeroSection
         featuredScreening={featuredScreening}
         onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
       />
 
-      {/* 2. HERO SCROLLER MARQUEE */}
-      <HeroMarquee />
+      {/* 2. SCROLLER 01 — HERO MARQUEE (1st of 2 Scrollers) */}
+      <HeroMarquee variant="primary" />
 
-      {/* 3. SECTION 2: ABOUT THE CLUB (Concise Editorial Human Intro) */}
-      <section className="py-20 bg-[#161513] border-t border-[#683F39]/30">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <span className="badge-pune text-xs font-mono px-3 py-1 rounded font-bold uppercase">
-            ABOUT MUSC PUNE
-          </span>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-[#E7E0CF] uppercase leading-tight">
-            FOOTBALL BROUGHT US TO <span className="text-[#C8102E]">MANCHESTER UNITED.</span>
-            <br />
-            PUNE MADE US A COMMUNITY.
-          </h2>
-          <p className="text-base text-[#E7E0CF]/80 font-sans max-w-2xl mx-auto leading-relaxed">
-            Founded in 2021, MUSC Pune brings together Red Devils from across the city for matchday screenings, terrace chant sessions, and group pilgrimages to Old Trafford.
-          </p>
+      {/* 3. ABOUT THE CLUB */}
+      <section className="py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Visual Story Photo */}
+            <div className="lg:col-span-6 relative aspect-[4/3] rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl group bg-[#171717]">
+              <Image
+                src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_3_eivq1o.jpg"
+                alt="MUSC Pune United Legends Meetup"
+                fill
+                quality={95}
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 text-xs font-sans text-[#F5F5F5] font-semibold">
+                📍 PUNE SUPPORTERS CLUB • EST. 2011
+              </div>
+            </div>
 
-          <div className="pt-2">
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 text-sm font-mono font-bold text-[#C8102E] hover:text-[#E7E0CF] transition-colors"
-            >
-              <span>DISCOVER OUR STORY</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            {/* Story Content */}
+            <div className="lg:col-span-6 space-y-6">
+              <span className="badge-pune text-xs font-display px-3 py-1 rounded font-bold uppercase tracking-wider">
+                ABOUT MUSC PUNE
+              </span>
+              <h2 className="font-display text-5xl sm:text-7xl font-bold text-[#F5F5F5] uppercase tracking-tight leading-none">
+                MORE THAN <span className="text-[#E60012]">90 MINUTES.</span>
+              </h2>
+
+              <p className="text-base sm:text-lg text-[#F5F5F5]/90 font-sans leading-relaxed font-normal">
+                United is 90 minutes on the pitch. For us, it is everything around those 90 minutes too.
+              </p>
+              <p className="text-sm text-[#F5F5F5]/70 font-sans leading-relaxed">
+                Founded in 2011, MUSC Pune connects 500+ supporters across Maharashtra for high-decibel screening matchdays at BIRA 91 Taproom, The Mills, terrace chant sessions, and group pilgrimages to Old Trafford.
+              </p>
+
+              <div className="pt-2">
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
+                >
+                  <span>READ FULL CLUB STORY</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 4. SECTION 3: MATCHDAY SCREENINGS (Major Action Area) */}
-      <section className="py-20 bg-[#1C1B18] border-t border-[#683F39]/30 relative overflow-hidden">
+      {/* 4. SCROLLER 02 — PUNE × MANCHESTER (2nd of 2 Scrollers) */}
+      <HeroMarquee variant="pune-manchester" />
+
+      {/* 5. MATCHDAY SCREENINGS */}
+      <section className="py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="badge-united text-xs font-mono font-bold px-3 py-1 rounded">
-                MATCHDAY SCREENING PASS
+              <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+                SCREENING PASS
               </span>
-              <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#E7E0CF] mt-2 uppercase">
-                NEXT <span className="text-[#C8102E]">MATCHDAY PASS</span>
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+                NEXT <span className="text-[#E60012]">MATCHDAY PASS</span>
               </h2>
             </div>
 
             <Link
               href="/screenings"
-              className="inline-flex items-center gap-2 text-sm font-mono font-bold text-[#C8102E] hover:text-[#E7E0CF] transition-colors"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
             >
               <span>EXPLORE ALL SCREENINGS</span>
               <ArrowRight className="w-4 h-4" />
@@ -111,41 +135,42 @@ export default function Home() {
           </div>
 
           {/* Ticket Stub Pass Card */}
-          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative ticket-notch-left ticket-notch-right border-2 border-[#C8102E]/60">
+          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative ticket-notch-left ticket-notch-right border border-white/10 hover:border-[#E60012] bg-[#050505]">
             <div className="grid grid-cols-1 lg:grid-cols-12">
               <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[380px]">
                 <Image
-                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
+                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
                   alt={featuredScreening.matchTitle}
                   fill
-                  className="object-cover"
+                  quality={95}
+                  className="object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#161513] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#161513]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#050505]" />
                 <div className="absolute top-6 left-6">
-                  <span className="bg-[#C8102E] text-white text-xs font-mono font-bold px-3 py-1.5 rounded uppercase shadow">
-                    FEATURED STUB
+                  <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow">
+                    FEATURED CREDENTIAL
                   </span>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#1C1B18] to-[#161513]">
+              <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
                 <div>
-                  <div className="text-xs font-mono text-[#E7E0CF]/60 uppercase">{featuredScreening.competition}</div>
-                  <h3 className="font-display text-3xl font-bold text-[#E7E0CF] mt-1">{featuredScreening.matchTitle}</h3>
-                  <div className="mt-3 text-xs font-mono text-[#E7E0CF]/80 space-y-1">
+                  <div className="text-xs font-display font-bold text-[#FFC400] uppercase tracking-wider">{featuredScreening.competition}</div>
+                  <h3 className="font-display text-4xl font-bold text-[#F5F5F5] mt-1 tracking-tight">{featuredScreening.matchTitle}</h3>
+                  <div className="mt-3 text-xs sm:text-sm font-sans text-[#F5F5F5]/80 space-y-1">
                     <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
                     <div>📍 {featuredScreening.venueName}</div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#683F39]/30 flex items-center justify-between">
-                  <div className="font-display text-2xl font-bold text-[#C8102E]">₹{featuredScreening.price}</div>
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <div className="font-display text-4xl font-bold text-[#E60012]">₹{featuredScreening.price}</div>
                   <button
                     onClick={() => setSelectedScreening(featuredScreening)}
-                    className="bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-xs tracking-wider font-bold py-3 px-6 rounded-xl flex items-center gap-2 shadow-lg glow-united transition-all"
+                    className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02]"
                   >
                     <Ticket className="w-4 h-4" />
-                    <span>BOOK TICKET STUB</span>
+                    <span>GET MATCHDAY TICKETS</span>
                   </button>
                 </div>
               </div>
@@ -154,60 +179,61 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. SECTION 4: OLD TRAFFORD GROUP TRIP */}
-      <section className="py-20 bg-[#161513] border-t border-[#683F39]/30 relative overflow-hidden">
+      {/* 6. TRIP TO OLD TRAFFORD */}
+      <section className="py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="badge-gold text-xs font-mono font-bold px-3 py-1 rounded">
+              <span className="badge-gold text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
                 THEATRE OF DREAMS PILGRIMAGE
               </span>
-              <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#E7E0CF] mt-2 uppercase">
-                TRIP TO <span className="text-[#C8102E]">OLD TRAFFORD</span>
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+                TRIP TO <span className="text-[#E60012]">OLD TRAFFORD</span>
               </h2>
             </div>
 
             <Link
               href="/tours"
-              className="inline-flex items-center gap-2 text-sm font-mono font-bold text-[#C8102E] hover:text-[#E7E0CF] transition-colors"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
             >
               <span>VIEW TRIP DETAILS</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
-          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border border-[#683F39]/40">
+          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border border-white/10 bg-[#171717]">
             <div className="grid grid-cols-1 lg:grid-cols-12">
               <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[380px]">
                 <Image
-                  src={featuredTour.image}
-                  alt="Old Trafford Group Trip"
+                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg"
+                  alt="Old Trafford Delegation Photo"
                   fill
-                  className="object-cover"
+                  quality={95}
+                  className="object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
                 <div className="absolute top-6 left-6">
-                  <span className="badge-gold text-xs font-mono px-3 py-1 rounded font-bold">
+                  <span className="badge-gold text-xs font-display px-3 py-1 rounded font-bold">
                     ✈️ PNQ ➔ MANCHESTER (MAN)
                   </span>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4 bg-gradient-to-br from-[#1C1B18] to-[#161513]">
+              <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4 bg-gradient-to-br from-[#171717] to-[#050505]">
                 <div>
-                  <div className="text-xs font-mono text-[#E7E0CF] font-bold">{featuredTour.duration}</div>
-                  <h3 className="font-display text-2xl font-bold text-[#E7E0CF] mt-1">{featuredTour.title}</h3>
-                  <p className="text-xs text-[#E7E0CF]/80 mt-2 font-sans line-clamp-3">
+                  <div className="text-xs font-display text-[#FFC400] font-bold tracking-wider">{featuredTour.duration}</div>
+                  <h3 className="font-display text-4xl font-bold text-[#F5F5F5] mt-1 tracking-tight">{featuredTour.title}</h3>
+                  <p className="text-xs text-[#F5F5F5]/80 mt-2 font-sans line-clamp-3">
                     {featuredTour.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#683F39]/30 space-y-3">
+                <div className="pt-3 border-t border-white/10 space-y-3">
                   <button
                     onClick={() => setEnquiryOpen(true)}
-                    className="w-full bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-sm tracking-wider font-bold py-3.5 px-6 rounded-xl shadow-xl glow-united flex items-center justify-center gap-2 transition-all"
+                    className="w-full bg-[#171717] hover:bg-black border border-[#E60012] text-[#FFC400] font-display text-base tracking-wider font-bold py-4 px-6 rounded-xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                   >
-                    <Plane className="w-4 h-4" />
+                    <Plane className="w-4 h-4 text-[#E60012]" />
                     <span>ENQUIRE ABOUT THE NEXT TRIP</span>
                   </button>
                 </div>
@@ -217,24 +243,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. SECTION 5: JOIN THE REDS (Compact Membership Teaser) */}
-      <section className="py-16 bg-[#1C1B18] border-t border-[#683F39]/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 glass-card rounded-3xl p-8 border border-[#683F39]/40">
+      {/* 7. JOIN THE REDS (Compact Membership Teaser) */}
+      <section className="py-16 bg-[#171717] border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 glass-card rounded-3xl p-8 border border-white/10 bg-[#050505]">
           <div className="space-y-2">
-            <span className="badge-united text-xs font-mono font-bold px-3 py-1 rounded">
+            <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
               MEMBERSHIPS OPEN NOW
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#E7E0CF] uppercase">
-              JOIN <span className="text-[#C8102E]">THE REDS</span>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
+              JOIN <span className="text-[#E60012]">THE REDS</span>
             </h2>
-            <p className="text-xs font-mono text-[#E7E0CF]/70 max-w-lg">
+            <p className="text-xs sm:text-sm font-sans text-[#F5F5F5]/70 max-w-lg">
               Official Manchester United & MUSC Pune local supporters club membership passes.
             </p>
           </div>
 
           <Link
             href="/membership"
-            className="bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-sm font-bold py-3.5 px-8 rounded-xl shadow-lg glow-united flex items-center gap-2 shrink-0 transition-all hover:scale-105"
+            className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center gap-2 shrink-0 transition-all hover:scale-105"
           >
             <ShieldCheck className="w-4 h-4" />
             <span>EXPLORE MEMBERSHIP</span>
@@ -242,22 +268,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. SECTION 6: SHOP THE REDS TEASER (Corrected Product Names) */}
-      <section className="py-20 bg-[#161513] border-t border-[#683F39]/30">
+      {/* 8. SHOP THE REDS TEASER */}
+      <section className="py-20 bg-[#050505] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="badge-pune text-xs font-mono font-bold px-3 py-1 rounded">
+              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
                 SHOP THE REDS
               </span>
-              <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#E7E0CF] mt-2 uppercase">
-                FEATURED <span className="text-[#C8102E]">MERCHANDISE</span>
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+                FEATURED <span className="text-[#E60012]">MERCHANDISE</span>
               </h2>
             </div>
 
             <Link
               href="/merchandise"
-              className="inline-flex items-center gap-2 text-sm font-mono font-bold text-[#C8102E] hover:text-[#E7E0CF] transition-colors"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
             >
               <span>VIEW MERCHANDISE</span>
               <ArrowRight className="w-4 h-4" />
@@ -266,16 +292,16 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {merchandiseProducts.map((prod) => (
-              <div key={prod.id} className="glass-card rounded-3xl p-6 flex gap-6 items-center shadow-xl">
-                <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-black shrink-0 border border-[#683F39]/30">
+              <div key={prod.id} className="glass-card rounded-3xl p-6 flex gap-6 items-center shadow-xl bg-[#171717] border border-white/10">
+                <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-black shrink-0 border border-white/10">
                   <Image src={prod.image} alt={prod.name} fill className="object-cover" />
                 </div>
                 <div className="space-y-2 flex-1">
-                  <h4 className="font-display text-xl font-bold text-[#E7E0CF]">{prod.name}</h4>
-                  <div className="font-display text-lg font-bold text-[#C8102E]">₹{prod.price}</div>
+                  <h4 className="font-display text-2xl font-bold text-[#F5F5F5] tracking-tight">{prod.name}</h4>
+                  <div className="font-display text-2xl font-bold text-[#E60012]">₹{prod.price}</div>
                   <button
                     onClick={() => handleAddToCart(prod, 'ONE SIZE', 1)}
-                    className="bg-[#C8102E] hover:bg-[#A00C24] text-white text-xs font-display font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 transition-all"
+                    className="bg-[#E60012] hover:bg-[#C40010] text-white text-xs font-display font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all shadow-[0_4px_15px_rgba(230,0,18,0.25)]"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>ADD TO CART</span>
@@ -287,51 +313,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. SECTION 7: ANNOUNCEMENTS PREVIEW */}
-      <section className="py-16 bg-[#1C1B18] border-t border-[#683F39]/30">
+      {/* 9. ANNOUNCEMENTS PREVIEW */}
+      <section className="py-16 bg-[#171717] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="badge-pune text-xs font-mono font-bold px-3 py-1 rounded">
+            <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
               WHAT&apos;S HAPPENING
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#E7E0CF] uppercase">
-              LATEST <span className="text-[#C8102E]">DISPATCHES</span>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
+              LATEST <span className="text-[#E60012]">DISPATCHES</span>
             </h2>
-            <p className="text-xs font-mono text-[#E7E0CF]/70 max-w-lg">
+            <p className="text-xs sm:text-sm font-sans text-[#F5F5F5]/70 max-w-lg">
               Official notices regarding screenings, Old Trafford trips, and club news.
             </p>
           </div>
 
           <Link
             href="/announcements"
-            className="glass-panel border border-[#683F39] text-[#E7E0CF] hover:border-[#C8102E] font-display text-sm font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 transition-all shrink-0"
+            className="glass-panel border border-white/10 text-[#F5F5F5] hover:border-[#E60012] font-display text-sm font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
           >
-            <Bell className="w-4 h-4 text-[#C8102E]" />
+            <Bell className="w-4 h-4 text-[#E60012]" />
             <span>VIEW ALL ANNOUNCEMENTS</span>
           </Link>
         </div>
       </section>
 
-      {/* 9. SECTION 8: GALLERY PREVIEW */}
-      <section className="py-16 bg-[#161513] border-t border-[#683F39]/30">
+      {/* 10. GALLERY PREVIEW */}
+      <section className="py-16 bg-[#050505] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="badge-gold text-xs font-mono font-bold px-3 py-1 rounded">
+            <span className="badge-gold text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
               INSIDE PUNE REDS
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#E7E0CF] uppercase">
-              DOCUMENTARY <span className="text-[#C8102E]">ARCHIVE</span>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
+              DOCUMENTARY <span className="text-[#E60012]">ARCHIVE</span>
             </h2>
-            <p className="text-xs font-mono text-[#E7E0CF]/70 max-w-lg">
+            <p className="text-xs sm:text-sm font-sans text-[#F5F5F5]/70 max-w-lg">
               Raw documentary photography across Pune screening nights and Old Trafford pilgrimages.
             </p>
           </div>
 
           <Link
             href="/gallery"
-            className="glass-panel border border-[#683F39] text-[#E7E0CF] hover:border-[#C8102E] font-display text-sm font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 transition-all shrink-0"
+            className="glass-panel border border-white/10 text-[#F5F5F5] hover:border-[#E60012] font-display text-sm font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
           >
-            <Camera className="w-4 h-4 text-[#C8102E]" />
+            <Camera className="w-4 h-4 text-[#E60012]" />
             <span>OPEN GALLERY ARCHIVE</span>
           </Link>
         </div>

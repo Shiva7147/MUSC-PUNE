@@ -1,5 +1,30 @@
 import { Screening, Product, TourPackage, GalleryItem, Announcement, FanChant, TeamMember } from './types';
 
+export const officialClubDetails = {
+  name: 'MUSC Pune',
+  fullName: 'Official Manchester United Supporters Club - Pune',
+  establishedYear: 2011,
+  tagline: "Pune’s Red Army",
+  email: 'manunitedpune@gmail.com',
+  grievanceEmail: 'admin@manutdpune.com',
+  founderEmail: 'ebrahimred@gmail.com',
+  phone: '+91 7276735140',
+  whatsapp: '+91 7276735140',
+  socials: {
+    instagram: 'https://www.instagram.com/musc_pune',
+    facebook: 'https://www.facebook.com/MUSCP/',
+    youtube: 'https://www.youtube.com/@MUSCPTV',
+    twitter: 'https://x.com/manutd_pune',
+  },
+  regularVenue: {
+    name: 'BIRA 91 Taproom, The Mills',
+    area: 'THE MILLS, Pune',
+    mapsUrl: 'https://maps.app.goo.gl/g1oSbXmi5YttqbjB6',
+  },
+  grievanceOfficer: 'Ebrahim Kondkar',
+  founder: 'Ebrahim Kondkar',
+};
+
 export const officialLogoUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865410/WhatsApp_Image_2026-08-16_at_11.53.51_AM_8_cbamed.jpg';
 
 export const upcomingScreenings: Screening[] = [
@@ -13,13 +38,13 @@ export const upcomingScreenings: Screening[] = [
     awayLogo: '🔴',
     date: 'Sunday, March 15, 2026',
     time: '09:00 PM IST',
-    venueName: 'The Irish House — Viman Nagar',
-    venueAddress: 'Phoenix Marketcity, Viman Nagar, Pune',
-    venueArea: 'Viman Nagar / East Pune',
+    venueName: 'BIRA 91 Taproom — The Mills',
+    venueAddress: 'THE MILLS, Pune, Maharashtra',
+    venueArea: 'THE MILLS / Central Pune',
     price: 350,
     featured: true,
     status: 'FILLING_FAST',
-    description: '90 minutes. One room. Everyone singing. Join 300+ Pune Reds at The Irish House for an iconic matchday screening with high-decibel audio, chant sessions, and food vouchers.',
+    description: '90 minutes. One room. Everyone singing. Join Pune Reds at BIRA 91 Taproom, The Mills for an iconic matchday screening with high-decibel audio and chant sessions.',
     gateOpening: '07:30 PM IST',
     inclusions: [
       'Guaranteed Entry to Main Stadium Screening Arena',
@@ -44,16 +69,16 @@ export const upcomingScreenings: Screening[] = [
     awayLogo: '🔴',
     date: 'Saturday, April 04, 2026',
     time: '10:00 PM IST',
-    venueName: 'High Spirit Cafe — Koregaon Park',
-    venueAddress: '35A, Main Road, Koregaon Park, Pune',
-    venueArea: 'Koregaon Park / Central Pune',
+    venueName: 'BIRA 91 Taproom — The Mills',
+    venueAddress: 'THE MILLS, Pune, Maharashtra',
+    venueArea: 'THE MILLS / Central Pune',
     price: 300,
     featured: false,
     status: 'UPCOMING',
-    description: 'A classic rivalry under the night lights of Koregaon Park. Big screen projection, open-air terrace atmosphere, and pre-match chant sets.',
+    description: 'A classic rivalry under the lights of The Mills. Big screen projection, taproom atmosphere, and pre-match chant sets.',
     gateOpening: '08:30 PM IST',
     inclusions: [
-      'Access to Open-Air Garden Screening Zone',
+      'Access to Taproom Screening Zone',
       '₹150 Food & Drink Voucher Included',
       'Live Fan Chant Session Led by Pune Reds Ultra Group'
     ],
@@ -72,17 +97,17 @@ export const upcomingScreenings: Screening[] = [
     awayLogo: '🔵',
     date: 'Sunday, April 26, 2026',
     time: '08:00 PM IST',
-    venueName: 'Effingut Brewhouse — Baner',
-    venueAddress: 'Deron Heights, Baner Road, Pune',
-    venueArea: 'Baner / West Pune',
+    venueName: 'BIRA 91 Taproom — The Mills',
+    venueAddress: 'THE MILLS, Pune, Maharashtra',
+    venueArea: 'THE MILLS / Central Pune',
     price: 400,
     featured: false,
     status: 'UPCOMING',
-    description: 'Derby Day in Pune. The city turns red as we battle for bragging rights. Massive LED screens, custom stadium lighting, and 400+ passionate supporters.',
+    description: 'Derby Day in Pune. The city turns red as we battle for bragging rights. Massive screens, custom stadium lighting, and passionate supporters.',
     gateOpening: '06:30 PM IST',
     inclusions: [
-      'Prime Seating with Unobstructed LED View',
-      '₹250 Craft Beverage / Food Voucher',
+      'Prime Seating with Unobstructed View',
+      '₹250 Beverage / Food Voucher',
       'Derby Special Commemorative Wristband'
     ],
     rules: [
@@ -227,7 +252,7 @@ export const galleryImages: GalleryItem[] = [
     title: 'Pune Matchday Screening Roar',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
-    location: 'The Irish House, Viman Nagar',
+    location: 'BIRA 91 Taproom, The Mills',
     date: '15.09.2026',
     caption: '300+ Pune Reds celebrating United in action.'
   },
@@ -236,7 +261,7 @@ export const galleryImages: GalleryItem[] = [
     title: 'Screening Night Chant Session',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg',
-    location: 'Koregaon Park Screening Arena',
+    location: 'BIRA 91 Taproom, The Mills',
     date: '04.12.2025',
     caption: 'High-decibel chant sessions echoing through the night.'
   },
@@ -245,7 +270,7 @@ export const galleryImages: GalleryItem[] = [
     title: 'Matchday Crowd Atmosphere',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.50_AM_w0didk.jpg',
-    location: 'Baner Brewhouse, Pune',
+    location: 'BIRA 91 Taproom, The Mills',
     date: '20.01.2026',
     caption: 'Packed venue singing Glory Glory Man United.'
   },
@@ -254,16 +279,16 @@ export const galleryImages: GalleryItem[] = [
     title: 'Pune Reds Terrace Passion',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.53_AM_yo00ls.jpg',
-    location: 'Viman Nagar Hub',
+    location: 'The Mills, Pune',
     date: '01.02.2026',
-    caption: 'Unmatched energy at our official screening hubs.'
+    caption: 'Unmatched energy at our official screening venue.'
   },
   {
     id: 'gal-screening-5',
     title: 'Post-Match Victory Celebration',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.52_AM_zynksd.jpg',
-    location: 'Pune Screening Hub',
+    location: 'The Mills, Pune',
     date: '10.02.2026',
     caption: 'Red Devils fans celebrating another glorious win.'
   },
@@ -346,9 +371,9 @@ export const announcements: Announcement[] = [
     id: 'ann-01',
     category: 'NEXT SCREENING',
     date: 'March 01, 2026',
-    title: 'Ticket Bookings Live: Manchester United vs Liverpool at Viman Nagar',
+    title: 'Ticket Bookings Live: Manchester United vs Liverpool at BIRA 91 Taproom, The Mills',
     snippet: 'Passes for the biggest screening of the season are now live! Early bird tickets include complimentary food & beverage vouchers.',
-    content: 'We are back at The Irish House, Viman Nagar for the epic clash against Liverpool. Expect a massive 300+ crowd, dual projector setup, high-wattage sound, and raffle prizes including official kit jerseys. Secure your passes early as venue capacity is strictly limited.',
+    content: 'We are back at BIRA 91 Taproom, The Mills for the epic clash against Liverpool. Expect a massive 300+ crowd, dual projector setup, high-wattage sound, and raffle prizes including official kit jerseys.',
     readTime: '2 min read'
   },
   {
@@ -419,14 +444,14 @@ export const teamMembers: (TeamMember & {
 })[] = [
   {
     id: 'team-01',
-    name: 'MUSC Pune Delegation',
-    role: 'Club Leadership & Community',
+    name: 'Ebrahim Kondkar',
+    role: 'Founder & Club President',
     ovr: 99,
     position: 'PRES',
     stats: { pac: 98, cht: 99, scr: 97, psn: 99 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg',
-    bioPlaceholder: 'Building Maharashtra&apos;s most energetic football supporters club since 2021.',
-    socials: { instagram: '#', twitter: '#', linkedin: '#' }
+    bioPlaceholder: 'Founder of MUSC Pune. Leading Maharashtra&apos;s official Manchester United supporters club since 2011.',
+    socials: { instagram: 'https://www.instagram.com/musc_pune', twitter: 'https://x.com/manutd_pune' }
   },
   {
     id: 'team-02',
@@ -436,8 +461,8 @@ export const teamMembers: (TeamMember & {
     position: 'OPS',
     stats: { pac: 95, cht: 96, scr: 99, psn: 98 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
-    bioPlaceholder: 'Managing Old Trafford pilgrimages and screening venue partnerships.',
-    socials: { instagram: '#', twitter: '#' }
+    bioPlaceholder: 'Managing Old Trafford pilgrimages and BIRA 91 Taproom screening partnerships.',
+    socials: { instagram: 'https://www.instagram.com/musc_pune' }
   },
   {
     id: 'team-03',
@@ -447,8 +472,8 @@ export const teamMembers: (TeamMember & {
     position: 'MERCH',
     stats: { pac: 94, cht: 95, scr: 93, psn: 99 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
-    bioPlaceholder: 'Leading Pune Reds chants and terrace soundscapes during screenings.',
-    socials: { instagram: '#', linkedin: '#' }
+    bioPlaceholder: 'Leading Pune Reds chants and terrace soundscapes during screenings at BIRA 91 Taproom, The Mills.',
+    socials: { instagram: 'https://www.instagram.com/musc_pune' }
   },
   {
     id: 'team-04',
@@ -459,6 +484,6 @@ export const teamMembers: (TeamMember & {
     stats: { pac: 96, cht: 97, scr: 95, psn: 99 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_1_eibvrj.jpg',
     bioPlaceholder: 'Connecting Pune supporters with Manchester United club legends.',
-    socials: { twitter: '#', linkedin: '#' }
+    socials: { twitter: 'https://x.com/manutd_pune' }
   }
 ];

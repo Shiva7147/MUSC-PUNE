@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, Menu, X, Ticket, Plane } from 'lucide-react';
+import { ShoppingBag, Menu, X, Ticket, Plane, ShieldCheck } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
 
@@ -34,15 +34,16 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Clean, non-redundant nav links
   const navLinks = [
     { name: 'HOME', href: '/' },
     { name: 'ABOUT', href: '/about' },
     { name: 'SCREENINGS', href: '/screenings' },
     { name: 'MERCH', href: '/merchandise' },
     { name: 'MEMBERSHIP', href: '/membership' },
-    { name: 'TRIP TO OLD TRAFFORD', href: '/tours' },
     { name: 'GALLERY', href: '/gallery' },
     { name: 'CHANTS', href: '/chants' },
+    { name: 'ADMIN', href: '/admin' },
   ];
 
   return (
@@ -50,14 +51,14 @@ export const Navbar: React.FC<NavbarProps> = ({
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'glass-panel bg-[#161513]/90 border-b border-[#683F39]/40 py-3 shadow-2xl glow-red'
-            : 'bg-gradient-to-b from-[#161513]/95 via-[#161513]/60 to-transparent py-5'
+            ? 'glass-panel bg-[#050505]/95 border-b border-white/10 py-3 shadow-2xl glow-red'
+            : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/70 to-transparent py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           {/* Official Logo Badge */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-black border border-[#E7E0CF]/30 group-hover:scale-105 transition-transform shadow-lg shrink-0">
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-black border border-white/20 group-hover:scale-105 transition-transform shadow-lg shrink-0">
               <Image
                 src={officialLogoUrl}
                 alt="MUSC Pune Logo"
@@ -66,27 +67,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-display tracking-wider font-bold text-lg sm:text-xl text-[#E7E0CF] group-hover:text-[#C8102E] transition-colors leading-none">
+              <div className="flex items-center gap-1.5">
+                <span className="font-display font-bold text-base sm:text-lg text-[#F5F5F5] group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
                   MUSC PUNE
                 </span>
-                <span className="badge-pune text-[9px] font-mono px-2 py-0.5 rounded uppercase font-bold tracking-wider">
+                <span className="badge-pune text-[9px] font-sans px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
                   पुणे
                 </span>
               </div>
-              <span className="text-[10px] tracking-widest text-[#E7E0CF]/70 uppercase font-mono mt-0.5">
+              <span className="text-[9px] sm:text-[10px] tracking-widest text-[#F5F5F5]/70 uppercase font-sans font-medium mt-0.5">
                 Official Supporters Club
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden xl:flex items-center gap-4">
+          <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-xs font-semibold tracking-wider text-[#E7E0CF] hover:text-[#C8102E] transition-colors uppercase relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#C8102E] hover:after:w-full after:transition-all"
+                className={`font-display text-xs lg:text-sm font-bold tracking-wider hover:text-[#E60012] transition-colors uppercase relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#E60012] hover:after:w-full after:transition-all whitespace-nowrap ${
+                  link.name === 'ADMIN' ? 'text-[#FFC400]' : 'text-[#F5F5F5]'
+                }`}
               >
                 {link.name}
               </Link>
@@ -94,46 +97,46 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Header Action Buttons */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Header Action 1: TRIP TO OLD TRAFFORD */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Action 1: Old Trafford Tour CTA */}
             <Link
               href="/tours"
-              className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 rounded-xl glass-panel border border-[#683F39]/50 text-xs font-mono text-[#E7E0CF] hover:border-[#C8102E] transition-all shadow"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#171717] border border-[#E60012] font-display text-xs font-bold text-[#FFC400] hover:bg-black transition-all shadow shrink-0 whitespace-nowrap"
             >
-              <Plane className="w-3.5 h-3.5 text-[#C8102E]" />
-              <span className="font-bold">TRIP TO OLD TRAFFORD</span>
+              <Plane className="w-3.5 h-3.5 text-[#E60012] shrink-0" />
+              <span>TRIP TO OLD TRAFFORD</span>
             </Link>
 
-            {/* Cart Trigger */}
+            {/* Shopping Cart Trigger */}
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 rounded-xl glass-panel border border-neutral-800 text-[#E7E0CF] hover:text-white hover:border-[#C8102E] transition-all group"
+              className="relative p-2.5 rounded-xl glass-panel border border-white/10 text-[#F5F5F5] hover:text-white hover:border-[#E60012] transition-all group shrink-0"
               aria-label="View Shopping Cart"
             >
-              <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#C8102E]" />
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform text-[#E60012]" />
               {totalCartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#C8102E] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce shadow-md">
+                <span className="absolute -top-1.5 -right-1.5 bg-[#E60012] text-white text-[10px] font-bold w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center animate-bounce shadow-md">
                   {totalCartCount}
                 </span>
               )}
             </button>
 
-            {/* Header Action 2: GET SCREENING TICKETS */}
+            {/* Action 2: Get Tickets Primary CTA */}
             <Link
               href="/screenings"
-              className="hidden sm:flex items-center gap-2 bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-sm tracking-wider font-semibold px-4 py-2.5 rounded-xl transition-all glow-united hover:scale-[1.03] active:scale-95 border border-white/20"
+              className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs tracking-wider font-bold px-3.5 py-2.5 rounded-xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
             >
-              <Ticket className="w-4 h-4" />
-              <span>GET SCREENING TICKETS</span>
+              <Ticket className="w-4 h-4 shrink-0" />
+              <span>GET MATCHDAY TICKETS</span>
             </Link>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Trigger */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-2.5 rounded-xl glass-panel border border-neutral-800 text-[#E7E0CF] hover:text-white"
+              className="xl:hidden p-2.5 rounded-xl glass-panel border border-white/10 text-[#F5F5F5] hover:text-white shrink-0"
               aria-label="Open Mobile Menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
@@ -141,15 +144,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#161513]/98 backdrop-blur-2xl text-[#E7E0CF] animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-[#F5F5F5] animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-800">
             <div className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-[#E7E0CF]/30 shrink-0">
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/20 shrink-0">
                 <Image src={officialLogoUrl} alt="MUSC Pune Logo" fill className="object-cover" />
               </div>
               <div>
-                <div className="font-display tracking-wider font-bold text-lg text-[#E7E0CF]">MUSC PUNE</div>
-                <div className="text-[10px] font-mono text-[#E7E0CF]/60">पुणे युनायटED</div>
+                <div className="font-display tracking-wider font-bold text-lg text-[#F5F5F5]">MUSC PUNE</div>
+                <div className="text-[10px] font-sans text-white/60">पुणे युनायटED</div>
               </div>
             </div>
             <button
@@ -167,10 +170,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-2xl tracking-wide text-[#E7E0CF] hover:text-[#C8102E] transition-colors py-2 flex items-center justify-between group border-b border-neutral-900"
+                  className="font-display text-2xl font-bold tracking-wide text-[#F5F5F5] hover:text-[#E60012] transition-colors py-2 flex items-center justify-between group border-b border-neutral-900"
                 >
-                  <span>{link.name}</span>
-                  <span className="text-xs font-mono text-[#683F39] group-hover:text-[#C8102E]">
+                  <span className={link.name === 'ADMIN' ? 'text-[#FFC400]' : ''}>{link.name}</span>
+                  <span className="text-xs font-sans text-[#E60012] group-hover:text-white">
                     0{idx + 1}
                   </span>
                 </Link>
@@ -181,23 +184,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 href="/tours"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full glass-panel border border-[#683F39] text-[#E7E0CF] font-display text-base tracking-wider font-bold py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-[#171717] border border-[#E60012] text-[#FFC400] font-display text-base tracking-wider font-bold py-3.5 rounded-xl flex items-center justify-center gap-2"
               >
-                <Plane className="w-5 h-5 text-[#C8102E]" />
+                <Plane className="w-5 h-5 text-[#E60012]" />
                 TRIP TO OLD TRAFFORD
               </Link>
 
               <Link
                 href="/screenings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full bg-[#C8102E] hover:bg-[#A00C24] text-white font-display text-lg tracking-wider font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg glow-united"
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-wider font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)]"
               >
                 <Ticket className="w-5 h-5" />
-                GET SCREENING TICKETS
+                GET MATCHDAY TICKETS
               </Link>
 
-              <div className="text-center text-xs font-mono text-[#E7E0CF]/50">
-                MANCHESTER UNITED SUPPORTERS CLUB PUNE • 🔴
+              <div className="text-center text-xs font-sans text-white/50">
+                MANCHESTER UNITED SUPPORTERS CLUB PUNE • <span className="text-[#E60012]">🔴</span>
               </div>
             </div>
           </div>
