@@ -1,33 +1,47 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Ticket, ArrowRight, ShoppingBag, Plane, ShieldCheck, Camera, Bell } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Plane, Camera, Bell } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { TopEventScroller } from '@/components/TopEventScroller';
 import { HeroMarquee } from '@/components/HeroMarquee';
 import { HeroSection } from '@/sections/HeroSection';
+import { MembershipSection } from '@/sections/MembershipSection';
 import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { ProductQuickViewModal } from '@/components/ProductQuickViewModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { EnquiryModal } from '@/components/EnquiryModal';
 import {
-  upcomingScreenings,
   merchandiseProducts,
   oldTraffordTours,
-  officialClubDetails,
 } from '@/lib/data';
 import { Screening, Product, CartItem } from '@/lib/types';
+import { getScreeningsStore, subscribeStore } from '@/lib/ticketStore';
 
 export default function Home() {
+  const [screenings, setScreenings] = useState<Screening[]>([]);
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState<boolean>(false);
   const [enquiryOpen, setEnquiryOpen] = useState<boolean>(false);
 
-  const featuredScreening = upcomingScreenings.find((s) => s.featured) || upcomingScreenings[0];
+  const refreshScreeningsData = () => {
+    setScreenings(getScreeningsStore());
+  };
+
+  useEffect(() => {
+    refreshScreeningsData();
+    const unsubscribe = subscribeStore(refreshScreeningsData);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const featuredScreening = screenings.find((s) => s.featured) || screenings[0];
   const featuredTour = oldTraffordTours[0];
 
   const handleAddToCart = (product: Product, size: string, quantity: number) => {
@@ -45,13 +59,16 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
+      {/* 0. TOP EVENT TICKER SCROLLER */}
+      <TopEventScroller upcomingScreening={featuredScreening} />
+
       {/* Floating Glass Navbar */}
       <Navbar
         cartItems={cartItems}
         onOpenCart={() => setCartOpen(true)}
       />
 
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION WITH ROTATING EMBLEM & 3 PRIMARY CTAS */}
       <HeroSection
         featuredScreening={featuredScreening}
         onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
@@ -75,7 +92,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 text-xs font-sans text-[#F5F5F5] font-semibold">
-                📍 PUNE SUPPORTERS CLUB • EST. 2011
+                📍 PUNE&apos;S RED ARMY • EST. 2011
               </div>
             </div>
 
@@ -89,7 +106,7 @@ export default function Home() {
               </h2>
 
               <p className="text-base sm:text-lg text-[#F5F5F5]/90 font-sans leading-relaxed font-normal">
-                United is 90 minutes on the pitch. For us, it is everything around those 90 minutes too.
+                Manchester United is 90 minutes on the pitch. For us in Pune, it is everything around those 90 minutes too.
               </p>
               <p className="text-sm text-[#F5F5F5]/70 font-sans leading-relaxed">
                 Founded in 2011, MUSC Pune connects 500+ supporters across Maharashtra for high-decibel screening matchdays at BIRA 91 Taproom, The Mills, terrace chant sessions, and group pilgrimages to Old Trafford.
@@ -113,73 +130,82 @@ export default function Home() {
       <HeroMarquee variant="pune-manchester" />
 
       {/* 5. MATCHDAY SCREENINGS */}
-      <section className="py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-            <div>
-              <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
-                SCREENING PASS
-              </span>
-              <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
-                NEXT <span className="text-[#E60012]">MATCHDAY PASS</span>
-              </h2>
-            </div>
-
-            <Link
-              href="/screenings"
-              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
-            >
-              <span>EXPLORE ALL SCREENINGS</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Ticket Stub Pass Card */}
-          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative ticket-notch-left ticket-notch-right border border-white/10 hover:border-[#E60012] bg-[#050505]">
-            <div className="grid grid-cols-1 lg:grid-cols-12">
-              <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[380px]">
-                <Image
-                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
-                  alt={featuredScreening.matchTitle}
-                  fill
-                  quality={95}
-                  className="object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#050505]" />
-                <div className="absolute top-6 left-6">
-                  <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow">
-                    FEATURED CREDENTIAL
-                  </span>
-                </div>
+      {featuredScreening && (
+        <section className="py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+              <div>
+                <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+                  MATCHDAY TICKETING
+                </span>
+                <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+                  NEXT <span className="text-[#E60012]">MATCHDAY TICKETS</span>
+                </h2>
               </div>
 
-              <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
-                <div>
-                  <div className="text-xs font-display font-bold text-[#FFC400] uppercase tracking-wider">{featuredScreening.competition}</div>
-                  <h3 className="font-display text-4xl font-bold text-[#F5F5F5] mt-1 tracking-tight">{featuredScreening.matchTitle}</h3>
-                  <div className="mt-3 text-xs sm:text-sm font-sans text-[#F5F5F5]/80 space-y-1">
-                    <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
-                    <div>📍 {featuredScreening.venueName}</div>
+              <Link
+                href="/screenings"
+                className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
+              >
+                <span>EXPLORE ALL SCREENINGS</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Ticket Card */}
+            <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative ticket-notch-left ticket-notch-right border border-white/10 hover:border-[#E60012] bg-[#050505]">
+              <div className="grid grid-cols-1 lg:grid-cols-12">
+                <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[380px]">
+                  <Image
+                    src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
+                    alt={featuredScreening.matchTitle}
+                    fill
+                    quality={95}
+                    className="object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#050505]" />
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow">
+                      FEATURED MATCHDAY
+                    </span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                  <div className="font-display text-4xl font-bold text-[#E60012]">₹{featuredScreening.price}</div>
-                  <button
-                    onClick={() => setSelectedScreening(featuredScreening)}
-                    className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02]"
-                  >
-                    <Ticket className="w-4 h-4" />
-                    <span>GET MATCHDAY TICKETS</span>
-                  </button>
+                <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
+                  <div>
+                    <div className="text-xs font-display font-bold text-[#FFC400] uppercase tracking-wider">{featuredScreening.competition}</div>
+                    <h3 className="font-display text-4xl font-bold text-[#F5F5F5] mt-1 tracking-tight">{featuredScreening.matchTitle}</h3>
+                    <div className="mt-3 text-xs sm:text-sm font-sans text-[#F5F5F5]/80 space-y-1">
+                      <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
+                      <div>📍 {featuredScreening.venueName}</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] font-display text-white/50 uppercase">STARTING FROM</div>
+                      <div className="font-display text-4xl font-bold text-[#E60012]">₹{featuredScreening.price}</div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedScreening(featuredScreening)}
+                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02]"
+                    >
+                      <span>BOOK TICKETS</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* 6. TRIP TO OLD TRAFFORD */}
+      {/* 6. OFFICIAL MEMBERSHIP SECTION */}
+      <MembershipSection />
+
+      {/* 7. TRIP TO OLD TRAFFORD */}
       <section className="py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
@@ -243,41 +269,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. JOIN THE REDS (Compact Membership Teaser) */}
-      <section className="py-16 bg-[#171717] border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 glass-card rounded-3xl p-8 border border-white/10 bg-[#050505]">
-          <div className="space-y-2">
-            <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
-              MEMBERSHIPS OPEN NOW
-            </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
-              JOIN <span className="text-[#E60012]">THE REDS</span>
-            </h2>
-            <p className="text-xs sm:text-sm font-sans text-[#F5F5F5]/70 max-w-lg">
-              Official Manchester United & MUSC Pune local supporters club membership passes.
-            </p>
-          </div>
-
-          <Link
-            href="/membership"
-            className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-4 px-8 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center gap-2 shrink-0 transition-all hover:scale-105"
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>EXPLORE MEMBERSHIP</span>
-          </Link>
-        </div>
-      </section>
-
       {/* 8. SHOP THE REDS TEASER */}
       <section className="py-20 bg-[#050505] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
-                SHOP THE REDS
+                OFFICIAL MERCHANDISE
               </span>
               <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
-                FEATURED <span className="text-[#E60012]">MERCHANDISE</span>
+                SHOP THE <span className="text-[#E60012]">SUPPORTER MERCH</span>
               </h2>
             </div>
 
@@ -285,7 +286,7 @@ export default function Home() {
               href="/merchandise"
               className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
             >
-              <span>VIEW MERCHANDISE</span>
+              <span>VIEW ALL MERCHANDISE</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -343,7 +344,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
             <span className="badge-gold text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
-              INSIDE PUNE REDS
+              INSIDE PUNE&apos;S RED ARMY
             </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
               DOCUMENTARY <span className="text-[#E60012]">ARCHIVE</span>
@@ -363,7 +364,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Campaign Film Footer */}
+      {/* Footer */}
       <Footer />
 
       {/* Ticket Modal */}

@@ -12,6 +12,8 @@ export interface Screening {
   venueAddress: string;
   venueArea: string;
   price: number;
+  taxRate?: number; // Configurable tax rate percentage (default 18%)
+  platformFee?: number; // Configurable platform fee per ticket (default ₹30)
   featured: boolean;
   status: 'UPCOMING' | 'FILLING_FAST' | 'SOLD_OUT';
   description: string;
@@ -26,6 +28,7 @@ export interface Product {
   category: 'Apparel' | 'Accessories' | 'Collectibles';
   price: number;
   originalPrice?: number;
+  taxRate?: number; // Configurable tax rate percentage (default 12%)
   image: string;
   description: string;
   availableSizes: string[];
@@ -99,6 +102,9 @@ export interface TicketBooking {
   date: string;
   time: string;
   ticketQuantity: number;
+  baseAmount: number;
+  taxAmount: number;
+  platformFee: number;
   totalAmount: number;
   userName: string;
   userEmail: string;

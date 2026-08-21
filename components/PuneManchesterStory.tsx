@@ -16,7 +16,7 @@ export const PuneManchesterStory: React.FC = () => {
       imageMufc: 'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_800/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
     },
     {
-      puneTag: 'PUNE REDS',
+      puneTag: "PUNE'S RED ARMY",
       mufcTag: 'UNITED ROAD',
       puneTitle: 'VIMAN NAGAR ARENA',
       mufcTitle: 'STRETFORD END TIER 1',

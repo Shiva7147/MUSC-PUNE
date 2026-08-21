@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
       {/* Background Subtle Watermark Typography */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 select-none overflow-hidden">
         <span className="font-display text-[14vw] font-bold text-white tracking-tighter uppercase whitespace-nowrap">
-          पुणे युनायटेड
+          PUNE&apos;S RED ARMY
         </span>
       </div>
 

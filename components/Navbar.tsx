@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, Menu, X, Ticket, Plane, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Menu, X, Ticket, Plane } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
 
@@ -49,22 +49,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-8 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled
             ? 'glass-panel bg-[#050505]/95 border-b border-white/10 py-3 shadow-2xl glow-red'
-            : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/70 to-transparent py-4'
+            : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/70 to-transparent py-3'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-          {/* Official Logo Badge */}
+          {/* Official Red MU Logo Emblem Badge */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-black border border-white/20 group-hover:scale-105 transition-transform shadow-lg shrink-0">
-              <Image
-                src={officialLogoUrl}
-                alt="MUSC Pune Logo"
-                fill
-                className="object-cover"
-              />
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-[#E60012] border border-white/20 group-hover:scale-105 transition-transform shadow-lg flex items-center justify-center font-display text-xl font-bold text-white shrink-0">
+              MU
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
@@ -76,7 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               </div>
               <span className="text-[9px] sm:text-[10px] tracking-widest text-[#F5F5F5]/70 uppercase font-sans font-medium mt-0.5">
-                Official Supporters Club
+                OFFICIAL SUPPORTERS CLUB
               </span>
             </div>
           </Link>
@@ -121,13 +116,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Action 2: Get Tickets Primary CTA */}
+            {/* Action 2: Book Tickets Primary CTA */}
             <Link
               href="/screenings"
               className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs tracking-wider font-bold px-3.5 py-2.5 rounded-xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
             >
               <Ticket className="w-4 h-4 shrink-0" />
-              <span>GET MATCHDAY TICKETS</span>
+              <span>BOOK TICKETS</span>
             </Link>
 
             {/* Mobile Menu Trigger */}
@@ -147,12 +142,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-[#F5F5F5] animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-800">
             <div className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-white/20 shrink-0">
-                <Image src={officialLogoUrl} alt="MUSC Pune Logo" fill className="object-cover" />
+              <div className="w-9 h-9 rounded-xl bg-[#E60012] border border-white/20 font-display text-lg font-bold text-white flex items-center justify-center shrink-0">
+                MU
               </div>
               <div>
                 <div className="font-display tracking-wider font-bold text-lg text-[#F5F5F5]">MUSC PUNE</div>
-                <div className="text-[10px] font-sans text-white/60">पुणे युनायटED</div>
+                <div className="text-[10px] font-sans text-white/60">PUNE&apos;S RED ARMY</div>
               </div>
             </div>
             <button
@@ -193,10 +188,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 href="/screenings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-wider font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)]"
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-wider font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] uppercase"
               >
                 <Ticket className="w-5 h-5" />
-                GET MATCHDAY TICKETS
+                BOOK TICKETS
               </Link>
 
               <div className="text-center text-xs font-sans text-white/50">

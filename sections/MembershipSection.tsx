@@ -1,64 +1,17 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { ShieldCheck, CheckCircle2, Ticket, Award, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldCheck, CheckCircle2, Award, Sparkles, ShoppingBag } from 'lucide-react';
 
 export const MembershipSection: React.FC = () => {
-  const tiers = [
-    {
-      id: 'basic',
-      name: 'LOCAL RED PASS',
-      price: '₹499',
-      period: '/ year',
-      badge: 'SEASON PASS',
-      badgeClass: 'badge-pune',
-      description: 'Essential membership for Pune-based supporters attending local matchday screenings.',
-      features: [
-        'Priority Screening Ticket Access (24h early)',
-        '₹100 Voucher for every Pune Screening',
-        'Official MUSC Pune Sticker & Badge Pack',
-        'Access to Private Pune Reds WhatsApp Community'
-      ],
-      highlight: false,
-      ctaText: 'JOIN LOCAL REDS'
-    },
-    {
-      id: 'official-red',
-      name: 'OFFICIAL MUSC PUNE',
-      price: '₹1,299',
-      period: '/ year',
-      badge: 'MOST POPULAR',
-      badgeClass: 'badge-united',
-      description: 'Complete membership with official physical membership kit and Old Trafford tour eligibility.',
-      features: [
-        'All Local Red Pass Privileges Included',
-        'Official MUSC Pune Physical Membership Kit',
-        'Old Trafford Group Pilgrimage Tour Eligibility',
-        '10% Discount on Official Supporter Merch',
-        'Exclusive Entry into Season Jersey Raffles'
-      ],
-      highlight: true,
-      ctaText: 'BECOME OFFICIAL MEMBER'
-    },
-    {
-      id: 'gold-tier',
-      name: 'GOLD PATRON PASS',
-      price: '₹2,499',
-      period: '/ year',
-      badge: 'PATRON TIER',
-      badgeClass: 'badge-gold',
-      description: 'VIP patron pass for dedicated supporters seeking VIP screening access and travel priority.',
-      features: [
-        'All Official MUSC Pune Privileges Included',
-        'VIP Reserved Seating at All Screenings',
-        'Priority Match Ticket Allocation for Old Trafford Tours',
-        'Complimentary Matchday Supporter Scarf',
-        'Invitation to Annual Legends Gala Dinner'
-      ],
-      highlight: false,
-      ctaText: 'JOIN AS GOLD PATRON'
-    }
+  const [selectedSize, setSelectedSize] = useState<'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL'>('L');
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+
+  const benefits = [
+    'Exclusive merchandise (Official T-Shirt)',
+    'Matchday experience',
+    'Access to community events',
+    'One free screening',
   ];
 
   return (
@@ -69,82 +22,117 @@ export const MembershipSection: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 text-xs font-display text-[#FFC400] font-bold tracking-wider uppercase">
               <ShieldCheck className="w-4 h-4 text-[#E60012]" />
-              <span>OFFICIAL SUPPORTERS CLUB PASS</span>
+              <span>PUNE&apos;S RED ARMY OFFICIAL MEMBERSHIP</span>
             </div>
-            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
-              MEMBERSHIP <span className="text-[#E60012]">TIERS</span>
-            </h2>
-            <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
-              Join 500+ supporters across Pune. Receive priority screening tickets, physical membership kits, and Old Trafford tour access.
+            <h1 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
+              MUSC PUNE <span className="text-[#E60012]">MEMBERSHIP</span>
+            </h1>
+            <p className="text-sm text-[#F5F5F5]/80 max-w-xl mt-2 font-sans">
+              Join Pune&apos;s Red Army for matchday screenings, exclusive merchandise, and community privileges.
             </p>
           </div>
 
-          <div className="badge-united text-xs font-display px-3.5 py-1.5 rounded-lg font-bold">
+          <div className="badge-united text-xs font-display px-4 py-2 rounded-xl font-bold">
             🔴 2025/26 MEMBERSHIPS OPEN
           </div>
         </div>
 
-        {/* Tier Cards Grid with Equal Heights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {tiers.map((tier) => (
-            <div
-              key={tier.id}
-              className={`glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6 relative border ${
-                tier.highlight
-                  ? 'border-[#E60012] bg-[#171717] shadow-[0_8px_30px_rgba(230,0,18,0.25)] scale-[1.02]'
-                  : 'border-white/10 bg-[#171717]/80'
-              }`}
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className={`${tier.badgeClass} text-[10px] font-display px-3 py-1 rounded font-bold uppercase tracking-wider`}>
-                    {tier.badge}
-                  </span>
-                  {tier.highlight && <Star className="w-5 h-5 text-[#FFC400] fill-[#FFC400]" />}
-                </div>
-
-                <div>
-                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">{tier.name}</h3>
-                  <div className="flex items-baseline gap-1 mt-2">
-                    <span className="font-display text-4xl font-bold text-[#E60012]">{tier.price}</span>
-                    <span className="text-xs text-white/60 font-sans">{tier.period}</span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-[#F5F5F5]/80 font-sans leading-relaxed pt-2 border-t border-white/10">
-                  {tier.description}
-                </p>
-
-                {/* Features Checklist with High Contrast Text */}
-                <div className="space-y-2.5 pt-4">
-                  <div className="text-[10px] font-display text-[#FFC400] font-bold uppercase tracking-wider">
-                    TIER BENEFITS:
-                  </div>
-                  {tier.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs font-sans text-white/90">
-                      <CheckCircle2 className="w-4 h-4 text-[#E60012] shrink-0 mt-0.5" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
-                </div>
+        {/* Official Membership Card Visual */}
+        <div className="max-w-3xl mx-auto glass-card rounded-3xl p-8 sm:p-10 bg-gradient-to-br from-[#171717] via-[#050505] to-[#171717] border-2 border-[#E60012]/60 shadow-[0_15px_50px_rgba(230,0,18,0.25)] space-y-8 relative overflow-hidden">
+          {/* Card Top Accent Badge */}
+          <div className="flex items-center justify-between border-b border-white/10 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#E60012] text-white flex items-center justify-center font-display text-2xl font-bold shadow-lg">
+                MU
               </div>
-
-              {/* Bottom CTA Button Aligned across all cards */}
-              <div className="pt-6 border-t border-white/10">
-                <Link
-                  href="/membership"
-                  className={`w-full py-4 px-6 rounded-xl font-display text-xs tracking-wider font-bold flex items-center justify-center gap-2 transition-all hover:scale-[1.02] ${
-                    tier.highlight
-                      ? 'bg-[#E60012] hover:bg-[#C40010] text-white shadow-[0_4px_20px_rgba(230,0,18,0.35)]'
-                      : 'bg-[#050505] hover:bg-[#E60012] text-white border border-white/10'
-                  }`}
-                >
-                  <Award className="w-4 h-4" />
-                  <span>{tier.ctaText}</span>
-                </Link>
+              <div>
+                <span className="text-[#FFC400] font-display text-xs font-bold tracking-widest uppercase">
+                  PUNE&apos;S RED ARMY
+                </span>
+                <h3 className="font-display text-3xl font-bold text-white uppercase leading-none">
+                  MUSC PUNE MEMBERSHIP
+                </h3>
               </div>
             </div>
-          ))}
+
+            <div className="text-right">
+              <div className="text-[10px] font-display text-white/50 uppercase">SEASON PASS</div>
+              <div className="font-display text-3xl font-bold text-[#E60012]">₹999</div>
+            </div>
+          </div>
+
+          {/* Benefits Grid */}
+          <div className="space-y-4">
+            <div className="text-xs font-display text-[#FFC400] font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-[#E60012]" />
+              <span>OFFICIAL MEMBERSHIP BENEFITS:</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {benefits.map((benefit, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3.5 rounded-xl bg-[#050505] border border-white/10 text-sm font-sans text-white/90">
+                  <CheckCircle2 className="w-5 h-5 text-[#E60012] shrink-0" />
+                  <span className="font-medium">{benefit}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Size Selector for T-Shirt */}
+          <div className="space-y-3 pt-2">
+            <label className="block text-xs font-display text-[#FFC400] font-bold uppercase">
+              SELECT T-SHIRT SIZE *
+            </label>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {sizes.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setSelectedSize(size as any)}
+                  className={`px-5 py-2.5 rounded-xl font-display text-sm font-bold border transition-all ${
+                    selectedSize === size
+                      ? 'bg-[#E60012] text-white border-[#E60012] shadow-lg shadow-[#E60012]/40 scale-105'
+                      : 'bg-[#050505] text-white/70 border-white/15 hover:text-white'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Checkout Breakdown */}
+          <div className="p-4 rounded-2xl bg-[#050505] border border-white/10 space-y-1.5 text-xs font-sans">
+            <div className="flex justify-between text-white/70">
+              <span>Base Membership Price</span>
+              <span className="font-mono">₹822</span>
+            </div>
+            <div className="flex justify-between text-white/70">
+              <span>Applicable Tax (18% GST)</span>
+              <span className="font-mono">₹147</span>
+            </div>
+            <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
+              <span>Platform & Processing Fee</span>
+              <span className="font-mono">₹30</span>
+            </div>
+            <div className="flex justify-between font-display text-lg font-bold text-white pt-1">
+              <span>TOTAL PAYABLE</span>
+              <span className="text-[#E60012]">₹999</span>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div>
+            <a
+              href={`https://wa.me/917276735140?text=Hi%20MUSC%20Pune,%20I%20want%20to%20JOIN%20NOW%20for%20the%20Official%20₹999%20Membership!%20(Size:%20${selectedSize})`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl tracking-wider font-bold py-4 px-8 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.4)] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] border border-white/20 uppercase"
+            >
+              <Award className="w-6 h-6" />
+              <span>JOIN NOW — ₹999</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
