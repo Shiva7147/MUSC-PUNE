@@ -68,7 +68,7 @@ export default function Home() {
         onOpenCart={() => setCartOpen(true)}
       />
 
-      {/* 1. HERO SECTION WITH ROTATING EMBLEM & 3 PRIMARY CTAS */}
+      {/* 1. HERO SECTION WITH CLEAR OLD TRAFFORD BACKGROUND & IMPROVISED HEADLINE */}
       <HeroSection
         featuredScreening={featuredScreening}
         onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
@@ -78,44 +78,44 @@ export default function Home() {
       <HeroMarquee variant="primary" />
 
       {/* 3. ABOUT THE CLUB */}
-      <section className="py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
+      <section className="py-20 sm:py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Visual Story Photo */}
             <div className="lg:col-span-6 relative aspect-[4/3] rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl group bg-[#171717]">
               <Image
                 src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_3_eivq1o.jpg"
-                alt="MUSC Pune United Legends Meetup"
+                alt="MUSC Pune Supporters Group"
                 fill
                 quality={95}
                 className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 text-xs font-sans text-[#F5F5F5] font-semibold">
+              <div className="absolute bottom-4 left-4 right-4 text-xs font-sans text-white font-semibold uppercase">
                 📍 PUNE&apos;S RED ARMY • EST. 2011
               </div>
             </div>
 
             {/* Story Content */}
-            <div className="lg:col-span-6 space-y-6">
+            <div className="lg:col-span-6 space-y-5">
               <span className="badge-pune text-xs font-display px-3 py-1 rounded font-bold uppercase tracking-wider">
                 ABOUT MUSC PUNE
               </span>
-              <h2 className="font-display text-5xl sm:text-7xl font-bold text-[#F5F5F5] uppercase tracking-tight leading-none">
+              <h2 className="font-display text-5xl sm:text-7xl font-bold text-white uppercase tracking-tight leading-none">
                 MORE THAN <span className="text-[#E60012]">90 MINUTES.</span>
               </h2>
 
-              <p className="text-base sm:text-lg text-[#F5F5F5]/90 font-sans leading-relaxed font-normal">
+              <p className="text-base sm:text-lg text-white/90 font-sans leading-relaxed font-normal">
                 Manchester United is 90 minutes on the pitch. For us in Pune, it is everything around those 90 minutes too.
               </p>
-              <p className="text-sm text-[#F5F5F5]/70 font-sans leading-relaxed">
+              <p className="text-sm text-white/70 font-sans leading-relaxed">
                 Founded in 2011, MUSC Pune connects 500+ supporters across Maharashtra for high-decibel screening matchdays at BIRA 91 Taproom, The Mills, terrace chant sessions, and group pilgrimages to Old Trafford.
               </p>
 
               <div className="pt-2">
                 <Link
                   href="/about"
-                  className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
+                  className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
                 >
                   <span>READ FULL CLUB STORY</span>
                   <ArrowRight className="w-4 h-4" />
@@ -131,21 +131,21 @@ export default function Home() {
 
       {/* 5. MATCHDAY SCREENINGS */}
       {featuredScreening && (
-        <section className="py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
+        <section className="py-20 sm:py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
               <div>
                 <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
                   MATCHDAY TICKETING
                 </span>
-                <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+                <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase tracking-tight">
                   NEXT <span className="text-[#E60012]">MATCHDAY TICKETS</span>
                 </h2>
               </div>
 
               <Link
                 href="/screenings"
-                className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
+                className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
               >
                 <span>EXPLORE ALL SCREENINGS</span>
                 <ArrowRight className="w-4 h-4" />
@@ -153,9 +153,9 @@ export default function Home() {
             </div>
 
             {/* Ticket Card */}
-            <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative ticket-notch-left ticket-notch-right border border-white/10 hover:border-[#E60012] bg-[#050505]">
+            <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border border-white/15 hover:border-[#E60012] bg-[#050505]">
               <div className="grid grid-cols-1 lg:grid-cols-12">
-                <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[380px]">
+                <div className="lg:col-span-7 relative min-h-[280px] lg:min-h-[380px]">
                   <Image
                     src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg"
                     alt={featuredScreening.matchTitle}
@@ -173,9 +173,9 @@ export default function Home() {
 
                 <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
                   <div>
-                    <div className="text-xs font-display font-bold text-[#FFC400] uppercase tracking-wider">{featuredScreening.competition}</div>
-                    <h3 className="font-display text-4xl font-bold text-[#F5F5F5] mt-1 tracking-tight">{featuredScreening.matchTitle}</h3>
-                    <div className="mt-3 text-xs sm:text-sm font-sans text-[#F5F5F5]/80 space-y-1">
+                    <div className="text-xs font-display font-bold text-[#E60012] uppercase tracking-wider">{featuredScreening.competition}</div>
+                    <h3 className="font-display text-4xl sm:text-5xl font-bold text-white mt-1 tracking-tight uppercase">{featuredScreening.matchTitle}</h3>
+                    <div className="mt-3 text-xs sm:text-sm font-sans text-white/80 space-y-1">
                       <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
                       <div>📍 {featuredScreening.venueName}</div>
                     </div>
@@ -189,7 +189,7 @@ export default function Home() {
 
                     <button
                       onClick={() => setSelectedScreening(featuredScreening)}
-                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02]"
+                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-3.5 px-6 rounded-2xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all hover:scale-[1.02] border border-white/20 uppercase"
                     >
                       <span>BOOK TICKETS</span>
                       <ArrowRight className="w-4 h-4" />
@@ -202,25 +202,25 @@ export default function Home() {
         </section>
       )}
 
-      {/* 6. OFFICIAL MEMBERSHIP SECTION */}
+      {/* 6. SPECTACULAR MEMBERSHIP SECTION */}
       <MembershipSection />
 
       {/* 7. TRIP TO OLD TRAFFORD */}
-      <section className="py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
+      <section className="py-20 sm:py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="badge-gold text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
                 THEATRE OF DREAMS PILGRIMAGE
               </span>
-              <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase tracking-tight">
                 TRIP TO <span className="text-[#E60012]">OLD TRAFFORD</span>
               </h2>
             </div>
 
             <Link
               href="/tours"
-              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
             >
               <span>VIEW TRIP DETAILS</span>
               <ArrowRight className="w-4 h-4" />
@@ -229,7 +229,7 @@ export default function Home() {
 
           <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border border-white/10 bg-[#171717]">
             <div className="grid grid-cols-1 lg:grid-cols-12">
-              <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[380px]">
+              <div className="lg:col-span-7 relative min-h-[280px] lg:min-h-[380px]">
                 <Image
                   src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg"
                   alt="Old Trafford Delegation Photo"
@@ -239,7 +239,7 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
                 <div className="absolute top-6 left-6">
-                  <span className="badge-gold text-xs font-display px-3 py-1 rounded font-bold">
+                  <span className="badge-pune text-xs font-display px-3 py-1 rounded font-bold">
                     ✈️ PNQ ➔ MANCHESTER (MAN)
                   </span>
                 </div>
@@ -247,9 +247,9 @@ export default function Home() {
 
               <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4 bg-gradient-to-br from-[#171717] to-[#050505]">
                 <div>
-                  <div className="text-xs font-display text-[#FFC400] font-bold tracking-wider">{featuredTour.duration}</div>
-                  <h3 className="font-display text-4xl font-bold text-[#F5F5F5] mt-1 tracking-tight">{featuredTour.title}</h3>
-                  <p className="text-xs text-[#F5F5F5]/80 mt-2 font-sans line-clamp-3">
+                  <div className="text-xs font-display text-[#E60012] font-bold tracking-wider">{featuredTour.duration}</div>
+                  <h3 className="font-display text-4xl font-bold text-white mt-1 tracking-tight uppercase">{featuredTour.title}</h3>
+                  <p className="text-xs text-white/80 mt-2 font-sans line-clamp-3">
                     {featuredTour.description}
                   </p>
                 </div>
@@ -257,7 +257,7 @@ export default function Home() {
                 <div className="pt-3 border-t border-white/10 space-y-3">
                   <button
                     onClick={() => setEnquiryOpen(true)}
-                    className="w-full bg-[#171717] hover:bg-black border border-[#E60012] text-[#FFC400] font-display text-base tracking-wider font-bold py-4 px-6 rounded-xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                    className="w-full bg-[#171717] hover:bg-black border border-[#E60012] text-white font-display text-base tracking-wider font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase"
                   >
                     <Plane className="w-4 h-4 text-[#E60012]" />
                     <span>ENQUIRE ABOUT THE NEXT TRIP</span>
@@ -277,14 +277,14 @@ export default function Home() {
               <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
                 OFFICIAL MERCHANDISE
               </span>
-              <h2 className="font-display text-5xl sm:text-6xl font-bold text-[#F5F5F5] mt-2 uppercase tracking-tight">
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase tracking-tight">
                 SHOP THE <span className="text-[#E60012]">SUPPORTER MERCH</span>
               </h2>
             </div>
 
             <Link
               href="/merchandise"
-              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-[#FFC400] transition-colors uppercase tracking-wider"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
             >
               <span>VIEW ALL MERCHANDISE</span>
               <ArrowRight className="w-4 h-4" />
@@ -298,11 +298,11 @@ export default function Home() {
                   <Image src={prod.image} alt={prod.name} fill className="object-cover" />
                 </div>
                 <div className="space-y-2 flex-1">
-                  <h4 className="font-display text-2xl font-bold text-[#F5F5F5] tracking-tight">{prod.name}</h4>
-                  <div className="font-display text-2xl font-bold text-[#E60012]">₹{prod.price}</div>
+                  <h4 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight uppercase">{prod.name}</h4>
+                  <div className="font-display text-3xl font-bold text-[#E60012]">₹{prod.price}</div>
                   <button
                     onClick={() => handleAddToCart(prod, 'ONE SIZE', 1)}
-                    className="bg-[#E60012] hover:bg-[#C40010] text-white text-xs font-display font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all shadow-[0_4px_15px_rgba(230,0,18,0.25)]"
+                    className="bg-[#E60012] hover:bg-[#C40010] text-white text-xs font-display font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all shadow-[0_4px_15px_rgba(230,0,18,0.25)] uppercase"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>ADD TO CART</span>
@@ -321,17 +321,17 @@ export default function Home() {
             <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
               WHAT&apos;S HAPPENING
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase tracking-tight">
               LATEST <span className="text-[#E60012]">DISPATCHES</span>
             </h2>
-            <p className="text-xs sm:text-sm font-sans text-[#F5F5F5]/70 max-w-lg">
+            <p className="text-xs sm:text-sm font-sans text-white/70 max-w-lg">
               Official notices regarding screenings, Old Trafford trips, and club news.
             </p>
           </div>
 
           <Link
             href="/announcements"
-            className="glass-panel border border-white/10 text-[#F5F5F5] hover:border-[#E60012] font-display text-sm font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
+            className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
           >
             <Bell className="w-4 h-4 text-[#E60012]" />
             <span>VIEW ALL ANNOUNCEMENTS</span>
@@ -343,20 +343,20 @@ export default function Home() {
       <section className="py-16 bg-[#050505] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="badge-gold text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+            <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
               INSIDE PUNE&apos;S RED ARMY
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-[#F5F5F5] uppercase tracking-tight">
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase tracking-tight">
               DOCUMENTARY <span className="text-[#E60012]">ARCHIVE</span>
             </h2>
-            <p className="text-xs sm:text-sm font-sans text-[#F5F5F5]/70 max-w-lg">
+            <p className="text-xs sm:text-sm font-sans text-white/70 max-w-lg">
               Raw documentary photography across Pune screening nights and Old Trafford pilgrimages.
             </p>
           </div>
 
           <Link
             href="/gallery"
-            className="glass-panel border border-white/10 text-[#F5F5F5] hover:border-[#E60012] font-display text-sm font-bold py-3.5 px-6 rounded-xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
+            className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
           >
             <Camera className="w-4 h-4 text-[#E60012]" />
             <span>OPEN GALLERY ARCHIVE</span>

@@ -1,16 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Teko:wght@600;700&family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Devanagari:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 :root {
   /* MANCHESTER UNITED MATCHDAY CONDENSED FONT THEME */
-  --font-display: 'Bebas Neue', 'Teko', 'Barlow Condensed', sans-serif;
-  --font-body: 'Inter', 'Roboto', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+  --font-body: 'Inter', sans-serif;
 
   --color-black: #050505;
   --color-charcoal: #171717;
   --color-united-red: #E60012;
-  --color-gold: #FFC400;
-  --color-white: #F5F5F5;
+  --color-white: #FFFFFF;
 
   /* Mappings */
   --bg-dark: #050505;
@@ -19,14 +19,14 @@
 }
 
 @theme {
-  --font-display: 'Bebas Neue', 'Teko', 'Barlow Condensed', sans-serif;
-  --font-sans: 'Inter', 'Roboto', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+  --font-sans: 'Inter', sans-serif;
   --color-black: #050505;
   --color-[#171717]: #171717;
   --color-united-red: #E60012;
-  --color-gold: #FFC400;
   --color-ivory: #F5F5F5;
-  --color-primary: #F5F5F5;
+  --color-primary: #FFFFFF;
   --color-accent: #E60012;
   --color-surface: #171717;
   --color-dark-bg: #050505;
@@ -35,7 +35,7 @@
 html, body {
   background-color: var(--color-black);
   color: var(--color-white);
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden !important;
   width: 100%;
   max-width: 100vw;
@@ -55,9 +55,9 @@ input::placeholder, textarea::placeholder {
   opacity: 1 !important;
 }
 
-/* Headings: Bebas Neue / Barlow Condensed Iconic Football Typography */
-h1, h2, h3, h4, .font-display, .mufc-kit-font {
-  font-family: 'Bebas Neue', 'Teko', 'Barlow Condensed', sans-serif;
+/* Headings: Bebas Neue Iconic Football Typography */
+h1, h2, h3, h4, .font-display {
+  font-family: 'Bebas Neue', sans-serif;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -65,9 +65,13 @@ h1, h2, h3, h4, .font-display, .mufc-kit-font {
   line-height: 0.95;
 }
 
+.font-devanagari {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
 /* Body & Micro Typography */
 p, span, li, button, input, label {
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Slow Continuous Emblem Rotation */
@@ -82,40 +86,40 @@ p, span, li, button, input, label {
 
 /* Editorial Glass Visual System & Premium Polished Cards */
 .glass-panel {
-  background: rgba(23, 23, 23, 0.88);
+  background: rgba(23, 23, 23, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
 }
 
-/* POLISHED MATCHDAY CARD EFFECT */
+/* POLISHED MATCHDAY CARD EFFECT — UNIFORM GRID DISPLAY */
 .glass-card {
   background: linear-gradient(145deg, rgba(26, 26, 26, 0.95) 0%, rgba(14, 14, 14, 0.98) 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 
     0 20px 40px -15px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
   position: relative;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(230, 0, 18, 0.8);
+  border-color: rgba(230, 0, 18, 0.85);
   box-shadow: 
     0 25px 50px -12px rgba(230, 0, 18, 0.35),
     0 0 20px rgba(230, 0, 18, 0.2);
   transform: translateY(-4px);
 }
 
-/* Supporter Micro Badges */
+/* Supporter Micro Badges — Clean Red & Black Only (No Yellow) */
 .badge-united {
   background: linear-gradient(135deg, #E60012 0%, #99000A 100%);
   color: #FFFFFF;
-  font-family: 'Bebas Neue', 'Teko', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -125,18 +129,8 @@ p, span, li, button, input, label {
 .badge-pune {
   background: rgba(23, 23, 23, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--color-white);
-  font-family: 'Bebas Neue', 'Teko', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.badge-gold {
-  background: linear-gradient(135deg, rgba(255, 196, 0, 0.25) 0%, rgba(180, 135, 0, 0.15) 100%);
-  border: 1px solid rgba(255, 196, 0, 0.6);
-  color: #FFC400;
-  font-family: 'Bebas Neue', 'Teko', sans-serif;
+  color: #FFFFFF;
+  font-family: 'Bebas Neue', sans-serif;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;

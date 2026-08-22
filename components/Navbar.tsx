@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Menu, X, Ticket, Plane } from 'lucide-react';
+import { ShoppingBag, Menu, X, Ticket } from 'lucide-react';
 import { CartItem } from '@/lib/types';
 
 interface NavbarProps {
@@ -60,14 +60,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-lg sm:text-xl text-[#F5F5F5] group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
+                <span className="font-display font-bold text-lg sm:text-xl text-white group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
                   MUSC PUNE
                 </span>
-                <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-[#FFC400] uppercase font-bold tracking-wider">
+                <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold tracking-wider">
                   पुणे
                 </span>
               </div>
-              <span className="text-[9px] sm:text-[10px] tracking-widest text-[#F5F5F5]/60 uppercase font-sans font-medium mt-0.5">
+              <span className="text-[9px] sm:text-[10px] tracking-widest text-white/60 uppercase font-sans font-medium mt-0.5">
                 OFFICIAL SUPPORTERS CLUB
               </span>
             </div>
@@ -79,9 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 key={link.name}
                 href={link.href}
-                className={`font-display text-base font-bold tracking-wider hover:text-[#E60012] transition-colors uppercase relative py-1 ${
-                  link.name === 'ADMIN' ? 'text-[#FFC400]' : 'text-[#F5F5F5]'
-                }`}
+                className="font-display text-base font-bold tracking-wider text-white hover:text-[#E60012] transition-colors uppercase relative py-1"
               >
                 {link.name}
               </Link>
@@ -93,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Shopping Cart Trigger */}
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-[#F5F5F5] hover:text-white hover:border-[#E60012] transition-all group shrink-0"
+              className="relative p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white hover:border-[#E60012] transition-all group shrink-0"
               aria-label="View Shopping Cart"
             >
               <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#E60012]" />
@@ -116,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-[#F5F5F5] hover:text-white shrink-0"
+              className="xl:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-5 h-5" />
@@ -127,14 +125,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-[#F5F5F5] animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#E60012] border border-white/20 font-display text-xl font-bold text-white flex items-center justify-center shrink-0">
                 MU
               </div>
               <div>
-                <div className="font-display tracking-wider font-bold text-xl text-[#F5F5F5]">MUSC PUNE</div>
+                <div className="font-display tracking-wider font-bold text-xl text-white">MUSC PUNE</div>
                 <div className="text-[10px] font-sans text-white/60 uppercase">PUNE&apos;S RED ARMY</div>
               </div>
             </div>
@@ -153,9 +151,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-3xl font-bold tracking-wide text-[#F5F5F5] hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
+                  className="font-display text-3xl font-bold tracking-wide text-white hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
                 >
-                  <span className={link.name === 'ADMIN' ? 'text-[#FFC400]' : ''}>{link.name}</span>
+                  <span>{link.name}</span>
                   <span className="text-xs font-sans text-[#E60012]">
                     0{idx + 1}
                   </span>

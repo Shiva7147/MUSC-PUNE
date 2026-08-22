@@ -8,10 +8,10 @@ import { officialLogoUrl, officialClubDetails } from '@/lib/data';
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-[#050505] text-[#F5F5F5] border-t border-white/10 relative overflow-hidden pt-16 pb-8">
-      {/* Background Subtle Watermark Typography */}
+      {/* Background Subtle Watermark Devanagari / Hindi Typography (No Yellow) */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 select-none overflow-hidden">
-        <span className="font-display text-[14vw] font-bold text-white tracking-tighter uppercase whitespace-nowrap">
-          PUNE&apos;S RED ARMY
+        <span className="font-devanagari text-[11vw] font-black text-white tracking-tight uppercase whitespace-nowrap">
+          पुणे्स रेड आर्मी • मँचेस्टर युनायटेड
         </span>
       </div>
 
@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
 
           {/* Quick Links Column */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-display text-sm font-bold text-[#FFC400] uppercase tracking-wider">NAVIGATION</h4>
+            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">NAVIGATION</h4>
             <ul className="space-y-2 text-xs font-display text-white/80">
               <li><Link href="/" className="hover:text-[#E60012] transition-colors">HOME</Link></li>
               <li><Link href="/about" className="hover:text-[#E60012] transition-colors">ABOUT THE CLUB</Link></li>
@@ -57,7 +57,7 @@ export const Footer: React.FC = () => {
 
           {/* Legal Policies Column */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-display text-sm font-bold text-[#FFC400] uppercase tracking-wider">POLICIES</h4>
+            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">POLICIES</h4>
             <ul className="space-y-2 text-xs font-sans text-white/70">
               <li><Link href="/privacy-policy" className="hover:text-[#E60012] transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms-and-conditions" className="hover:text-[#E60012] transition-colors">Terms & Conditions</Link></li>
@@ -69,10 +69,10 @@ export const Footer: React.FC = () => {
 
           {/* Contact & Venue Details */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-display text-sm font-bold text-[#FFC400] uppercase tracking-wider">CLUB CONTACT</h4>
+            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">CLUB CONTACT</h4>
             <p className="text-xs font-sans text-white/80 leading-relaxed">
               <strong>Regular Screening Venue:</strong><br />
-              <a href={officialClubDetails.regularVenue.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-[#E60012] underline hover:text-[#FFC400]">
+              <a href={officialClubDetails.regularVenue.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-[#E60012] underline hover:text-white">
                 {officialClubDetails.regularVenue.name}
               </a>
             </p>
