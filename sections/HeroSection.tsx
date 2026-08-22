@@ -22,20 +22,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <section className="relative min-h-[92vh] flex flex-col justify-center items-center overflow-hidden bg-[#050505] pt-32 sm:pt-36 pb-16">
-      {/* 1. Clear, High-Resolution Old Trafford Night Matchday Background Photograph */}
+      {/* 1. Crystal Clear HD Old Trafford Night Matchday Background Photograph */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/old_trafford_hero_night.jpg"
           alt="Old Trafford Stadium Matchday Atmosphere"
           fill
           priority
-          quality={98}
-          className="object-cover object-center scale-105 opacity-75 brightness-95 contrast-105"
+          quality={100}
+          unoptimized
+          className="object-cover object-center opacity-85"
         />
-        {/* Subtle Edge Gradients (Keeping Old Trafford Stadium Crystal Clear) */}
+        {/* Subtle Vignette & Top/Bottom Lighting Overlays (Keeping Old Trafford Stadium Crystal Clear) */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]" />
-        <div className="absolute inset-0 bg-radial from-[#E60012]/15 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/75 via-transparent to-[#050505]" />
+        <div className="absolute inset-0 bg-radial from-[#E60012]/10 via-transparent to-transparent pointer-events-none" />
       </div>
 
       {/* Hero Content Container */}
@@ -48,7 +49,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* IMPROVISED HEADLINE: PUNE. UNITED. ALWAYS. */}
         <h1 className="font-display text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] font-extrabold text-white uppercase tracking-tight leading-[0.9] drop-shadow-[0_15px_30px_rgba(0,0,0,0.95)]">
-          PUNE. <span className="text-[#E60012] drop-shadow-[0_0_35px_rgba(230,0,18,0.7)]">UNITED.</span><br />
+          PUNE. <span className="text-[#E60012] drop-shadow-[0_0_35px_rgba(230,0,18,0.8)]">UNITED.</span><br />
           ALWAYS.
         </h1>
 
@@ -57,7 +58,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           The home of Manchester United supporters in Pune. High-decibel screening venues, official merchandise drops, and group trips to Old Trafford.
         </p>
 
-        {/* 2 MAIN PROMINENT CTA BUTTONS (Matching Reference Screenshot 100%) */}
+        {/* 2 MAIN PROMINENT CTA BUTTONS */}
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md sm:max-w-xl mx-auto w-full px-2">
           {/* Button 1: Get Screening Tickets */}
           <button
