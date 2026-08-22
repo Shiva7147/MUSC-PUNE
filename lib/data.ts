@@ -25,7 +25,8 @@ export const officialClubDetails = {
   founder: 'Ebrahim Kondkar',
 };
 
-export const officialLogoUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865410/WhatsApp_Image_2026-08-16_at_11.53.51_AM_8_cbamed.jpg';
+export const officialLogoUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1787381769/WhatsApp_Image_2026-08-22_at_12.09.49_AM_cof7cr.jpg';
+export const officialMembershipImageUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1787381769/WhatsApp_Image_2026-08-22_at_12.35.49_AM_ox8tpz.jpg';
 
 export const upcomingScreenings: Screening[] = [
   {
@@ -44,7 +45,7 @@ export const upcomingScreenings: Screening[] = [
     price: 350,
     featured: true,
     status: 'FILLING_FAST',
-    description: '90 minutes. One room. Everyone singing. Join Pune Reds at BIRA 91 Taproom, The Mills for an iconic matchday screening with high-decibel audio and chant sessions.',
+    description: '90 minutes. One room. Everyone singing. Join Pune’s Red Army at BIRA 91 Taproom, The Mills for an iconic matchday screening with high-decibel audio and chant sessions.',
     gateOpening: '07:30 PM IST',
     inclusions: [
       'Guaranteed Entry to Main Stadium Screening Arena',
@@ -80,7 +81,7 @@ export const upcomingScreenings: Screening[] = [
     inclusions: [
       'Access to Taproom Screening Zone',
       '₹150 Food & Drink Voucher Included',
-      'Live Fan Chant Session Led by Pune Reds Ultra Group'
+      'Live Fan Chant Session Led by Pune’s Red Army'
     ],
     rules: [
       'Valid ID required at entry (18+ venue)',
@@ -125,14 +126,14 @@ export const merchandiseProducts: Product[] = [
     price: 799,
     originalPrice: 999,
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865350/pune-mufc-scarf-600x600_q27exs.png',
-    description: 'Classic football terrace scarf with red, black, and ivory detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE". Essential matchday gear.',
+    description: 'Classic football terrace scarf with red, black, and white detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE". Essential matchday gear.',
     availableSizes: ['ONE SIZE'],
     inStock: true,
     badge: 'OFFICIAL MERCH • BESTSELLER',
     details: [
       'High-bulk soft acrylic Jacquard knit',
       'Traditional tassel finish',
-      'Double-sided woven Pune Reds crest branding',
+      'Double-sided woven crest branding',
       'Essential matchday accessory for screenings'
     ]
   },
@@ -170,7 +171,7 @@ export const oldTraffordTours: TourPackage[] = [
       'Guided City & Stadium Tour'
     ],
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
-    description: 'From Pune to Old Trafford. Fly out with fellow Pune Reds from PNQ to Manchester to witness United live at the Theatre of Dreams.'
+    description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from PNQ to Manchester to witness United live at the Theatre of Dreams.'
   }
 ];
 
@@ -182,11 +183,11 @@ export const galleryImages: GalleryItem[] = [
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
     location: 'Old Trafford, Manchester',
     date: '10.11.2025',
-    caption: 'Pune Reds delegation standing outside the Holy Trinity statue at Old Trafford.'
+    caption: 'Pune delegation standing outside the Holy Trinity statue at Old Trafford.'
   },
   {
     id: 'gal-ot-team',
-    title: 'Pune Reds Team at Old Trafford',
+    title: 'Pune Team at Old Trafford',
     category: 'Tours',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg',
     location: 'Sir Matt Busby Way, Manchester',
@@ -200,7 +201,7 @@ export const galleryImages: GalleryItem[] = [
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_1_eibvrj.jpg',
     location: 'First-Team Dressing Room, Old Trafford',
     date: '11.11.2025',
-    caption: 'Pune Reds members inside the sacred United dressing room.'
+    caption: 'Pune’s Red Army members inside the sacred United dressing room.'
   },
   {
     id: 'gal-legend-1',
@@ -254,7 +255,7 @@ export const galleryImages: GalleryItem[] = [
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
     location: 'BIRA 91 Taproom, The Mills',
     date: '15.09.2026',
-    caption: '300+ Pune Reds celebrating United in action.'
+    caption: '300+ Pune supporters celebrating United in action.'
   },
   {
     id: 'gal-screening-2',
@@ -276,7 +277,7 @@ export const galleryImages: GalleryItem[] = [
   },
   {
     id: 'gal-screening-4',
-    title: 'Pune Reds Terrace Passion',
+    title: 'Pune Terrace Passion',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.53_AM_yo00ls.jpg',
     location: 'The Mills, Pune',
@@ -317,7 +318,7 @@ export const galleryImages: GalleryItem[] = [
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865407/WhatsApp_Image_2026-08-16_at_11.53.53_AM_1_mqldzl.jpg',
     location: 'Manchester, UK',
     date: '11.11.2025',
-    caption: 'Pune Reds exploring the streets of Manchester.'
+    caption: 'Pune members exploring the streets of Manchester.'
   },
   {
     id: 'gal-tour-4',
@@ -372,7 +373,7 @@ export const announcements: Announcement[] = [
     category: 'NEXT SCREENING',
     date: 'March 01, 2026',
     title: 'Ticket Bookings Live: Manchester United vs Liverpool at BIRA 91 Taproom, The Mills',
-    snippet: 'Passes for the biggest screening of the season are now live! Early bird tickets include complimentary food & beverage vouchers.',
+    snippet: 'Tickets for the biggest screening of the season are now live! Early bird tickets include complimentary food & beverage vouchers.',
     content: 'We are back at BIRA 91 Taproom, The Mills for the epic clash against Liverpool. Expect a massive 300+ crowd, dual projector setup, high-wattage sound, and raffle prizes including official kit jerseys.',
     readTime: '2 min read'
   },
@@ -381,7 +382,7 @@ export const announcements: Announcement[] = [
     category: 'OLD TRAFFORD TOUR',
     date: 'February 20, 2026',
     title: 'Applications Open for Autumn 2026 Old Trafford Group Tour Batch 2',
-    snippet: 'Want to watch United live in Manchester with Pune Reds? Registration for group visa guidance and match ticket priority is now open.',
+    snippet: 'Want to watch United live in Manchester with Pune supporters? Registration for group visa guidance and match ticket priority is now open.',
     content: 'Our official group tour to Manchester for Autumn 2026 is officially accepting enquiries. Members will receive assistance with UK visa documentation, group flight bookings, and guaranteed category-1 ticket allocations.',
     readTime: '3 min read'
   },
@@ -391,7 +392,7 @@ export const announcements: Announcement[] = [
     date: 'February 10, 2026',
     title: 'New Drop: Official Manchester United Supporter Scarves & MUFC Mugs',
     snippet: 'The official supporters club merchandise line featuring traditional woven scarves and emblem mugs has dropped on our storefront.',
-    content: 'Designed for Pune Reds. Our latest merch line celebrates the intersection of Red Football heritage and Pune city youth culture. Available for pickup at screenings or home delivery across Pune pin codes.',
+    content: 'Designed for Pune supporters. Our latest merch line celebrates the intersection of Red Football heritage and Pune city youth culture. Available for pickup at screenings or home delivery across Pune pin codes.',
     readTime: '1 min read'
   }
 ];
@@ -400,7 +401,7 @@ export const fanChants: FanChant[] = [
   {
     id: 'chant-01',
     title: '20 Times (Pune Terrace Edition)',
-    origin: 'Stretford End / Adapted by Pune Reds',
+    origin: 'Stretford End / Adapted by MUSC Pune',
     popularContext: 'Sung standing at kickoff & after every United goal at screenings',
     lyrics: [
       '20 Times, 20 Times, Man United!',
@@ -472,7 +473,7 @@ export const teamMembers: (TeamMember & {
     position: 'MERCH',
     stats: { pac: 94, cht: 95, scr: 93, psn: 99 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
-    bioPlaceholder: 'Leading Pune Reds chants and terrace soundscapes during screenings at BIRA 91 Taproom, The Mills.',
+    bioPlaceholder: 'Leading Pune chants and terrace soundscapes during screenings at BIRA 91 Taproom, The Mills.',
     socials: { instagram: 'https://www.instagram.com/musc_pune' }
   },
   {

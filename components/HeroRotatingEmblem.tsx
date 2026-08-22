@@ -15,7 +15,7 @@ export const HeroRotatingEmblem: React.FC = () => {
             d="M 100, 100 m -75, 0 a 75,75 0 1,1 150,0 a 75,75 0 1,1 -150,0"
             fill="none"
           />
-          <text className="font-display text-[12.5px] font-bold fill-[#FFC400] tracking-[0.25em] uppercase">
+          <text className="font-display text-[12.5px] font-bold fill-white tracking-[0.25em] uppercase">
             <textPath href="#textPathCircle" startOffset="0%">
               MANCHESTER UNITED SUPPORTERS CLUB • PUNE • EST. 2011 •
             </textPath>
