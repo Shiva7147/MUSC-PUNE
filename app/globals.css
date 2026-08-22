@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Barlow+Condensed:wght@700;800&family=Roboto:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Teko:wght@600;700&family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* MANCHESTER UNITED 2023/24 KIT TYPOGRAPHY THEME */
-  --font-display: 'Teko', 'Barlow Condensed', sans-serif;
-  --font-body: 'Roboto', sans-serif;
+  /* MANCHESTER UNITED MATCHDAY CONDENSED FONT THEME */
+  --font-display: 'Bebas Neue', 'Teko', 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', 'Roboto', sans-serif;
 
   --color-black: #050505;
   --color-charcoal: #171717;
@@ -16,18 +16,13 @@
   --bg-dark: #050505;
   --bg-surface: #171717;
   --bg-card: #1F1F1F;
-
-  /* Glass material system translucencies */
-  --glass-dark: rgba(23, 23, 23, 0.85);
-  --glass-red: rgba(230, 0, 18, 0.15);
-  --glass-highlight: rgba(255, 255, 255, 0.12);
 }
 
 @theme {
-  --font-display: 'Teko', 'Barlow Condensed', sans-serif;
-  --font-sans: 'Roboto', sans-serif;
+  --font-display: 'Bebas Neue', 'Teko', 'Barlow Condensed', sans-serif;
+  --font-sans: 'Inter', 'Roboto', sans-serif;
   --color-black: #050505;
-  --color-charcoal: #171717;
+  --color-[#171717]: #171717;
   --color-united-red: #E60012;
   --color-gold: #FFC400;
   --color-ivory: #F5F5F5;
@@ -35,30 +30,36 @@
   --color-accent: #E60012;
   --color-surface: #171717;
   --color-dark-bg: #050505;
-  --color-dark-surface: #171717;
-  --color-dark-card: #1F1F1F;
 }
 
 html, body {
   background-color: var(--color-black);
   color: var(--color-white);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', 'Roboto', sans-serif;
   overflow-x: hidden !important;
   width: 100%;
   max-width: 100vw;
+  margin: 0;
+  padding: 0;
 }
 
-/* High Contrast Input Placeholders for WCAG AA Accessibility */
+/* Fix mobile viewport overflow & touch behaviors */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* High Contrast Input Placeholders */
 input::placeholder, textarea::placeholder {
   color: #A3A3A3 !important;
   opacity: 1 !important;
 }
 
-/* Headings: Manchester United 2023/24 Kit Font Style (Tall, Condensed, Sharp Chamfered Letterforms) */
+/* Headings: Bebas Neue / Barlow Condensed Iconic Football Typography */
 h1, h2, h3, h4, .font-display, .mufc-kit-font {
-  font-family: 'Teko', 'Barlow Condensed', sans-serif;
+  font-family: 'Bebas Neue', 'Teko', 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-white);
   line-height: 0.95;
@@ -66,7 +67,7 @@ h1, h2, h3, h4, .font-display, .mufc-kit-font {
 
 /* Body & Micro Typography */
 p, span, li, button, input, label {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
 /* Slow Continuous Emblem Rotation */
@@ -79,159 +80,66 @@ p, span, li, button, input, label {
   animation: spinSlow 22s linear infinite;
 }
 
-/* Subtle Film Grain Texture Overlay */
-.bg-grain {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
-  background-size: 20px 20px;
-}
-
 /* Editorial Glass Visual System & Premium Polished Cards */
 .glass-panel {
-  background: var(--glass-dark);
+  background: rgba(23, 23, 23, 0.88);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
 }
 
-/* AMAZING POLISHED CARD EFFECT */
+/* POLISHED MATCHDAY CARD EFFECT */
 .glass-card {
-  background: linear-gradient(145deg, rgba(26, 26, 26, 0.9) 0%, rgba(14, 14, 14, 0.95) 100%);
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.95) 0%, rgba(14, 14, 14, 0.98) 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
     0 20px 40px -15px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px rgba(255, 255, 255, 0.2),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Polished Card Hover Shimmer Sweep Effect */
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
-  );
-  transform: skewX(-25deg);
-  transition: left 0.75s ease-in-out;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.glass-card:hover::before {
-  left: 150%;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
   border-color: rgba(230, 0, 18, 0.8);
   box-shadow: 
     0 25px 50px -12px rgba(230, 0, 18, 0.35),
-    0 0 20px rgba(230, 0, 18, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.3);
-  transform: translateY(-6px) scale(1.01);
-}
-
-/* Gold Tier Polished Card Effect */
-.glass-card-gold {
-  background: linear-gradient(145deg, rgba(35, 30, 15, 0.9) 0%, rgba(18, 15, 8, 0.95) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1.5px solid rgba(255, 196, 0, 0.4);
-  box-shadow: 
-    0 20px 40px -15px rgba(255, 196, 0, 0.2),
-    inset 0 1px 2px rgba(255, 196, 0, 0.4);
-}
-
-.glass-card-gold:hover {
-  border-color: #FFC400;
-  box-shadow: 
-    0 25px 55px -10px rgba(255, 196, 0, 0.4),
-    0 0 25px rgba(255, 196, 0, 0.25),
-    inset 0 1px 3px rgba(255, 196, 0, 0.5);
-}
-
-/* Ticket Notch Cutout Fixes */
-.ticket-notch-left::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-black);
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: inset 2px 0 5px rgba(0, 0, 0, 0.8);
-  z-index: 20;
-}
-
-.ticket-notch-right::after {
-  content: '';
-  position: absolute;
-  right: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-black);
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.8);
-  z-index: 20;
-}
-
-/* Controlled Stadium Red Glow */
-.glow-red {
-  box-shadow: 0 8px 30px rgba(230, 0, 18, 0.3);
-}
-
-.glow-united {
-  box-shadow: 0 8px 30px rgba(230, 0, 18, 0.4);
+    0 0 20px rgba(230, 0, 18, 0.2);
+  transform: translateY(-4px);
 }
 
 /* Supporter Micro Badges */
 .badge-united {
   background: linear-gradient(135deg, #E60012 0%, #99000A 100%);
   color: #FFFFFF;
-  font-family: 'Teko', 'Barlow Condensed', sans-serif;
+  font-family: 'Bebas Neue', 'Teko', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  box-shadow: 0 4px 15px rgba(230, 0, 18, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(230, 0, 18, 0.4);
 }
 
 .badge-pune {
-  background: rgba(23, 23, 23, 0.85);
+  background: rgba(23, 23, 23, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--color-white);
-  font-family: 'Teko', 'Barlow Condensed', sans-serif;
+  font-family: 'Bebas Neue', 'Teko', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .badge-gold {
   background: linear-gradient(135deg, rgba(255, 196, 0, 0.25) 0%, rgba(180, 135, 0, 0.15) 100%);
   border: 1px solid rgba(255, 196, 0, 0.6);
   color: #FFC400;
-  font-family: 'Teko', 'Barlow Condensed', sans-serif;
+  font-family: 'Bebas Neue', 'Teko', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.2);
 }
 
 /* Continuous Marquee Ticker Track */
@@ -243,7 +151,7 @@ p, span, li, button, input, label {
 .animate-marquee-track {
   display: flex;
   width: 200%;
-  animation: marqueeTrack 24s linear infinite;
+  animation: marqueeTrack 22s linear infinite;
 }
 
 .animate-marquee-track:hover {
@@ -260,7 +168,7 @@ p, span, li, button, input, label {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
