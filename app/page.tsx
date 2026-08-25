@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ShoppingBag, Plane, Camera, Bell } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Plane, Camera, Tv, Globe, Users, Star } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { TopEventScroller } from '@/components/TopEventScroller';
@@ -57,6 +57,34 @@ export default function Home() {
     setCartOpen(true);
   };
 
+  // Offering cards formatted exactly as in user reference screenshot (media_1787648640472.png)
+  const clubOfferings = [
+    {
+      title: 'Match Screenings',
+      detail: 'Every United match — Premier League, FA Cup, Champions League — watched together at BIRA 91 Taproom, The Mills.',
+      icon: Tv,
+      href: '/screenings',
+    },
+    {
+      title: 'Football Matchdays',
+      detail: 'Play for the MUSC Pune football team. Quarterly tournaments, coached sessions, and regular matchdays across Pune.',
+      icon: Globe,
+      href: '/about',
+    },
+    {
+      title: 'Fan Meetups & Community',
+      detail: 'In-person meetups, WhatsApp community, FPL competitions, and exclusive member events across Pune.',
+      icon: Users,
+      href: '/about',
+    },
+    {
+      title: 'Official Membership (OUM)',
+      detail: 'We help Pune Reds become Official United Members — with exclusive ticketing, perks, and global recognition.',
+      icon: Star,
+      href: '/membership',
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
       {/* 0. TOP EVENT TICKER SCROLLER */}
@@ -74,10 +102,49 @@ export default function Home() {
         onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
       />
 
-      {/* 2. SCROLLER 01 — HERO MARQUEE (1st of 2 Scrollers) */}
+      {/* 2. SCROLLER 01 — HERO MARQUEE (GLORY GLORY MAN UNITED) */}
       <HeroMarquee variant="primary" />
 
-      {/* 3. ABOUT THE CLUB */}
+      {/* 3. CORE CLUB OFFERINGS (FORMATTED EXACTLY AS IN USER REFERENCE SCREENSHOT) */}
+      <section className="py-16 sm:py-20 bg-[#050505] border-t border-white/10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          <div className="text-center space-y-2 mb-8">
+            <span className="badge-pune text-xs font-display font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
+              WHAT WE DO AT MUSC PUNE
+            </span>
+            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase tracking-tight">
+              PUNE&apos;S <span className="text-[#E60012]">MANCHESTER UNITED HOME</span>
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {clubOfferings.map((item, idx) => {
+              const IconComp = item.icon;
+              return (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className="bg-[#171717] hover:bg-[#1C1C1C] border border-white/10 hover:border-[#E60012]/60 rounded-2xl p-6 flex items-start gap-5 transition-all duration-300 group shadow-xl block"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-[#E60012]/15 border border-[#E60012]/30 flex items-center justify-center text-[#E60012] shrink-0 group-hover:scale-110 transition-transform">
+                    <IconComp className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-white group-hover:text-[#E60012] transition-colors uppercase tracking-tight">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-white/70 font-sans leading-relaxed">
+                      {item.detail}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. ABOUT THE CLUB */}
       <section className="py-20 sm:py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
@@ -126,10 +193,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. SCROLLER 02 — PUNE × MANCHESTER (2nd of 2 Scrollers) */}
+      {/* 5. SCROLLER 02 — PUNE'S RED ARMY - LOUD AND PROUD */}
       <HeroMarquee variant="pune-manchester" />
 
-      {/* 5. MATCHDAY SCREENINGS */}
+      {/* 6. MATCHDAY SCREENINGS */}
       {featuredScreening && (
         <section className="py-20 sm:py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -164,9 +231,9 @@ export default function Home() {
                     className="object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#050505]" />
-                  <div className="absolute top-6 left-6">
+                  <div className="absolute top-6 left-6 flex items-center gap-2">
                     <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow">
-                      FEATURED MATCHDAY
+                      {featuredScreening.activePhaseName || 'PHASE 1 LIVE'}
                     </span>
                   </div>
                 </div>
@@ -183,7 +250,7 @@ export default function Home() {
 
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] font-display text-white/50 uppercase">STARTING FROM</div>
+                      <div className="text-[10px] font-display text-white/50 uppercase">RELEASE PRICE</div>
                       <div className="font-display text-4xl font-bold text-[#E60012]">₹{featuredScreening.price}</div>
                     </div>
 
@@ -202,10 +269,10 @@ export default function Home() {
         </section>
       )}
 
-      {/* 6. SPECTACULAR MEMBERSHIP SECTION */}
+      {/* 7. SPECTACULAR MEMBERSHIP SECTION */}
       <MembershipSection />
 
-      {/* 7. TRIP TO OLD TRAFFORD */}
+      {/* 8. TRIP TO OLD TRAFFORD */}
       <section className="py-20 sm:py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
@@ -269,7 +336,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. SHOP THE REDS TEASER */}
+      {/* 9. SHOP THE REDS TEASER */}
       <section className="py-20 bg-[#050505] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
@@ -311,31 +378,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* 9. ANNOUNCEMENTS PREVIEW */}
-      <section className="py-16 bg-[#171717] border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
-              WHAT&apos;S HAPPENING
-            </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase tracking-tight">
-              LATEST <span className="text-[#E60012]">DISPATCHES</span>
-            </h2>
-            <p className="text-xs sm:text-sm font-sans text-white/70 max-w-lg">
-              Official notices regarding screenings, Old Trafford trips, and club news.
-            </p>
-          </div>
-
-          <Link
-            href="/announcements"
-            className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
-          >
-            <Bell className="w-4 h-4 text-[#E60012]" />
-            <span>VIEW ALL ANNOUNCEMENTS</span>
-          </Link>
         </div>
       </section>
 

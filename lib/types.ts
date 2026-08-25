@@ -1,3 +1,9 @@
+export interface ScreeningPhase {
+  phaseName: string; // e.g. "Phase 1 - Early Bird", "Phase 2", "Phase 3"
+  price: number;
+  isActive: boolean;
+}
+
 export interface Screening {
   id: string;
   matchTitle: string;
@@ -12,6 +18,8 @@ export interface Screening {
   venueAddress: string;
   venueArea: string;
   price: number;
+  activePhaseName?: string;
+  phases?: ScreeningPhase[];
   taxRate?: number; // Configurable tax rate percentage (default 18%)
   platformFee?: number; // Configurable platform fee per ticket (default ₹30)
   featured: boolean;
@@ -62,16 +70,6 @@ export interface GalleryItem {
   location: string;
   date: string;
   caption: string;
-}
-
-export interface Announcement {
-  id: string;
-  category: 'NEXT SCREENING' | 'COMMUNITY UPDATE' | 'OLD TRAFFORD TOUR' | 'MERCH DROP';
-  date: string;
-  title: string;
-  snippet: string;
-  content: string;
-  readTime: string;
 }
 
 export interface FanChant {

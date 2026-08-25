@@ -1,10 +1,16 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { officialLogoUrl } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Official Manchester United Supporters Club - Pune',
   description:
     "The official home for Manchester United supporters in Pune (Est. 2011). Pune's Red Army watching live screenings at BIRA 91 Taproom - The Mills, buying official merchandise, and joining group tours to Old Trafford.",
+  icons: {
+    icon: officialLogoUrl,
+    apple: officialLogoUrl,
+    shortcut: officialLogoUrl,
+  },
   keywords: [
     'MUSC Pune',
     'Official Manchester United Supporters Club - Pune',

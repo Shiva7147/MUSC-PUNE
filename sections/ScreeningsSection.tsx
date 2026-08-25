@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Ticket, Calendar, MapPin, Flame, ArrowRight, Barcode } from 'lucide-react';
+import { Ticket, Calendar, MapPin, Flame, ArrowRight, Barcode, Sparkles } from 'lucide-react';
 import { Screening } from '@/lib/types';
 import { upcomingScreenings } from '@/lib/data';
 
@@ -27,18 +27,18 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
           <div>
             <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold tracking-wider uppercase">
               <Flame className="w-4 h-4" />
-              <span>PRIMARY MATCHDAY TICKET ENGINE</span>
+              <span>PHASE-WISE TICKET RELEASE ENGINE</span>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
               MATCHDAY <span className="text-[#E60012]">TICKETS</span>
             </h2>
-            <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
-              Official tickets for Pune&apos;s biggest matchday screenings. Includes cover vouchers and official club badge giveaways.
+            <p className="text-sm text-white/70 max-w-xl mt-2 font-sans">
+              Official matchday screening tickets for Manchester United fans in Pune. Phase-wise releases with guaranteed entry & F&B cover vouchers.
             </p>
           </div>
 
           <div className="badge-pune text-xs font-display px-3 py-1 font-bold rounded-lg shrink-0 w-max">
-            🔴 LIVE TICKETING SYSTEM ACTIVE
+            🔴 PHASE TICKETING SYSTEM LIVE
           </div>
         </div>
 
@@ -57,10 +57,10 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-[#171717]/40 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#171717]/50 lg:to-[#171717]" />
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2">
                 <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-md shadow-lg uppercase tracking-wider">
-                  FEATURED MATCHDAY
+                  {featured.activePhaseName || 'PHASE 1 - EARLY BIRD'}
                 </span>
-                <span className="bg-[#FFC400]/20 border border-[#FFC400]/40 text-[#FFC400] text-xs font-display font-bold px-3 py-1.5 rounded-md">
-                  🌤️ 24°C • CLEAR NIGHT
+                <span className="bg-black/80 border border-white/20 text-white text-xs font-display font-bold px-3 py-1.5 rounded-md">
+                  FEATURED MATCHDAY
                 </span>
               </div>
             </div>
@@ -68,26 +68,27 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
             {/* Stub Specifications & Barcode */}
             <div className="lg:col-span-5 p-5 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
               <div>
-                <div className="text-xs font-display text-[#FFC400] tracking-wider uppercase mb-1 font-bold">
-                  {featured.competition}
+                <div className="text-xs font-display text-[#E60012] tracking-wider uppercase mb-1 font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{featured.competition}</span>
                 </div>
 
                 <h3 className="font-display text-3xl sm:text-5xl font-bold text-white leading-tight uppercase">
                   {featured.matchTitle}
                 </h3>
 
-                {/* Real-time Booking Capacity Meter */}
+                {/* Real-time Phase Ticket Release Badge */}
                 <div className="mt-4 space-y-1.5">
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
-                    <span className="text-[#FFC400] font-bold">🔥 85% BOOKED — ONLY 25 SEATS LEFT</span>
-                    <span className="text-white/60 font-mono">255 / 300</span>
+                    <span className="text-[#E60012] font-bold">🔥 {featured.activePhaseName || 'PHASE 1 LIVE'} — LIMITED TICKETS</span>
+                    <span className="text-white/60 font-mono">₹{featured.price}</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-[#050505] overflow-hidden border border-white/10">
-                    <div className="h-full bg-gradient-to-r from-[#FFC400] to-[#E60012] w-[85%]" />
+                    <div className="h-full bg-[#E60012] w-[80%]" />
                   </div>
                 </div>
 
-                <p className="text-xs text-[#F5F5F5]/80 mt-4 leading-relaxed font-sans">
+                <p className="text-xs text-white/80 mt-4 leading-relaxed font-sans">
                   {featured.description}
                 </p>
               </div>
@@ -103,8 +104,11 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <span className="text-[#E60012] font-bold">{featured.venueName}</span>
                 </div>
                 <div className="flex items-center justify-between pt-0.5">
-                  <span className="text-white/60">TICKET PRICE</span>
-                  <span className="font-display text-2xl font-bold text-white">₹{featured.price}</span>
+                  <span className="text-white/60">RELEASE PRICE</span>
+                  <div className="text-right">
+                    <span className="font-display text-2xl font-bold text-white">₹{featured.price}</span>
+                    <span className="text-[10px] text-white/50 block font-mono">{featured.activePhaseName || 'PHASE 1'}</span>
+                  </div>
                 </div>
               </div>
 
@@ -146,8 +150,8 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                 <div>
                   <div className="flex items-center justify-between text-xs font-display text-white/60 mb-2">
                     <span>{sc.competition}</span>
-                    <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#FFC400] font-bold">
-                      {sc.status}
+                    <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#E60012] border border-[#E60012]/30 font-bold uppercase">
+                      {sc.activePhaseName || 'PHASE 1'}
                     </span>
                   </div>
 

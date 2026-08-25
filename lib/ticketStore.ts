@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
-import { Screening, Announcement, GalleryItem } from './types';
-import { upcomingScreenings, announcements as defaultAnnouncements, galleryImages as defaultGallery } from './data';
+import { Screening, GalleryItem } from './types';
+import { upcomingScreenings, galleryImages as defaultGallery } from './data';
 
 export interface AdminTicketRecord {
   ticketId: string;
@@ -24,7 +24,6 @@ export interface AdminTicketRecord {
 // LocalStorage Persistence Keys
 const TICKETS_STORAGE_KEY = 'musc_pune_tickets_v1';
 const SCREENINGS_STORAGE_KEY = 'musc_pune_screenings_v1';
-const ANNOUNCEMENTS_STORAGE_KEY = 'musc_pune_announcements_v1';
 const GALLERY_STORAGE_KEY = 'musc_pune_gallery_v1';
 
 // Helper to safely load data from LocalStorage
@@ -51,7 +50,6 @@ const saveStorage = <T>(key: string, data: T) => {
 // INITIAL LOAD
 let ticketsMemory: AdminTicketRecord[] = loadStorage(TICKETS_STORAGE_KEY, []);
 let screeningsMemory: Screening[] = loadStorage(SCREENINGS_STORAGE_KEY, upcomingScreenings);
-let announcementsMemory: Announcement[] = loadStorage(ANNOUNCEMENTS_STORAGE_KEY, defaultAnnouncements);
 let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGallery);
 
 // LISTENERS FOR REACTIVE UPDATES ACROSS COMPONENTS
@@ -178,7 +176,7 @@ export const verifyTicketScan = (
 };
 
 // -------------------------------------------------------------
-// DYNAMIC SCREENINGS ADMIN MANAGEMENT
+// DYNAMIC SCREENINGS ADMIN MANAGEMENT WITH PHASE RELEASE PERSISTENCE
 // -------------------------------------------------------------
 
 export const getScreeningsStore = (): Screening[] => {
@@ -191,17 +189,25 @@ export const addScreeningToStore = (newScreening: Screening) => {
   notifyListeners();
 };
 
-// -------------------------------------------------------------
-// DYNAMIC ANNOUNCEMENTS ADMIN MANAGEMENT
-// -------------------------------------------------------------
-
-export const getAnnouncementsStore = (): Announcement[] => {
-  return loadStorage(ANNOUNCEMENTS_STORAGE_KEY, announcementsMemory);
-};
-
-export const addAnnouncementToStore = (newAnn: Announcement) => {
-  announcementsMemory = [newAnn, ...announcementsMemory];
-  saveStorage(ANNOUNCEMENTS_STORAGE_KEY, announcementsMemory);
+export const updateScreeningPhase = (screeningId: string, activePhaseName: string, price: number) => {
+  const current = getScreeningsStore();
+  const updated = current.map((sc) => {
+    if (sc.id === screeningId) {
+      const updatedPhases = (sc.phases || []).map((p) => ({
+        ...p,
+        isActive: p.phaseName === activePhaseName,
+      }));
+      return {
+        ...sc,
+        price,
+        activePhaseName,
+        phases: updatedPhases,
+      };
+    }
+    return sc;
+  });
+  screeningsMemory = updated;
+  saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
 };
 

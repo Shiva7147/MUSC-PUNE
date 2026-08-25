@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ShieldCheck, CheckCircle2, Award, Sparkles, Shirt, Ticket, Users, Calendar } from 'lucide-react';
+import { ShieldCheck, Award, Sparkles, Shirt, Ticket, Users, Calendar } from 'lucide-react';
 import { officialLogoUrl, officialMembershipImageUrl } from '@/lib/data';
 
 export const MembershipSection: React.FC = () => {
@@ -38,29 +38,21 @@ export const MembershipSection: React.FC = () => {
           </p>
         </div>
 
-        {/* SPECTACULAR PHYSICAL-STYLE MEMBERSHIP CARD WITH OFFICIAL IMAGE */}
+        {/* SPECTACULAR PHYSICAL-STYLE MEMBERSHIP CARD WITH 100% VISIBLE OFFICIAL IMAGE */}
         <div className="max-w-5xl mx-auto glass-card rounded-[2.5rem] p-6 sm:p-10 bg-gradient-to-br from-[#1A1A1A] via-[#0E0E0E] to-[#141414] border-2 border-[#E60012]/70 shadow-[0_20px_60px_rgba(230,0,18,0.3)] space-y-8 relative overflow-hidden">
           {/* Main Grid: Official Membership Image + Card Specifications */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left: Official Physical Membership Card Showcase */}
-            <div className="lg:col-span-5 relative aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-black group">
+            {/* Left: 100% Fully Visible Uncropped Membership Poster Container */}
+            <div className="lg:col-span-5 relative w-full h-[380px] sm:h-[480px] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-black group flex items-center justify-center p-2">
               <Image
                 src={officialMembershipImageUrl}
-                alt="Official MUSC Pune Membership Card"
+                alt="Official MUSC Pune Membership Card Poster"
                 fill
                 priority
-                quality={98}
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                quality={100}
+                unoptimized
+                className="object-contain object-center group-hover:scale-[1.02] transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-              <div className="absolute top-4 left-4">
-                <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1 rounded uppercase tracking-wider shadow">
-                  OFFICIAL PASS 2025/26
-                </span>
-              </div>
-              <div className="absolute bottom-4 left-4 right-4 text-xs font-sans text-white/90 font-semibold uppercase">
-                🔴 OFFICIAL MANCHESTER UNITED SUPPORTERS CLUB PUNE
-              </div>
             </div>
 
             {/* Right: Membership Privileges & Form */}

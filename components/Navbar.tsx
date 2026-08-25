@@ -32,8 +32,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Clean, non-duplicative navigation
   const navLinks = [
-    { name: 'HOME', href: '/' },
     { name: 'ABOUT', href: '/about' },
     { name: 'SCREENINGS', href: '/screenings' },
     { name: 'MERCH', href: '/merchandise' },
@@ -74,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden xl:flex items-center gap-4">
+          <nav className="hidden xl:flex items-center gap-5">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -86,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ))}
           </nav>
 
-          {/* Header Action Buttons (Matching Reference Screen) */}
+          {/* Header Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Shopping Cart Trigger */}
             <button

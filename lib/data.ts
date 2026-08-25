@@ -1,4 +1,4 @@
-import { Screening, Product, TourPackage, GalleryItem, Announcement, FanChant, TeamMember } from './types';
+import { Screening, Product, TourPackage, GalleryItem, FanChant, TeamMember } from './types';
 
 export const officialClubDetails = {
   name: 'MUSC Pune',
@@ -43,6 +43,12 @@ export const upcomingScreenings: Screening[] = [
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 350,
+    activePhaseName: 'PHASE 1 - EARLY BIRD',
+    phases: [
+      { phaseName: 'PHASE 1 - EARLY BIRD', price: 350, isActive: true },
+      { phaseName: 'PHASE 2 - REGULAR PASS', price: 400, isActive: false },
+      { phaseName: 'PHASE 3 - FINAL RELEASE', price: 450, isActive: false }
+    ],
     featured: true,
     status: 'FILLING_FAST',
     description: '90 minutes. One room. Everyone singing. Join Pune’s Red Army at BIRA 91 Taproom, The Mills for an iconic matchday screening with high-decibel audio and chant sessions.',
@@ -74,6 +80,11 @@ export const upcomingScreenings: Screening[] = [
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 300,
+    activePhaseName: 'PHASE 1 - EARLY BIRD',
+    phases: [
+      { phaseName: 'PHASE 1 - EARLY BIRD', price: 300, isActive: true },
+      { phaseName: 'PHASE 2 - REGULAR PASS', price: 350, isActive: false }
+    ],
     featured: false,
     status: 'UPCOMING',
     description: 'A classic rivalry under the lights of The Mills. Big screen projection, taproom atmosphere, and pre-match chant sets.',
@@ -102,6 +113,12 @@ export const upcomingScreenings: Screening[] = [
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 400,
+    activePhaseName: 'PHASE 1 - EARLY BIRD',
+    phases: [
+      { phaseName: 'PHASE 1 - EARLY BIRD', price: 400, isActive: true },
+      { phaseName: 'PHASE 2 - REGULAR PASS', price: 450, isActive: false },
+      { phaseName: 'PHASE 3 - FINAL RELEASE', price: 500, isActive: false }
+    ],
     featured: false,
     status: 'UPCOMING',
     description: 'Derby Day in Pune. The city turns red as we battle for bragging rights. Massive screens, custom stadium lighting, and passionate supporters.',
@@ -364,36 +381,6 @@ export const galleryImages: GalleryItem[] = [
     location: 'Stretford End, Old Trafford',
     date: '11.11.2025',
     caption: 'Taking in the view from the famous Stretford End.'
-  }
-];
-
-export const announcements: Announcement[] = [
-  {
-    id: 'ann-01',
-    category: 'NEXT SCREENING',
-    date: 'March 01, 2026',
-    title: 'Ticket Bookings Live: Manchester United vs Liverpool at BIRA 91 Taproom, The Mills',
-    snippet: 'Tickets for the biggest screening of the season are now live! Early bird tickets include complimentary food & beverage vouchers.',
-    content: 'We are back at BIRA 91 Taproom, The Mills for the epic clash against Liverpool. Expect a massive 300+ crowd, dual projector setup, high-wattage sound, and raffle prizes including official kit jerseys.',
-    readTime: '2 min read'
-  },
-  {
-    id: 'ann-02',
-    category: 'OLD TRAFFORD TOUR',
-    date: 'February 20, 2026',
-    title: 'Applications Open for Autumn 2026 Old Trafford Group Tour Batch 2',
-    snippet: 'Want to watch United live in Manchester with Pune supporters? Registration for group visa guidance and match ticket priority is now open.',
-    content: 'Our official group tour to Manchester for Autumn 2026 is officially accepting enquiries. Members will receive assistance with UK visa documentation, group flight bookings, and guaranteed category-1 ticket allocations.',
-    readTime: '3 min read'
-  },
-  {
-    id: 'ann-03',
-    category: 'MERCH DROP',
-    date: 'February 10, 2026',
-    title: 'New Drop: Official Manchester United Supporter Scarves & MUFC Mugs',
-    snippet: 'The official supporters club merchandise line featuring traditional woven scarves and emblem mugs has dropped on our storefront.',
-    content: 'Designed for Pune supporters. Our latest merch line celebrates the intersection of Red Football heritage and Pune city youth culture. Available for pickup at screenings or home delivery across Pune pin codes.',
-    readTime: '1 min read'
   }
 ];
 

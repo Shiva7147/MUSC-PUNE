@@ -9,7 +9,6 @@ import {
   ShieldCheck as ShieldIcon,
   QrCode as QrIcon,
   Calendar as CalIcon,
-  Bell as BellIcon,
   Camera as CamIcon,
   Search as SearchIcon,
   CheckCircle2 as CheckIcon,
@@ -20,25 +19,25 @@ import {
   Lock as LockIcon,
   Sparkles as SparkIcon,
   Upload as UploadIcon,
+  Layers as LayersIcon,
 } from 'lucide-react';
 import {
   getTicketStore,
   verifyTicketScan,
   getScreeningsStore,
   addScreeningToStore,
-  getAnnouncementsStore,
-  addAnnouncementToStore,
+  updateScreeningPhase,
   getGalleryStore,
   addGalleryItemToStore,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
-import { Screening, Announcement, GalleryItem } from '@/lib/types';
+import { Screening, GalleryItem } from '@/lib/types';
 
 export default function AdminDashboardPage() {
   const [pinInput, setPinInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'SCANNER' | 'SCREENINGS' | 'ANNOUNCEMENTS' | 'GALLERY' | 'LEDGER'>('SCANNER');
+  const [activeTab, setActiveTab] = useState<'SCANNER' | 'SCREENINGS' | 'GALLERY' | 'LEDGER'>('SCANNER');
 
   // Scanner states
   const [manualCode, setManualCode] = useState('');
@@ -53,7 +52,6 @@ export default function AdminDashboardPage() {
   // Store data states
   const [tickets, setTickets] = useState<AdminTicketRecord[]>([]);
   const [screenings, setScreenings] = useState<Screening[]>([]);
-  const [announcementsList, setAnnouncementsList] = useState<Announcement[]>([]);
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
 
   // New item form states
@@ -64,15 +62,8 @@ export default function AdminDashboardPage() {
     time: '09:00 PM IST',
     venueName: 'BIRA 91 Taproom — The Mills',
     price: 350,
+    activePhaseName: 'PHASE 1 - EARLY BIRD',
     status: 'UPCOMING',
-  });
-
-  const [newAnn, setNewAnn] = useState<Partial<Announcement>>({
-    title: '',
-    category: 'NEXT SCREENING',
-    date: new Date().toLocaleDateString(),
-    snippet: '',
-    content: '',
   });
 
   const [newGal, setNewGal] = useState<Partial<GalleryItem>>({
@@ -87,7 +78,6 @@ export default function AdminDashboardPage() {
   const refreshStoreData = () => {
     setTickets(getTicketStore());
     setScreenings(getScreeningsStore());
-    setAnnouncementsList(getAnnouncementsStore());
     setGalleryList(getGalleryStore());
   };
 
@@ -216,6 +206,7 @@ export default function AdminDashboardPage() {
   const handleCreateScreening = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newScreening.matchTitle || !newScreening.date) return;
+    const initialPrice = Number(newScreening.price) || 350;
     const item: Screening = {
       id: `screening-${Date.now()}`,
       matchTitle: newScreening.matchTitle,
@@ -229,7 +220,13 @@ export default function AdminDashboardPage() {
       venueName: newScreening.venueName || 'BIRA 91 Taproom — The Mills',
       venueAddress: 'THE MILLS, Pune',
       venueArea: 'THE MILLS / Central Pune',
-      price: Number(newScreening.price) || 350,
+      price: initialPrice,
+      activePhaseName: 'PHASE 1 - EARLY BIRD',
+      phases: [
+        { phaseName: 'PHASE 1 - EARLY BIRD', price: initialPrice, isActive: true },
+        { phaseName: 'PHASE 2 - REGULAR PASS', price: initialPrice + 50, isActive: false },
+        { phaseName: 'PHASE 3 - FINAL RELEASE', price: initialPrice + 100, isActive: false },
+      ],
       featured: false,
       status: 'UPCOMING',
       description: 'Official MUSC Pune screening night at BIRA 91 Taproom, The Mills.',
@@ -239,24 +236,11 @@ export default function AdminDashboardPage() {
     };
     addScreeningToStore(item);
     setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350 });
-    alert('New screening added successfully!');
+    alert('New screening with phase release system created successfully!');
   };
 
-  const handleCreateAnn = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newAnn.title || !newAnn.snippet) return;
-    const item: Announcement = {
-      id: `ann-${Date.now()}`,
-      category: (newAnn.category as any) || 'COMMUNITY UPDATE',
-      date: newAnn.date || new Date().toLocaleDateString(),
-      title: newAnn.title,
-      snippet: newAnn.snippet,
-      content: newAnn.content || newAnn.snippet,
-      readTime: '2 min read',
-    };
-    addAnnouncementToStore(item);
-    setNewAnn({ title: '', snippet: '', content: '' });
-    alert('New announcement posted successfully!');
+  const handlePhaseChange = (screeningId: string, phaseName: string, price: number) => {
+    updateScreeningPhase(screeningId, phaseName, price);
   };
 
   const handleCreateGal = (e: React.FormEvent) => {
@@ -288,7 +272,7 @@ export default function AdminDashboardPage() {
         {/* Header */}
         <div className="border-b border-white/10 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-display text-[#FFC400] font-bold tracking-wider uppercase mb-2">
+            <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold tracking-wider uppercase mb-2">
               <ShieldIcon className="w-4 h-4 text-[#E60012]" />
               <span>ADMINISTRATOR CONTROL CENTER</span>
             </div>
@@ -296,7 +280,7 @@ export default function AdminDashboardPage() {
               ADMIN <span className="text-[#E60012]">DASHBOARD & GATE SCANNER</span>
             </h1>
             <p className="text-xs text-white/60 font-sans mt-1">
-              Live QR ticket verification, screening scheduler, announcement feed & gallery management
+              Live QR ticket verification, phase-wise ticket pricing releases & gallery management
             </p>
           </div>
 
@@ -307,7 +291,7 @@ export default function AdminDashboardPage() {
               </span>
               <button
                 onClick={() => setIsAuthenticated(false)}
-                className="text-xs font-display text-white/60 hover:text-[#E60012] underline"
+                className="text-xs font-display text-white/60 hover:text-[#E60012] underline uppercase"
               >
                 LOCK ADMIN
               </button>
@@ -342,7 +326,7 @@ export default function AdminDashboardPage() {
 
               <button
                 type="submit"
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm tracking-wider font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all"
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm tracking-wider font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all uppercase"
               >
                 UNLOCK ADMIN CONTROL CENTER
               </button>
@@ -374,19 +358,7 @@ export default function AdminDashboardPage() {
                 }`}
               >
                 <CalIcon className="w-4 h-4" />
-                <span>🎟️ SCREENINGS ({screenings.length})</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('ANNOUNCEMENTS')}
-                className={`font-display text-xs sm:text-sm font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-wider ${
-                  activeTab === 'ANNOUNCEMENTS'
-                    ? 'bg-[#E60012] text-white shadow-lg'
-                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                }`}
-              >
-                <BellIcon className="w-4 h-4" />
-                <span>📢 ANNOUNCEMENTS ({announcementsList.length})</span>
+                <span>🎟️ PHASE-WISE TICKET RELEASE ({screenings.length})</span>
               </button>
 
               <button
@@ -444,7 +416,7 @@ export default function AdminDashboardPage() {
                         </button>
                       )}
 
-                      <label className="bg-[#050505] hover:bg-black border border-white/20 text-[#FFC400] font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow">
+                      <label className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow">
                         <UploadIcon className="w-4 h-4 text-[#E60012]" />
                         <span>SCAN IMAGE</span>
                         <input
@@ -472,7 +444,7 @@ export default function AdminDashboardPage() {
 
                   {/* Manual Entry Fallback */}
                   <div className="space-y-2 pt-2 border-t border-white/10">
-                    <label className="text-xs font-display text-[#FFC400] font-bold uppercase">
+                    <label className="text-xs font-display text-white/90 font-bold uppercase">
                       MANUAL ENTRY (TICKET ID OR PHONE NUMBER)
                     </label>
                     <div className="flex gap-2">
@@ -573,10 +545,10 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 2: SCREENINGS SETTINGS */}
+            {/* TAB 2: PHASE-WISE TICKET RELEASE CONTROL */}
             {activeTab === 'SCREENINGS' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Form */}
+                {/* Create Form */}
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
                   <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
                     ADD NEW MATCHDAY SCREENING
@@ -584,7 +556,7 @@ export default function AdminDashboardPage() {
 
                   <form onSubmit={handleCreateScreening} className="space-y-4">
                     <div>
-                      <label className="text-xs font-display text-[#FFC400] font-bold uppercase">MATCH TITLE *</label>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">MATCH TITLE *</label>
                       <input
                         type="text"
                         required
@@ -597,7 +569,7 @@ export default function AdminDashboardPage() {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-display text-[#FFC400] font-bold uppercase">DATE *</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">DATE *</label>
                         <input
                           type="text"
                           required
@@ -608,7 +580,7 @@ export default function AdminDashboardPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-display text-[#FFC400] font-bold uppercase">TICKET PRICE (₹)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">STARTING PRICE (₹)</label>
                         <input
                           type="number"
                           value={newScreening.price}
@@ -619,7 +591,7 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-display text-[#FFC400] font-bold uppercase">VENUE NAME</label>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">VENUE NAME</label>
                       <input
                         type="text"
                         value={newScreening.venueName}
@@ -630,33 +602,77 @@ export default function AdminDashboardPage() {
 
                     <button
                       type="submit"
-                      className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2"
+                      className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2 uppercase"
                     >
                       <PlusIcon className="w-4 h-4" />
-                      <span>PUBLISH SCREENING TO WEBSITE</span>
+                      <span>PUBLISH SCREENING WITH PHASES</span>
                     </button>
                   </form>
                 </div>
 
-                {/* List */}
-                <div className="lg:col-span-7 space-y-4">
-                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
-                    LIVE ACTIVE SCREENINGS
-                  </h3>
+                {/* List & Phase Controller */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <h3 className="font-display text-xl font-bold text-white uppercase flex items-center gap-2">
+                      <LayersIcon className="w-5 h-5 text-[#E60012]" />
+                      <span>LIVE SCREENINGS & PHASE RELEASES</span>
+                    </h3>
+                  </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {screenings.map((sc) => (
-                      <div key={sc.id} className="glass-card p-5 rounded-2xl bg-[#171717] border border-white/10 flex items-center justify-between">
-                        <div>
-                          <div className="text-xs font-display text-[#FFC400] font-bold">{sc.competition}</div>
-                          <h4 className="font-display text-2xl font-bold text-white">{sc.matchTitle}</h4>
-                          <div className="text-xs font-sans text-white/70 mt-1">
-                            📍 {sc.venueName} • 📅 {sc.date}
+                      <div key={sc.id} className="glass-card p-6 rounded-3xl bg-[#171717] border border-white/10 space-y-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                          <div>
+                            <div className="text-xs font-display text-[#E60012] font-bold uppercase">{sc.competition}</div>
+                            <h4 className="font-display text-3xl font-bold text-white uppercase">{sc.matchTitle}</h4>
+                            <div className="text-xs font-sans text-white/70 mt-0.5">
+                              📍 {sc.venueName} • 📅 {sc.date}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs font-display text-white/60 uppercase">CURRENT TICKET PRICE</div>
+                            <div className="font-display text-3xl font-bold text-[#E60012]">₹{sc.price}</div>
+                            <span className="bg-[#050505] border border-[#E60012] text-[#E60012] text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                              {sc.activePhaseName || 'PHASE 1 LIVE'}
+                            </span>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-display text-2xl font-bold text-[#E60012]">₹{sc.price}</div>
-                          <span className="badge-pune text-[10px] font-sans px-2 py-0.5 rounded font-bold uppercase">{sc.status}</span>
+
+                        {/* Phase Selector Controls for Admin */}
+                        <div className="space-y-2">
+                          <label className="text-xs font-display text-white/90 font-bold uppercase tracking-wider block">
+                            ADMIN: SWITCH ACTIVE TICKET RELEASE PHASE & PRICE
+                          </label>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {(sc.phases || [
+                              { phaseName: 'PHASE 1 - EARLY BIRD', price: sc.price, isActive: true },
+                              { phaseName: 'PHASE 2 - REGULAR PASS', price: sc.price + 50, isActive: false },
+                              { phaseName: 'PHASE 3 - FINAL RELEASE', price: sc.price + 100, isActive: false }
+                            ]).map((phase, pIdx) => (
+                              <button
+                                key={pIdx}
+                                type="button"
+                                onClick={() => handlePhaseChange(sc.id, phase.phaseName, phase.price)}
+                                className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                                  sc.activePhaseName === phase.phaseName || (pIdx === 0 && !sc.activePhaseName)
+                                    ? 'bg-[#E60012]/15 border-[#E60012] text-white shadow-lg'
+                                    : 'bg-[#050505] border-white/15 text-white/70 hover:border-white/30 hover:text-white'
+                                }`}
+                              >
+                                <div className="text-[10px] font-display font-bold uppercase tracking-wider text-white/80">
+                                  {phase.phaseName}
+                                </div>
+                                <div className="font-display text-xl font-bold text-white mt-1">
+                                  ₹{phase.price}
+                                </div>
+                                <div className="text-[9px] font-sans mt-1 uppercase font-bold text-[#E60012]">
+                                  {sc.activePhaseName === phase.phaseName || (pIdx === 0 && !sc.activePhaseName) ? '🟢 CURRENTLY LIVE' : 'ACTIVATE PHASE'}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -665,71 +681,7 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 3: ANNOUNCEMENTS SETTINGS */}
-            {activeTab === 'ANNOUNCEMENTS' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
-                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
-                    POST NEW DISPATCH / ANNOUNCEMENT
-                  </h3>
-
-                  <form onSubmit={handleCreateAnn} className="space-y-4">
-                    <div>
-                      <label className="text-xs font-display text-[#FFC400] font-bold uppercase">ANNOUNCEMENT TITLE *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Early Bird Screening Passes Live"
-                        value={newAnn.title}
-                        onChange={(e) => setNewAnn({ ...newAnn, title: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-display text-[#FFC400] font-bold uppercase">SHORT SNIPPET *</label>
-                      <textarea
-                        rows={2}
-                        required
-                        placeholder="Brief summary of the notice..."
-                        value={newAnn.snippet}
-                        onChange={(e) => setNewAnn({ ...newAnn, snippet: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2"
-                    >
-                      <PlusIcon className="w-4 h-4" />
-                      <span>POST ANNOUNCEMENT</span>
-                    </button>
-                  </form>
-                </div>
-
-                <div className="lg:col-span-7 space-y-4">
-                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
-                    CURRENT ANNOUNCEMENT DISPATCHES
-                  </h3>
-
-                  <div className="space-y-4">
-                    {announcementsList.map((a) => (
-                      <div key={a.id} className="glass-card p-5 rounded-2xl bg-[#171717] border border-white/10 space-y-2">
-                        <div className="flex justify-between text-xs font-display text-[#FFC400] font-bold">
-                          <span>{a.category}</span>
-                          <span>{a.date}</span>
-                        </div>
-                        <h4 className="font-display text-xl font-bold text-white">{a.title}</h4>
-                        <p className="text-xs font-sans text-white/70">{a.snippet}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 4: GALLERY SETTINGS */}
+            {/* TAB 3: GALLERY SETTINGS */}
             {activeTab === 'GALLERY' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
@@ -739,7 +691,7 @@ export default function AdminDashboardPage() {
 
                   <form onSubmit={handleCreateGal} className="space-y-4">
                     <div>
-                      <label className="text-xs font-display text-[#FFC400] font-bold uppercase">PHOTO TITLE *</label>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">PHOTO TITLE *</label>
                       <input
                         type="text"
                         required
@@ -751,7 +703,7 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-xs font-display text-[#FFC400] font-bold uppercase">IMAGE URL (CLOUDINARY OR DIRECT LINK) *</label>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">IMAGE URL (CLOUDINARY OR DIRECT LINK) *</label>
                       <input
                         type="url"
                         required
@@ -764,7 +716,7 @@ export default function AdminDashboardPage() {
 
                     <button
                       type="submit"
-                      className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2"
+                      className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2 uppercase"
                     >
                       <PlusIcon className="w-4 h-4" />
                       <span>ADD PHOTO TO GALLERY</span>
@@ -791,64 +743,61 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 5: TICKET LEDGER & CSV EXPORT */}
+            {/* TAB 4: TICKET LEDGER & CSV EXPORT */}
             {activeTab === 'LEDGER' && (
               <div className="space-y-6 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/10 pb-4 gap-4">
                   <div>
                     <h2 className="font-display text-2xl font-bold text-white uppercase">MATCHDAY TICKET LEDGER</h2>
                     <p className="text-xs text-white/60 font-sans">
-                      Total Tickets Issued: <strong>{tickets.length}</strong> • Checked In: <strong className="text-emerald-400">{checkedInCount}</strong>
+                      Complete real-time log of generated digital QR ticket passes & entry statuses
                     </p>
                   </div>
 
                   <button
                     onClick={exportTicketsToCSV}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-4 py-3 rounded-xl flex items-center gap-2 shadow"
+                    className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-2 shadow"
                   >
                     <DownIcon className="w-4 h-4" />
-                    <span>EXPORT TICKETS TO CSV</span>
+                    <span>EXPORT TICKETS (CSV)</span>
                   </button>
                 </div>
 
                 {tickets.length === 0 ? (
-                  <div className="py-16 text-center space-y-3">
-                    <QrIcon className="w-12 h-12 text-white/20 mx-auto" />
-                    <p className="text-xs text-white/50 font-sans">
-                      No ticket stubs generated yet. Book a ticket pass on the screenings page to see it live in this ledger!
-                    </p>
+                  <div className="py-12 text-center text-xs text-white/50 font-sans">
+                    No tickets booked yet. Generate a test booking on the website to view ledger records!
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs font-sans text-white/80">
-                      <thead className="bg-[#050505] text-[#FFC400] font-display uppercase border-b border-white/10">
-                        <tr>
-                          <th className="p-3">Ticket ID</th>
-                          <th className="p-3">Match</th>
-                          <th className="p-3">Holder</th>
-                          <th className="p-3">Phone</th>
-                          <th className="p-3">Passes</th>
-                          <th className="p-3">Amount</th>
-                          <th className="p-3">Gate Status</th>
+                    <table className="w-full text-left text-xs font-sans border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
+                          <th className="py-3 px-3">TICKET ID</th>
+                          <th className="py-3 px-3">HOLDER NAME</th>
+                          <th className="py-3 px-3">PHONE</th>
+                          <th className="py-3 px-3">MATCH</th>
+                          <th className="py-3 px-3">QTY</th>
+                          <th className="py-3 px-3">TOTAL</th>
+                          <th className="py-3 px-3">GATE STATUS</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/10">
+                      <tbody className="divide-y divide-white/10 text-white/80 font-mono">
                         {tickets.map((t) => (
-                          <tr key={t.ticketId} className="hover:bg-white/5 font-mono">
-                            <td className="p-3 font-bold text-[#E60012]">{t.ticketId}</td>
-                            <td className="p-3 text-white font-sans">{t.matchTitle}</td>
-                            <td className="p-3 text-[#F5F5F5] font-sans font-semibold">{t.userName}</td>
-                            <td className="p-3">{t.userPhone}</td>
-                            <td className="p-3">{t.quantity}</td>
-                            <td className="p-3 font-bold text-[#FFC400]">₹{t.totalAmount}</td>
-                            <td className="p-3">
+                          <tr key={t.ticketId} className="hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-3 font-bold text-white">{t.ticketId}</td>
+                            <td className="py-3 px-3 font-sans text-white font-semibold">{t.userName}</td>
+                            <td className="py-3 px-3">{t.userPhone}</td>
+                            <td className="py-3 px-3 font-sans truncate max-w-[150px]">{t.matchTitle}</td>
+                            <td className="py-3 px-3">{t.quantity}</td>
+                            <td className="py-3 px-3 text-[#E60012] font-bold">₹{t.totalAmount}</td>
+                            <td className="py-3 px-3">
                               {t.checkedIn ? (
-                                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] px-2 py-0.5 rounded font-display font-bold">
-                                  ✓ CHECKED IN ({t.checkedInAt})
+                                <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                  CHECKED IN ({t.checkedInAt?.slice(11, 16)})
                                 </span>
                               ) : (
-                                <span className="bg-neutral-800 text-neutral-400 border border-neutral-700 text-[10px] px-2 py-0.5 rounded font-display font-bold">
-                                  UNCHECKED
+                                <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                  UNCLAIMED
                                 </span>
                               )}
                             </td>
