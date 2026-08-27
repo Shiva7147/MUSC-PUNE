@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingBag, Menu, X, Ticket } from 'lucide-react';
 import { CartItem } from '@/lib/types';
+import { officialLogoUrl } from '@/lib/data';
 
 interface NavbarProps {
   cartItems?: CartItem[];
@@ -32,7 +34,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Clean, non-duplicative navigation
   const navLinks = [
     { name: 'ABOUT', href: '/about' },
     { name: 'SCREENINGS', href: '/screenings' },
@@ -48,15 +49,22 @@ export const Navbar: React.FC<NavbarProps> = ({
       <header
         className={`fixed top-9 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-2.5 shadow-2xl'
-            : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/75 to-transparent py-3'
+            ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-2 shadow-2xl'
+            : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/75 to-transparent py-2.5'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
-          {/* Official Red MU Logo Emblem Badge */}
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-10 h-10 rounded-2xl bg-[#E60012] border border-white/20 group-hover:scale-105 transition-transform shadow-lg flex items-center justify-center font-display text-xl font-bold text-white shrink-0">
-              MU
+          {/* Official Emblem Logo Badge */}
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <div className="relative w-11 h-11 rounded-2xl overflow-hidden bg-black border-2 border-[#E60012] group-hover:scale-105 transition-transform shadow-lg flex items-center justify-center p-0.5 shrink-0">
+              <Image
+                src={officialLogoUrl}
+                alt="MUSC Pune Official Logo"
+                fill
+                priority
+                quality={95}
+                className="object-cover object-center"
+              />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
@@ -128,8 +136,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#E60012] border border-white/20 font-display text-xl font-bold text-white flex items-center justify-center shrink-0">
-                MU
+              <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-black border border-white/20 shrink-0">
+                <Image src={officialLogoUrl} alt="MUSC Pune Logo" fill className="object-cover" />
               </div>
               <div>
                 <div className="font-display tracking-wider font-bold text-xl text-white">MUSC PUNE</div>
