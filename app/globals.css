@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  /* MANCHESTER UNITED MATCHDAY CONDENSED FONT THEME */
+  /* MANCHESTER UNITED MATCHDAY UNIFIED FONT THEME */
   --font-display: 'Bebas Neue', sans-serif;
   --font-devanagari: 'Noto Sans Devanagari', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -55,11 +55,11 @@ input::placeholder, textarea::placeholder {
   opacity: 1 !important;
 }
 
-/* Headings: Bebas Neue Iconic Football Typography */
+/* Headings: Bebas Neue Iconic Unified Typography (Exact MUSC PUNE Spacing) */
 h1, h2, h3, h4, .font-display {
   font-family: 'Bebas Neue', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   color: var(--color-white);
   line-height: 0.95;
@@ -99,9 +99,6 @@ p, span, li, button, input, label {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 
-    0 20px 40px -15px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px rgba(255, 255, 255, 0.15);
   position: relative;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -115,13 +112,13 @@ p, span, li, button, input, label {
   transform: translateY(-4px);
 }
 
-/* Supporter Micro Badges — Clean Red & Black Only (No Yellow) */
+/* Supporter Micro Badges — Clean Red & Black Only (Exact MUSC PUNE Styling) */
 .badge-united {
   background: linear-gradient(135deg, #E60012 0%, #99000A 100%);
   color: #FFFFFF;
   font-family: 'Bebas Neue', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   box-shadow: 0 4px 15px rgba(230, 0, 18, 0.4);
 }
@@ -132,7 +129,7 @@ p, span, li, button, input, label {
   color: #FFFFFF;
   font-family: 'Bebas Neue', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
 }
 
