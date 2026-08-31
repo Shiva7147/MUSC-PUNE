@@ -57,7 +57,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
           particleCount: 90,
           spread: 80,
           origin: { y: 0.6 },
-          colors: ['#E60012', '#FFC400', '#FFFFFF', '#171717'],
+          colors: ['#E60012', '#FFFFFF', '#171717'],
         });
       } catch {
         // fallback
@@ -97,14 +97,14 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               <div className="absolute right-2 -bottom-6 text-7xl font-bold font-display opacity-10 select-none">
                 MATCHDAY
               </div>
-              <div className="flex items-center gap-2 text-xs font-display tracking-wider text-white/90 uppercase font-bold">
-                <Ticket className="w-4 h-4 text-[#FFC400]" />
+              <div className="flex items-center gap-2 text-xs font-display tracking-tight text-white/90 uppercase font-bold">
+                <Ticket className="w-4 h-4 text-white" />
                 <span>OFFICIAL MATCHDAY TICKETING</span>
               </div>
               <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase">
                 {screening.matchTitle}
               </h3>
-              <p className="text-xs text-[#FFC400] font-display font-bold mt-1 uppercase">{screening.competition}</p>
+              <p className="text-xs text-white/80 font-display font-bold mt-1 uppercase">{screening.competition}</p>
             </div>
 
             {/* Event Info Brief */}
@@ -113,21 +113,21 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 <div className="flex items-center gap-2 text-white/90">
                   <Calendar className="w-4 h-4 text-[#E60012] shrink-0" />
                   <div>
-                    <div className="font-display text-[10px] text-[#FFC400]">DATE</div>
+                    <div className="font-display text-[10px] text-white/60">DATE</div>
                     <div className="font-bold">{screening.date}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-white/90">
                   <Clock className="w-4 h-4 text-[#E60012] shrink-0" />
                   <div>
-                    <div className="font-display text-[10px] text-[#FFC400]">KICKOFF</div>
+                    <div className="font-display text-[10px] text-white/60">KICKOFF</div>
                     <div className="font-bold">{screening.time}</div>
                   </div>
                 </div>
                 <div className="col-span-2 flex items-center gap-2 text-white/90 pt-2 border-t border-white/10">
                   <MapPin className="w-4 h-4 text-[#E60012] shrink-0" />
                   <div>
-                    <div className="font-display text-[10px] text-[#FFC400]">VENUE</div>
+                    <div className="font-display text-[10px] text-white/60">VENUE</div>
                     <div className="font-bold text-white">{screening.venueName}</div>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               <form onSubmit={handleBookingSubmit} className="space-y-4">
                 {/* Quantity Stepper (1 to 10) */}
                 <div>
-                  <label className="block text-xs font-display text-[#FFC400] font-bold uppercase mb-1.5">
+                  <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
                     NUMBER OF TICKETS (MAX 10 / BOOKING)
                   </label>
                   <div className="flex items-center justify-between bg-[#050505] border border-white/15 rounded-xl p-3">
@@ -151,7 +151,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="font-display text-2xl font-bold text-[#FFC400] w-6 text-center">{quantity}</span>
+                      <span className="font-display text-2xl font-bold text-white w-6 text-center">{quantity}</span>
                       <button
                         type="button"
                         onClick={() => setQuantity((prev) => Math.min(10, prev + 1))}
@@ -167,7 +167,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 {/* User Info Fields */}
                 <div className="space-y-3 pt-1">
                   <div>
-                    <label className="block text-xs font-display text-[#FFC400] font-bold uppercase mb-1">FULL NAME *</label>
+                    <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">FULL NAME *</label>
                     <div className="relative">
                       <User className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
                       <input
@@ -183,7 +183,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-display text-[#FFC400] font-bold uppercase mb-1">EMAIL ADDRESS *</label>
+                      <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">EMAIL ADDRESS *</label>
                       <div className="relative">
                         <Mail className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
                         <input
@@ -198,7 +198,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-xs font-display text-[#FFC400] font-bold uppercase mb-1">PHONE / WHATSAPP *</label>
+                      <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">PHONE / WHATSAPP *</label>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
                         <input
@@ -238,7 +238,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-wider font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase"
                 >
                   <span>{loading ? 'GENERATING TICKETS...' : 'BOOK TICKETS'}</span>
                   <ArrowRight className="w-5 h-5" />
@@ -254,7 +254,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
             </div>
 
             <div>
-              <span className="px-3.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-display font-bold uppercase tracking-wider">
+              <span className="px-3.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-display font-bold uppercase tracking-tight">
                 ✓ TICKETS BOOKED SUCCESSFULLY
               </span>
               <h3 className="font-display text-3xl font-bold text-white mt-2 uppercase">YOU ARE GOING TO THE MATCH!</h3>
@@ -267,7 +267,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
             <div className="bg-[#050505] border-2 border-[#E60012]/60 rounded-3xl p-6 text-left space-y-4 relative overflow-hidden shadow-2xl ticket-notch-left ticket-notch-right">
               <div className="flex justify-between items-start border-b border-white/10 pb-3">
                 <div>
-                  <div className="text-[10px] font-display text-[#FFC400] font-bold uppercase">TICKET ID</div>
+                  <div className="text-[10px] font-display text-white/60 font-bold uppercase">TICKET ID</div>
                   <div className="font-mono text-base font-bold text-white">{bookingData?.ticketId}</div>
                 </div>
                 <div className="text-right">
@@ -301,7 +301,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                       className="w-44 h-44 object-contain"
                     />
                   </div>
-                  <div className="text-[11px] font-mono text-[#FFC400] font-bold bg-[#171717] px-3 py-1 rounded-lg border border-white/10">
+                  <div className="text-[11px] font-mono text-white font-bold bg-[#171717] px-3 py-1 rounded-lg border border-white/10">
                     SCAN AT GATE FOR INSTANT ENTRY
                   </div>
                 </div>
@@ -314,13 +314,13 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 download={`${bookingData?.ticketId}-QR.png`}
                 className="flex-1 bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
               >
-                <Download className="w-4 h-4 text-[#FFC400]" />
+                <Download className="w-4 h-4 text-white" />
                 <span>DOWNLOAD TICKET QR</span>
               </a>
 
               <button
                 onClick={handleReset}
-                className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all"
+                className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all uppercase"
               >
                 DONE & CLOSE
               </button>

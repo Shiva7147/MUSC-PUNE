@@ -57,7 +57,6 @@ export default function Home() {
     setCartOpen(true);
   };
 
-  // Offering cards formatted exactly as in user reference screenshot (media_1787648640472.png)
   const clubOfferings = [
     {
       title: 'Match Screenings',
@@ -109,10 +108,10 @@ export default function Home() {
       <section className="py-16 sm:py-20 bg-[#050505] border-t border-white/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="text-center space-y-2 mb-8">
-            <span className="badge-pune text-xs font-display font-bold px-3.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="badge-pune text-xs font-display font-bold px-3.5 py-1 rounded-full uppercase">
               WHAT WE DO AT MUSC PUNE
             </span>
-            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase tracking-tight">
+            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase leading-none">
               PUNE&apos;S <span className="text-[#E60012]">MANCHESTER UNITED HOME</span>
             </h2>
           </div>
@@ -130,7 +129,7 @@ export default function Home() {
                     <IconComp className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-white group-hover:text-[#E60012] transition-colors uppercase tracking-tight">
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-white group-hover:text-[#E60012] transition-colors uppercase leading-tight">
                       {item.title}
                     </h3>
                     <p className="text-xs sm:text-sm text-white/70 font-sans leading-relaxed">
@@ -165,10 +164,10 @@ export default function Home() {
 
             {/* Story Content */}
             <div className="lg:col-span-6 space-y-5">
-              <span className="badge-pune text-xs font-display px-3 py-1 rounded font-bold uppercase tracking-wider">
+              <span className="badge-pune text-xs font-display px-3 py-1 rounded font-bold uppercase">
                 ABOUT MUSC PUNE
               </span>
-              <h2 className="font-display text-5xl sm:text-7xl font-bold text-white uppercase tracking-tight leading-none">
+              <h2 className="font-display text-5xl sm:text-7xl font-bold text-white uppercase leading-none">
                 MORE THAN <span className="text-[#E60012]">90 MINUTES.</span>
               </h2>
 
@@ -182,7 +181,7 @@ export default function Home() {
               <div className="pt-2">
                 <Link
                   href="/about"
-                  className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
+                  className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-tight"
                 >
                   <span>READ FULL CLUB STORY</span>
                   <ArrowRight className="w-4 h-4" />
@@ -202,17 +201,17 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
               <div>
-                <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+                <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded">
                   MATCHDAY TICKETING
                 </span>
-                <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase tracking-tight">
+                <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase">
                   NEXT <span className="text-[#E60012]">MATCHDAY TICKETS</span>
                 </h2>
               </div>
 
               <Link
                 href="/screenings"
-                className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
+                className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-tight"
               >
                 <span>EXPLORE ALL SCREENINGS</span>
                 <ArrowRight className="w-4 h-4" />
@@ -232,7 +231,7 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-[#050505]" />
                   <div className="absolute top-6 left-6 flex items-center gap-2">
-                    <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow">
+                    <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded uppercase shadow">
                       {featuredScreening.activePhaseName || 'PHASE 1 LIVE'}
                     </span>
                   </div>
@@ -240,8 +239,8 @@ export default function Home() {
 
                 <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
                   <div>
-                    <div className="text-xs font-display font-bold text-[#E60012] uppercase tracking-wider">{featuredScreening.competition}</div>
-                    <h3 className="font-display text-4xl sm:text-5xl font-bold text-white mt-1 tracking-tight uppercase">{featuredScreening.matchTitle}</h3>
+                    <div className="text-xs font-display font-bold text-[#E60012] uppercase">{featuredScreening.competition}</div>
+                    <h3 className="font-display text-4xl sm:text-5xl font-bold text-white mt-1 uppercase">{featuredScreening.matchTitle}</h3>
                     <div className="mt-3 text-xs sm:text-sm font-sans text-white/80 space-y-1">
                       <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
                       <div>📍 {featuredScreening.venueName}</div>
@@ -256,7 +255,7 @@ export default function Home() {
 
                     <button
                       onClick={() => setSelectedScreening(featuredScreening)}
-                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base tracking-wider font-bold py-3.5 px-6 rounded-2xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all hover:scale-[1.02] border border-white/20 uppercase"
+                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold tracking-tight py-3.5 px-6 rounded-2xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all hover:scale-[1.02] border border-white/20 uppercase"
                     >
                       <span>BOOK TICKETS</span>
                       <ArrowRight className="w-4 h-4" />
@@ -277,17 +276,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded">
                 THEATRE OF DREAMS PILGRIMAGE
               </span>
-              <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase tracking-tight">
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase">
                 TRIP TO <span className="text-[#E60012]">OLD TRAFFORD</span>
               </h2>
             </div>
 
             <Link
               href="/tours"
-              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-tight"
             >
               <span>VIEW TRIP DETAILS</span>
               <ArrowRight className="w-4 h-4" />
@@ -314,8 +313,8 @@ export default function Home() {
 
               <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4 bg-gradient-to-br from-[#171717] to-[#050505]">
                 <div>
-                  <div className="text-xs font-display text-[#E60012] font-bold tracking-wider">{featuredTour.duration}</div>
-                  <h3 className="font-display text-4xl font-bold text-white mt-1 tracking-tight uppercase">{featuredTour.title}</h3>
+                  <div className="text-xs font-display text-[#E60012] font-bold">{featuredTour.duration}</div>
+                  <h3 className="font-display text-4xl font-bold text-white mt-1 uppercase">{featuredTour.title}</h3>
                   <p className="text-xs text-white/80 mt-2 font-sans line-clamp-3">
                     {featuredTour.description}
                   </p>
@@ -324,7 +323,7 @@ export default function Home() {
                 <div className="pt-3 border-t border-white/10 space-y-3">
                   <button
                     onClick={() => setEnquiryOpen(true)}
-                    className="w-full bg-[#171717] hover:bg-black border border-[#E60012] text-white font-display text-base tracking-wider font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase"
+                    className="w-full bg-[#171717] hover:bg-black border border-[#E60012] text-white font-display text-base font-bold tracking-tight py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase"
                   >
                     <Plane className="w-4 h-4 text-[#E60012]" />
                     <span>ENQUIRE ABOUT THE NEXT TRIP</span>
@@ -341,17 +340,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded">
                 OFFICIAL MERCHANDISE
               </span>
-              <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase tracking-tight">
+              <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase">
                 SHOP THE <span className="text-[#E60012]">SUPPORTER MERCH</span>
               </h2>
             </div>
 
             <Link
               href="/merchandise"
-              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-wider"
+              className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-tight"
             >
               <span>VIEW ALL MERCHANDISE</span>
               <ArrowRight className="w-4 h-4" />
@@ -365,11 +364,11 @@ export default function Home() {
                   <Image src={prod.image} alt={prod.name} fill className="object-cover" />
                 </div>
                 <div className="space-y-2 flex-1">
-                  <h4 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight uppercase">{prod.name}</h4>
+                  <h4 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase">{prod.name}</h4>
                   <div className="font-display text-3xl font-bold text-[#E60012]">₹{prod.price}</div>
                   <button
                     onClick={() => handleAddToCart(prod, 'ONE SIZE', 1)}
-                    className="bg-[#E60012] hover:bg-[#C40010] text-white text-xs font-display font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all shadow-[0_4px_15px_rgba(230,0,18,0.25)] uppercase"
+                    className="bg-[#E60012] hover:bg-[#C40010] text-white text-xs font-display font-bold tracking-tight py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all shadow-[0_4px_15px_rgba(230,0,18,0.25)] uppercase"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>ADD TO CART</span>
@@ -385,10 +384,10 @@ export default function Home() {
       <section className="py-16 bg-[#050505] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded tracking-wider">
+            <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded">
               INSIDE PUNE&apos;S RED ARMY
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase tracking-tight">
+            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase">
               DOCUMENTARY <span className="text-[#E60012]">ARCHIVE</span>
             </h2>
             <p className="text-xs sm:text-sm font-sans text-white/70 max-w-lg">
@@ -398,7 +397,7 @@ export default function Home() {
 
           <Link
             href="/gallery"
-            className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase tracking-wider"
+            className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold tracking-tight py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase"
           >
             <Camera className="w-4 h-4 text-[#E60012]" />
             <span>OPEN GALLERY ARCHIVE</span>

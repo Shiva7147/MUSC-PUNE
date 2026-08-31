@@ -13,10 +13,9 @@ interface MemberPassProps {
 export const MemberPass: React.FC<MemberPassProps> = ({
   name,
   phone,
-  email,
 }) => {
   const displayName = name.trim() ? name : 'PUNE RED SUPPORTER';
-  const displayPhone = phone.trim() ? phone : '+91 98765 XXXXX';
+  const displayPhone = phone.trim() ? phone : '+91 72767 35140';
   
   const memberHash = Math.abs(
     (displayName + displayPhone).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * 137
@@ -29,7 +28,7 @@ export const MemberPass: React.FC<MemberPassProps> = ({
 
   return (
     <div className="relative group perspective-1000">
-      <div className="w-full bg-gradient-to-br from-[#DA020E] via-[#99000A] to-[#400004] border border-[#DA020E]/70 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[#DA020E]/40">
+      <div className="w-full bg-gradient-to-br from-[#E60012] via-[#99000A] to-[#400004] border border-[#E60012]/70 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[#E60012]/40">
         {/* Subtle Overlay Graphic */}
         <div className="absolute inset-0 bg-noise opacity-15 pointer-events-none" />
         <div className="absolute right-[-20px] bottom-[-20px] font-display text-8xl font-bold opacity-10 select-none text-white pointer-events-none">
@@ -39,11 +38,11 @@ export const MemberPass: React.FC<MemberPassProps> = ({
         {/* Top Header Row */}
         <div className="flex items-center justify-between border-b border-white/20 pb-4 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center font-display text-xl font-bold border border-white/20 text-[#DA020E]">
+            <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center font-display text-xl font-bold border border-white/20 text-[#E60012]">
               MU
             </div>
             <div>
-              <div className="font-display tracking-wider font-bold text-lg leading-tight">
+              <div className="font-display tracking-tight font-bold text-lg leading-tight">
                 MUSC PUNE
               </div>
               <div className="text-[9px] font-mono tracking-widest text-white/80 uppercase">
@@ -64,7 +63,7 @@ export const MemberPass: React.FC<MemberPassProps> = ({
             <div className="text-[9px] font-mono tracking-widest text-white/70 uppercase">
               MEMBER NAME
             </div>
-            <div className="font-display text-2xl font-bold tracking-wide uppercase truncate text-white drop-shadow">
+            <div className="font-display text-2xl font-bold tracking-tight uppercase truncate text-white drop-shadow">
               {displayName}
             </div>
           </div>
@@ -76,14 +75,14 @@ export const MemberPass: React.FC<MemberPassProps> = ({
             </div>
             <div>
               <div className="text-[9px] text-white/70 uppercase">PREFERRED AREA</div>
-              <div className="font-bold text-white truncate">Koregaon Park / KP</div>
+              <div className="font-bold text-white truncate">The Mills, Pune</div>
             </div>
           </div>
 
           <div className="pt-2 border-t border-white/15 flex items-center justify-between">
             <div>
               <div className="text-[9px] font-mono text-white/70 uppercase">MEMBER ID</div>
-              <div className="font-mono text-sm font-bold tracking-widest text-amber-300">{cardId}</div>
+              <div className="font-mono text-sm font-bold tracking-widest text-white">{cardId}</div>
             </div>
             <div className="text-right">
               <div className="text-[9px] font-mono text-white/70 uppercase">SEASON</div>
@@ -95,7 +94,7 @@ export const MemberPass: React.FC<MemberPassProps> = ({
         {/* Bottom Bar & Live Dynamic QR */}
         <div className="pt-4 border-t border-white/20 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-2 text-[10px] font-mono text-white/80">
-            <ShieldCheck className="w-4 h-4 text-amber-300" />
+            <ShieldCheck className="w-4 h-4 text-white" />
             <span>Verified Matchday Pass Holder</span>
           </div>
 

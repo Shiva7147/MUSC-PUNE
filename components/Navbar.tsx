@@ -71,11 +71,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="font-display font-bold text-lg sm:text-xl text-white group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
                   MUSC PUNE
                 </span>
-                <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold tracking-wider">
+                <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
                   पुणे
                 </span>
               </div>
-              <span className="text-[9px] sm:text-[10px] tracking-widest text-white/60 uppercase font-sans font-medium mt-0.5">
+              <span className="text-[9px] sm:text-[10px] text-white/60 uppercase font-sans font-medium mt-0.5">
                 OFFICIAL SUPPORTERS CLUB
               </span>
             </div>
@@ -87,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 key={link.name}
                 href={link.href}
-                className="font-display text-base font-bold tracking-wider text-white hover:text-[#E60012] transition-colors uppercase relative py-1"
+                className="font-display text-base font-bold tracking-tight text-white hover:text-[#E60012] transition-colors uppercase relative py-1"
               >
                 {link.name}
               </Link>
@@ -113,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Book Tickets CTA on Tablet & Desktop */}
             <Link
               href="/screenings"
-              className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm tracking-wider font-bold px-4 py-2.5 rounded-2xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold tracking-tight px-4 py-2.5 rounded-2xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
             >
               <Ticket className="w-4 h-4 shrink-0" />
               <span>BOOK TICKETS</span>
@@ -140,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Image src={officialLogoUrl} alt="MUSC Pune Logo" fill className="object-cover" />
               </div>
               <div>
-                <div className="font-display tracking-wider font-bold text-xl text-white">MUSC PUNE</div>
+                <div className="font-display tracking-tight font-bold text-xl text-white">MUSC PUNE</div>
                 <div className="text-[10px] font-sans text-white/60 uppercase">PUNE&apos;S RED ARMY</div>
               </div>
             </div>
@@ -159,7 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-3xl font-bold tracking-wide text-white hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
+                  className="font-display text-3xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
                 >
                   <span>{link.name}</span>
                   <span className="text-xs font-sans text-[#E60012]">
@@ -173,7 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 href="/screenings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl tracking-wider font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] uppercase"
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl font-bold tracking-tight py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] uppercase"
               >
                 <Ticket className="w-5 h-5" />
                 GET SCREENING TICKETS

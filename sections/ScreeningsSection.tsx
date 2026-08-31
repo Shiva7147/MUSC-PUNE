@@ -25,7 +25,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold tracking-wider uppercase">
+            <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold uppercase">
               <Flame className="w-4 h-4" />
               <span>PHASE-WISE TICKET RELEASE ENGINE</span>
             </div>
@@ -56,7 +56,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-[#171717]/40 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#171717]/50 lg:to-[#171717]" />
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2">
-                <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-md shadow-lg uppercase tracking-wider">
+                <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-md shadow-lg uppercase">
                   {featured.activePhaseName || 'PHASE 1 - EARLY BIRD'}
                 </span>
                 <span className="bg-black/80 border border-white/20 text-white text-xs font-display font-bold px-3 py-1.5 rounded-md">
@@ -68,7 +68,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
             {/* Stub Specifications & Barcode */}
             <div className="lg:col-span-5 p-5 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
               <div>
-                <div className="text-xs font-display text-[#E60012] tracking-wider uppercase mb-1 font-bold flex items-center gap-1.5">
+                <div className="text-xs font-display text-[#E60012] uppercase font-bold flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>{featured.competition}</span>
                 </div>
@@ -118,14 +118,14 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <Barcode className="w-8 h-8 text-white/40" />
                   <span className="font-mono text-[10px] text-white/50">TICKET-2026-X89</span>
                 </div>
-                <span className="text-[10px] font-display text-emerald-400 font-bold tracking-wider">VERIFIED ENTRY</span>
+                <span className="text-[10px] font-display text-emerald-400 font-bold">VERIFIED ENTRY</span>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => onSelectScreening(featured)}
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl tracking-wider font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-white/20 uppercase"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-white/20 uppercase"
                 >
                   <Ticket className="w-5 h-5" />
                   <span>BOOK TICKETS</span>
@@ -137,7 +137,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
 
         {/* Secondary Upcoming Stub Grid */}
         <div>
-          <h3 className="font-display text-3xl font-bold text-white mb-6 uppercase tracking-wide">
+          <h3 className="font-display text-3xl font-bold text-white mb-6 uppercase">
             UPCOMING MATCHDAY TICKETS
           </h3>
 
@@ -178,7 +178,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
 
                   <button
                     onClick={() => onSelectScreening(sc)}
-                    className="bg-[#050505] hover:bg-[#E60012] text-white font-display text-sm tracking-wider font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase"
+                    className="bg-[#050505] hover:bg-[#E60012] text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase"
                   >
                     <span>BOOK TICKETS</span>
                     <ArrowRight className="w-4 h-4" />

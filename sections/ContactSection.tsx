@@ -29,7 +29,7 @@ export const ContactSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold tracking-wider uppercase">
+            <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold uppercase">
               <MessageSquare className="w-4 h-4 text-[#E60012]" />
               <span>OFFICIAL SUPPORTERS CLUB CONTACT</span>
             </div>
@@ -47,7 +47,7 @@ export const ContactSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Contact Details Column (Just Name, Number, Email & Venue as requested) */}
+          {/* Contact Details Column */}
           <div className="lg:col-span-5 space-y-6 glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 flex flex-col justify-between">
             <div className="space-y-6 font-sans text-sm">
               <div className="flex items-start gap-4">
@@ -170,7 +170,7 @@ export const ContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-wider font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20"
                 >
                   <Send className="w-5 h-5" />
                   <span>SEND ENQUIRY TO COMMITTEE</span>
