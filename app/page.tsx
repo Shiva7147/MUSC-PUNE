@@ -14,28 +14,27 @@ import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { ProductQuickViewModal } from '@/components/ProductQuickViewModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { EnquiryModal } from '@/components/EnquiryModal';
-import {
-  merchandiseProducts,
-  oldTraffordTours,
-} from '@/lib/data';
+import { oldTraffordTours } from '@/lib/data';
 import { Screening, Product, CartItem } from '@/lib/types';
-import { getScreeningsStore, subscribeStore } from '@/lib/ticketStore';
+import { getScreeningsStore, getProductsStore, subscribeStore } from '@/lib/ticketStore';
 
 export default function Home() {
   const [screenings, setScreenings] = useState<Screening[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState<boolean>(false);
   const [enquiryOpen, setEnquiryOpen] = useState<boolean>(false);
 
-  const refreshScreeningsData = () => {
+  const refreshStoreData = () => {
     setScreenings(getScreeningsStore());
+    setProducts(getProductsStore());
   };
 
   useEffect(() => {
-    refreshScreeningsData();
-    const unsubscribe = subscribeStore(refreshScreeningsData);
+    refreshStoreData();
+    const unsubscribe = subscribeStore(refreshStoreData);
     return () => {
       unsubscribe();
     };
@@ -78,7 +77,7 @@ export default function Home() {
     },
     {
       title: 'Official Membership (OUM)',
-      detail: 'We help Pune Reds become Official United Members — with exclusive ticketing, perks, and global recognition.',
+      detail: 'We help MUSC Pune members become Official United Members — with exclusive ticketing, perks, and global recognition.',
       icon: Star,
       href: '/membership',
     },
@@ -95,7 +94,7 @@ export default function Home() {
         onOpenCart={() => setCartOpen(true)}
       />
 
-      {/* 1. HERO SECTION WITH CLEAR OLD TRAFFORD BACKGROUND & IMPROVISED HEADLINE */}
+      {/* 1. HERO SECTION WITH HINDI SLOGAN & 3 MUSCB BUTTONS */}
       <HeroSection
         featuredScreening={featuredScreening}
         onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
@@ -195,17 +194,17 @@ export default function Home() {
       {/* 5. SCROLLER 02 — PUNE'S RED ARMY - LOUD AND PROUD */}
       <HeroMarquee variant="pune-manchester" />
 
-      {/* 6. MATCHDAY SCREENINGS */}
+      {/* 6. SCREENING TICKETS */}
       {featuredScreening && (
         <section className="py-20 sm:py-24 bg-[#171717] border-t border-white/10 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
               <div>
                 <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded">
-                  MATCHDAY TICKETING
+                  SCREENING TICKETING
                 </span>
                 <h2 className="font-display text-5xl sm:text-6xl font-bold text-white mt-2 uppercase">
-                  NEXT <span className="text-[#E60012]">MATCHDAY TICKETS</span>
+                  SCREENING <span className="text-[#E60012]">TICKETS</span>
                 </h2>
               </div>
 
@@ -249,7 +248,7 @@ export default function Home() {
 
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] font-display text-white/50 uppercase">RELEASE PRICE</div>
+                      <div className="text-[10px] font-display text-white/50 uppercase">TICKET PRICE</div>
                       <div className="font-display text-4xl font-bold text-[#E60012]">₹{featuredScreening.price}</div>
                     </div>
 
@@ -257,7 +256,7 @@ export default function Home() {
                       onClick={() => setSelectedScreening(featuredScreening)}
                       className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold tracking-tight py-3.5 px-6 rounded-2xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all hover:scale-[1.02] border border-white/20 uppercase"
                     >
-                      <span>BOOK TICKETS</span>
+                      <span>GET SCREENING TICKETS</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -268,7 +267,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* 7. SPECTACULAR MEMBERSHIP SECTION */}
+      {/* 7. DYNAMIC MEMBERSHIP SECTION */}
       <MembershipSection />
 
       {/* 8. TRIP TO OLD TRAFFORD */}
@@ -297,7 +296,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12">
               <div className="lg:col-span-7 relative min-h-[280px] lg:min-h-[380px]">
                 <Image
-                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg"
+                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg"
                   alt="Old Trafford Delegation Photo"
                   fill
                   quality={95}
@@ -358,7 +357,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {merchandiseProducts.map((prod) => (
+            {products.map((prod) => (
               <div key={prod.id} className="glass-card rounded-3xl p-6 flex gap-6 items-center shadow-xl bg-[#171717] border border-white/10">
                 <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-black shrink-0 border border-white/10">
                   <Image src={prod.image} alt={prod.name} fill className="object-cover" />
@@ -431,7 +430,7 @@ export default function Home() {
       <EnquiryModal
         isOpen={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
-        defaultSubject="Old Trafford Group Trip Enquiry — Autumn 2026"
+        defaultSubject="Trip to Old Trafford Enquiry — Autumn 2026"
       />
 
       {/* Cart Drawer */}

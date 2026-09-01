@@ -2,108 +2,106 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Heart, MapPin, Navigation, Quote } from 'lucide-react';
+import Link from 'next/link';
+import { Tv, Users, Plane, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
-  const stats = [
-    { label: 'REGISTERED PUNE REDS', value: '1,200+' },
-    { label: 'MATCHDAY SCREENINGS HELD', value: '85+' },
-    { label: 'YEARS OF COMMUNITY IN PUNE', value: '6+' },
-    { label: 'OLD TRAFFORD TOURS COMPLETED', value: '12+' },
-  ];
-
-  const roadmapSteps = [
-    { location: 'FC ROAD & DECCAN', role: 'Original Supporters Meetups (2021)' },
-    { location: 'KOREGAON PARK (KP)', role: 'Derby Screening Hubs' },
-    { location: 'VIMAN NAGAR', role: 'Main Stadium Screening Arena' },
-    { location: 'OLD TRAFFORD (MANCHESTER)', role: 'Stretford End Delegation' },
+  const featureTabs = [
+    {
+      title: 'Match Screenings',
+      detail: 'High-decibel screening matchdays for Premier League, Champions League, and FA Cup at BIRA 91 Taproom, The Mills.',
+      icon: Tv,
+      href: '/screenings',
+      tag: 'SCREENING TICKETS',
+    },
+    {
+      title: 'Community Events',
+      detail: 'Football matchdays, turf tournaments, WhatsApp community meetups, and exclusive supporter gatherings across Pune.',
+      icon: Users,
+      href: '/about',
+      tag: 'COMMUNITY PERKS',
+    },
+    {
+      title: 'Old Trafford Group Trips',
+      detail: 'Group pilgrimages to Manchester, matchday tickets at the Theatre of Dreams, stadium tours, and museum access.',
+      icon: Plane,
+      href: '/tours',
+      tag: 'PILGRIMAGE TRIP',
+    },
   ];
 
   return (
-    <section id="about" className="py-24 bg-[#070707] relative border-t border-neutral-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column: Story & FC Road to OT Roadmap */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#C8102E]/20 border border-[#C8102E]/40 text-[#C8102E] text-xs font-mono font-bold tracking-widest uppercase">
-              <Heart className="w-3.5 h-3.5" />
-              <span>SUPPORTERS COMMUNITY IDENTITY</span>
-            </div>
-
-            <h2 className="font-display text-5xl sm:text-7xl font-bold text-white uppercase leading-none">
-              MORE THAN <br />
-              <span className="text-[#C8102E]">A MATCH</span>
-            </h2>
-
-            <p className="text-base text-neutral-300 font-sans leading-relaxed">
-              Manchester United Supporters Club Pune (MUSC Pune) is the official gathering ground for Red Devils fans living across Maharashtra&apos;s cultural capital.
-            </p>
-
-            {/* FC Road to Old Trafford Roadmap */}
-            <div className="pt-2">
-              <h4 className="font-display text-base font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Navigation className="w-4 h-4 text-[#C8102E]" />
-                <span>FC ROAD TO OLD TRAFFORD ROADMAP</span>
-              </h4>
-              <div className="space-y-3 font-mono text-xs border-l-2 border-[#C8102E] pl-4">
-                {roadmapSteps.map((step, idx) => (
-                  <div key={idx} className="relative">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#C8102E] absolute -left-[21px] top-1" />
-                    <div className="font-bold text-white">{step.location}</div>
-                    <div className="text-neutral-400 text-[11px]">{step.role}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Wall of Red Sticky Note Quote */}
-            <div className="p-5 rounded-2xl bg-neutral-900 border border-neutral-800 relative mt-6">
-              <Quote className="w-8 h-8 text-[#C8102E]/40 absolute top-3 right-3" />
-              <div className="text-xs font-mono text-neutral-300 italic leading-relaxed">
-                &quot;Standing alongside 300 Pune Reds at 10 PM shouting 20 Times at The Irish House feels just like being in the Stretford End!&quot;
-              </div>
-              <div className="mt-2 text-[10px] font-mono text-[#C8102E] font-bold">
-                — Rohan D., Member #004 (Viman Nagar)
-              </div>
-            </div>
+    <section id="about" className="py-20 sm:py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        {/* Section Header & Short Introduction Text */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#171717] border border-white/15 text-xs font-display text-[#E60012] font-bold uppercase shadow-lg">
+            <ShieldCheck className="w-4 h-4 text-[#E60012]" />
+            <span>EST. 2011 • OFFICIAL MANCHESTER UNITED SUPPORTERS CLUB PUNE</span>
           </div>
 
-          {/* Right Column: Visual Image + Stats Counters */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl">
-              <Image
-                src="/images/community.jpg"
-                alt="MUSC Pune Supporters Community"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent opacity-80" />
+          <h2 className="font-display text-5xl sm:text-7xl font-bold text-white uppercase leading-none">
+            ABOUT <span className="text-[#E60012]">MUSC PUNE</span>
+          </h2>
 
-              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-white">
-                <div>
-                  <span className="text-xs font-mono text-neutral-400 uppercase">LOCATION</span>
-                  <div className="font-display text-lg font-bold">PUNE, MAHARASHTRA • INDIA</div>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-[#C8102E] flex items-center justify-center font-display font-bold text-lg">
-                  MU
-                </div>
-              </div>
-            </div>
+          <p className="text-base sm:text-lg text-white/90 font-sans leading-relaxed">
+            Manchester United Supporters Club Pune (MUSC Pune) brings Reds together through screening tickets, community events, and Old Trafford group trips. Founded in 2011, we are the home of Manchester United supporters in Pune.
+          </p>
+        </div>
 
-            {/* Numeric Typography Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              {stats.map((st, idx) => (
-                <div key={idx} className="p-5 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center hover:border-[#C8102E]/40 transition-colors">
-                  <div className="font-display text-4xl sm:text-5xl font-bold text-[#C8102E] tracking-tight">
-                    {st.value}
-                  </div>
-                  <div className="text-[10px] font-mono text-neutral-400 tracking-wider uppercase mt-1">
-                    {st.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Large High-Quality Photograph */}
+        <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
+          <Image
+            src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_3_eivq1o.jpg"
+            alt="MUSC Pune Supporters Group Photo"
+            fill
+            priority
+            quality={95}
+            className="object-cover object-center group-hover:scale-[1.02] transition-transform duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+          <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs sm:text-sm font-sans text-white font-semibold uppercase">
+            <span>📍 PUNE&apos;S RED ARMY • MATCHDAY AT THE MILLS</span>
+            <span className="hidden sm:inline-block bg-black/80 px-3 py-1 rounded-full border border-white/20">EST. 2011</span>
           </div>
+        </div>
+
+        {/* Three Visual Feature Tabs/Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {featureTabs.map((tab, idx) => {
+            const IconComp = tab.icon;
+            return (
+              <Link
+                key={idx}
+                href={tab.href}
+                className="bg-[#171717] hover:bg-[#1F1F1F] border border-white/10 hover:border-[#E60012] rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6 transition-all duration-300 group shadow-xl block"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-[#E60012]/15 border border-[#E60012]/30 flex items-center justify-center text-[#E60012] group-hover:scale-110 transition-transform">
+                      <IconComp className="w-6 h-6" />
+                    </div>
+                    <span className="text-[10px] font-display font-bold px-2.5 py-1 rounded bg-[#050505] text-white/60 border border-white/10 uppercase">
+                      {tab.tag}
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-3xl font-bold text-white group-hover:text-[#E60012] transition-colors uppercase">
+                    {tab.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-white/70 font-sans leading-relaxed">
+                    {tab.detail}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-display font-bold text-[#E60012] group-hover:text-white transition-colors uppercase">
+                  <span>EXPLORE {tab.title}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -3,78 +3,94 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Mail, Phone, MapPin, ShieldCheck, Heart } from 'lucide-react';
 import { officialLogoUrl, officialClubDetails } from '@/lib/data';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#050505] text-[#F5F5F5] border-t border-white/10 relative overflow-hidden pt-16 pb-8">
-      {/* Background Watermark Devanagari / Marathi Typography */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 select-none overflow-hidden">
-        <span className="font-devanagari text-[11vw] font-black text-white tracking-tight uppercase whitespace-nowrap">
-          मँचेस्टर युनायटेड पुणे • पुणे्स रेड आर्मी
-        </span>
+    <footer className="bg-[#050505] text-[#F5F5F5] border-t border-white/10 relative overflow-hidden">
+      {/* 1. CONTINUOUS FOOTER MARQUEE TICKER TRACK */}
+      <div className="w-full bg-[#E60012] text-white py-2.5 font-display text-sm sm:text-base font-bold tracking-tight uppercase overflow-hidden border-b border-black/20 shadow-md">
+        <div className="animate-marquee-track flex items-center gap-6 whitespace-nowrap">
+          <span>🔴 Glory Glory Man United • As the Reds Go Marching On, On, On •</span>
+          <span>🔴 Glory Glory Man United • As the Reds Go Marching On, On, On •</span>
+          <span>🔴 Glory Glory Man United • As the Reds Go Marching On, On, On •</span>
+          <span>🔴 Glory Glory Man United • As the Reds Go Marching On, On, On •</span>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b border-white/10">
-          {/* Brand Identity Column */}
-          <div className="lg:col-span-6 space-y-4">
+      {/* 2. BACKGROUND MANCHESTER UNITED DEVANAGARI WATERMARK */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-[0.03]">
+        <div className="font-devanagari text-[16vw] font-black text-white tracking-tight uppercase whitespace-nowrap select-none">
+          मैनचेस्टर यूनाइटेड
+        </div>
+      </div>
+
+      {/* Main Footer Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start border-b border-white/10 pb-10">
+          {/* Brand & Club Details */}
+          <div className="md:col-span-6 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-2xl overflow-hidden bg-black border border-white/20 shrink-0">
-                <Image src={officialLogoUrl} alt="MUSC Pune Official Logo" fill className="object-cover" />
+              <div className="relative w-12 h-12 rounded-2xl overflow-hidden bg-black border-2 border-[#E60012] shrink-0 p-0.5">
+                <Image src={officialLogoUrl} alt="MUSC Pune Logo" fill className="object-cover" />
               </div>
               <div>
-                <h3 className="font-display text-2xl font-bold text-[#F5F5F5] tracking-tight">MUSC PUNE</h3>
-                <p className="text-xs font-sans text-white/60">OFFICIAL MANCHESTER UNITED SUPPORTERS CLUB PUNE • EST. 2011</p>
+                <h4 className="font-display text-2xl font-bold text-[#F5F5F5] tracking-tight">MUSC PUNE</h4>
+                <div className="text-xs font-sans text-white/60 uppercase">PUNE&apos;S RED ARMY • EST. 2011</div>
               </div>
             </div>
 
-            <p className="text-xs font-sans text-white/70 max-w-lg leading-relaxed">
-              {officialClubDetails.tagline}. The official Manchester United supporters club in Pune, Maharashtra. Connecting local supporters for matchday screenings, kit drops, and Old Trafford trips since 2011.
+            <p className="text-xs sm:text-sm text-white/70 font-sans max-w-md leading-relaxed">
+              Official Manchester United Supporters Club Pune. Connecting 500+ passionate Reds across Pune for matchday screenings, turf games, and group pilgrimages to Old Trafford.
             </p>
 
-            <div className="flex items-center gap-3 pt-2 text-xs font-sans">
-              <a href={officialClubDetails.socials.instagram} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">Instagram</a>
-              <a href={officialClubDetails.socials.facebook} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">Facebook</a>
-              <a href={officialClubDetails.socials.youtube} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">YouTube</a>
-              <a href={officialClubDetails.socials.twitter} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">X / Twitter</a>
+            <div className="flex items-center gap-2 text-xs font-sans text-[#E60012]">
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              <span>OFFICIAL SUPPORTERS CLUB RECOGNIZED BY MANCHESTER UNITED</span>
             </div>
           </div>
 
-          {/* Legal Policies Column */}
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">POLICIES</h4>
+          {/* Quick Links */}
+          <div className="md:col-span-3 space-y-3">
+            <h5 className="font-display text-base font-bold text-[#E60012] uppercase tracking-tight">POLICIES & LEGAL</h5>
             <ul className="space-y-2 text-xs font-sans text-white/70">
-              <li><Link href="/privacy-policy" className="hover:text-[#E60012] transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms-and-conditions" className="hover:text-[#E60012] transition-colors">Terms & Conditions</Link></li>
-              <li><Link href="/refund-policy" className="hover:text-[#E60012] transition-colors">Refund & Returns Policy</Link></li>
-              <li><Link href="/cancellation-policy" className="hover:text-[#E60012] transition-colors">Cancellation Policy</Link></li>
-              <li><Link href="/shipping-policy" className="hover:text-[#E60012] transition-colors">Shipping Policy</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/refund-policy" className="hover:text-white transition-colors">Refund & Cancellation Policy</Link></li>
+              <li><Link href="/shipping-policy" className="hover:text-white transition-colors">Shipping & Delivery Policy</Link></li>
             </ul>
           </div>
 
-          {/* Contact Details (Clean Name & Phone / Email as requested) */}
-          <div className="lg:col-span-3 space-y-3 font-sans">
-            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">CLUB CONTACT</h4>
-            <p className="text-xs text-white/80 leading-relaxed">
-              <strong>Email:</strong> <a href={`mailto:${officialClubDetails.email}`} className="text-white hover:text-[#E60012]">{officialClubDetails.email}</a><br />
-              <strong>Phone / WhatsApp:</strong> <span className="text-white font-mono">{officialClubDetails.phone}</span>
-            </p>
-            <div className="pt-2 text-xs text-white/50">
-              Grievance Officer: {officialClubDetails.grievanceOfficer} ({officialClubDetails.grievanceEmail})
-            </div>
+          {/* Contact Details */}
+          <div className="md:col-span-3 space-y-3">
+            <h5 className="font-display text-base font-bold text-[#E60012] uppercase tracking-tight">CLUB CONTACT</h5>
+            <ul className="space-y-2 text-xs font-sans text-white/70">
+              <li className="flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5 text-[#E60012] shrink-0" />
+                <span>{officialClubDetails.phone}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-[#E60012] shrink-0" />
+                <a href={`mailto:${officialClubDetails.email}`} className="hover:text-white transition-colors">{officialClubDetails.email}</a>
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin className="w-3.5 h-3.5 text-[#E60012] shrink-0 mt-0.5" />
+                <span>{officialClubDetails.regularVenue.name}</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Footer Bottom Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] font-sans text-white/50 gap-4">
-          <div>© {new Date().getFullYear()} MUSC Pune (Est. 2011). All Rights Reserved.</div>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/privacy-policy" className="hover:text-[#E60012] transition-colors">Privacy</Link>
-            <span>•</span>
-            <Link href="/terms-and-conditions" className="hover:text-[#E60012] transition-colors">Terms</Link>
-            <span>•</span>
-            <Link href="/contact" className="hover:text-[#E60012] transition-colors">Contact Us</Link>
+        {/* Copyright & Sign-off */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-sans text-white/50">
+          <div>
+            © {new Date().getFullYear()} MUSC Pune. All Rights Reserved. Not officially affiliated with Manchester United PLC unless noted.
+          </div>
+          <div className="flex items-center gap-1">
+            <span>Built with</span>
+            <Heart className="w-3.5 h-3.5 text-[#E60012] fill-[#E60012]" />
+            <span>for Pune&apos;s Red Army</span>
           </div>
         </div>
       </div>

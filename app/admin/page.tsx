@@ -20,24 +20,30 @@ import {
   Sparkles as SparkIcon,
   Upload as UploadIcon,
   Layers as LayersIcon,
+  ShoppingBag as ShoppingIcon,
+  DollarSign as PriceIcon,
 } from 'lucide-react';
 import {
   getTicketStore,
   verifyTicketScan,
   getScreeningsStore,
   addScreeningToStore,
-  updateScreeningPhase,
+  updateScreeningPrice,
   getGalleryStore,
   addGalleryItemToStore,
+  getProductsStore,
+  addProductToStore,
+  getMembershipConfigStore,
+  updateMembershipConfigStore,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
-import { Screening, GalleryItem } from '@/lib/types';
+import { Screening, GalleryItem, Product, MembershipConfig } from '@/lib/types';
 
 export default function AdminDashboardPage() {
   const [pinInput, setPinInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'SCANNER' | 'SCREENINGS' | 'GALLERY' | 'LEDGER'>('SCANNER');
+  const [activeTab, setActiveTab] = useState<'SCANNER' | 'PRICING' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER'>('SCANNER');
 
   // Scanner states
   const [manualCode, setManualCode] = useState('');
@@ -52,6 +58,8 @@ export default function AdminDashboardPage() {
   // Store data states
   const [tickets, setTickets] = useState<AdminTicketRecord[]>([]);
   const [screenings, setScreenings] = useState<Screening[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [membershipConfig, setMembershipConfig] = useState<MembershipConfig>(getMembershipConfigStore());
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
 
   // New item form states
@@ -60,10 +68,23 @@ export default function AdminDashboardPage() {
     competition: 'Premier League',
     date: '',
     time: '09:00 PM IST',
-    venueName: 'BIRA 91 Taproom — The Mills',
+    venueName: 'BIRA 91 Taproom, The Mills',
     price: 350,
-    activePhaseName: 'PHASE 1 - EARLY BIRD',
     status: 'UPCOMING',
+    capacity: 250,
+    remainingSeats: 250,
+  });
+
+  const [newProduct, setNewProduct] = useState<Partial<Product>>({
+    name: '',
+    category: 'Apparel',
+    price: 799,
+    originalPrice: 999,
+    image: '',
+    description: '',
+    availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    inStock: true,
+    badge: 'NEW ARRIVAL',
   });
 
   const [newGal, setNewGal] = useState<Partial<GalleryItem>>({
@@ -78,6 +99,8 @@ export default function AdminDashboardPage() {
   const refreshStoreData = () => {
     setTickets(getTicketStore());
     setScreenings(getScreeningsStore());
+    setProducts(getProductsStore());
+    setMembershipConfig(getMembershipConfigStore());
     setGalleryList(getGalleryStore());
   };
 
@@ -217,30 +240,55 @@ export default function AdminDashboardPage() {
       awayLogo: '🔴',
       date: newScreening.date,
       time: newScreening.time || '09:00 PM IST',
-      venueName: newScreening.venueName || 'BIRA 91 Taproom — The Mills',
+      venueName: newScreening.venueName || 'BIRA 91 Taproom, The Mills',
       venueAddress: 'THE MILLS, Pune',
       venueArea: 'THE MILLS / Central Pune',
       price: initialPrice,
-      activePhaseName: 'PHASE 1 - EARLY BIRD',
+      activePhaseName: 'PHASE 1 - REGULAR RELEASE',
       phases: [
-        { phaseName: 'PHASE 1 - EARLY BIRD', price: initialPrice, isActive: true },
-        { phaseName: 'PHASE 2 - REGULAR PASS', price: initialPrice + 50, isActive: false },
+        { phaseName: 'PHASE 1 - REGULAR RELEASE', price: initialPrice, isActive: true },
+        { phaseName: 'PHASE 2 - ADVANCE TICKETS', price: initialPrice + 50, isActive: false },
         { phaseName: 'PHASE 3 - FINAL RELEASE', price: initialPrice + 100, isActive: false },
       ],
       featured: false,
       status: 'UPCOMING',
-      description: 'Official MUSC Pune screening night at BIRA 91 Taproom, The Mills.',
+      description: 'Official MUSC Pune screening event at BIRA 91 Taproom, The Mills.',
       gateOpening: '07:30 PM IST',
       inclusions: ['Guaranteed Entry to Screening Arena', 'Redeemable Cover Voucher'],
       rules: ['Digital QR Ticket Pass required for gate entry'],
+      capacity: Number(newScreening.capacity) || 250,
+      remainingSeats: Number(newScreening.capacity) || 250,
     };
     addScreeningToStore(item);
     setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350 });
-    alert('New screening with phase release system created successfully!');
+    alert('New event / screening created successfully!');
   };
 
-  const handlePhaseChange = (screeningId: string, phaseName: string, price: number) => {
-    updateScreeningPhase(screeningId, phaseName, price);
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProduct.name || !newProduct.image) return;
+    const item: Product = {
+      id: `product-${Date.now()}`,
+      name: newProduct.name,
+      category: (newProduct.category as any) || 'Apparel',
+      price: Number(newProduct.price) || 799,
+      originalPrice: Number(newProduct.originalPrice) || 999,
+      image: newProduct.image,
+      description: newProduct.description || newProduct.name,
+      availableSizes: newProduct.availableSizes || ['S', 'M', 'L', 'XL', 'XXL'],
+      inStock: true,
+      badge: newProduct.badge || 'NEW ARRIVAL',
+      details: ['Official Supporter Merchandise', 'High-quality print & fabric'],
+    };
+    addProductToStore(item);
+    setNewProduct({ name: '', image: '', price: 799, description: '' });
+    alert('New product added to merchandise shop!');
+  };
+
+  const handleSaveMembershipConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMembershipConfigStore(membershipConfig);
+    alert('Membership pricing & size configuration updated live!');
   };
 
   const handleCreateGal = (e: React.FormEvent) => {
@@ -277,10 +325,10 @@ export default function AdminDashboardPage() {
               <span>ADMINISTRATOR CONTROL CENTER</span>
             </div>
             <h1 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase">
-              ADMIN <span className="text-[#E60012]">DASHBOARD & GATE SCANNER</span>
+              ADMIN <span className="text-[#E60012]">DASHBOARD</span>
             </h1>
             <p className="text-xs text-white/60 font-sans mt-1">
-              Live QR ticket verification, phase-wise ticket pricing releases & gallery management
+              Live QR ticket verification, admin-controlled pricing, events, products & gallery management
             </p>
           </div>
 
@@ -339,31 +387,55 @@ export default function AdminDashboardPage() {
             <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4">
               <button
                 onClick={() => setActiveTab('SCANNER')}
-                className={`font-display text-xs sm:text-sm font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-wider ${
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
                   activeTab === 'SCANNER'
                     ? 'bg-[#E60012] text-white shadow-lg'
                     : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
                 }`}
               >
                 <QrIcon className="w-4 h-4" />
-                <span>📷 LIVE QR SCANNER</span>
+                <span>📷 GATE SCANNER</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('PRICING')}
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                  activeTab === 'PRICING'
+                    ? 'bg-[#E60012] text-white shadow-lg'
+                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                }`}
+              >
+                <PriceIcon className="w-4 h-4" />
+                <span>⚙️ MEMBERSHIP & TAX PRICING</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('SCREENINGS')}
-                className={`font-display text-xs sm:text-sm font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-wider ${
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
                   activeTab === 'SCREENINGS'
                     ? 'bg-[#E60012] text-white shadow-lg'
                     : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
                 }`}
               >
                 <CalIcon className="w-4 h-4" />
-                <span>🎟️ PHASE-WISE TICKET RELEASE ({screenings.length})</span>
+                <span>🎟️ ADD/MANAGE EVENTS ({screenings.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('PRODUCTS')}
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                  activeTab === 'PRODUCTS'
+                    ? 'bg-[#E60012] text-white shadow-lg'
+                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                }`}
+              >
+                <ShoppingIcon className="w-4 h-4" />
+                <span>🛍️ ADD/MANAGE PRODUCTS ({products.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('GALLERY')}
-                className={`font-display text-xs sm:text-sm font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-wider ${
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
                   activeTab === 'GALLERY'
                     ? 'bg-[#E60012] text-white shadow-lg'
                     : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
@@ -375,7 +447,7 @@ export default function AdminDashboardPage() {
 
               <button
                 onClick={() => setActiveTab('LEDGER')}
-                className={`font-display text-xs sm:text-sm font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-wider ${
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
                   activeTab === 'LEDGER'
                     ? 'bg-[#E60012] text-white shadow-lg'
                     : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
@@ -545,13 +617,78 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 2: PHASE-WISE TICKET RELEASE CONTROL */}
+            {/* TAB 2: PRICING & TAX MANAGER */}
+            {activeTab === 'PRICING' && (
+              <div className="max-w-3xl mx-auto glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-6">
+                <div className="border-b border-white/10 pb-4">
+                  <h2 className="font-display text-2xl font-bold text-white uppercase">ADMIN PRICING & TAX MANAGER</h2>
+                  <p className="text-xs text-white/60 font-sans mt-1">Configure size-based membership prices, GST tax rates, and platform fees.</p>
+                </div>
+
+                <form onSubmit={handleSaveMembershipConfig} className="space-y-6">
+                  {/* Size-based pricing configuration */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-display text-[#E60012] font-bold uppercase block">
+                      MEMBERSHIP SIZE-BASED PRICING (S THROUGH XXXL)
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {(['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as const).map((size) => (
+                        <div key={size} className="bg-[#050505] p-3 rounded-xl border border-white/10 space-y-1">
+                          <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} PRICE (₹)</label>
+                          <input
+                            type="number"
+                            value={membershipConfig.sizePrices?.[size] ?? 999}
+                            onChange={(e) => {
+                              const updatedPrices = { ...(membershipConfig.sizePrices || {}), [size]: Number(e.target.value) };
+                              setMembershipConfig({ ...membershipConfig, sizePrices: updatedPrices });
+                            }}
+                            className="w-full bg-[#171717] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Taxes & Fees */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/10">
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE GST TAX RATE (%)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={(membershipConfig.taxRate ?? 0.18) * 100}
+                        onChange={(e) => setMembershipConfig({ ...membershipConfig, taxRate: Number(e.target.value) / 100 })}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">PLATFORM FEE (₹)</label>
+                      <input
+                        type="number"
+                        value={membershipConfig.platformFee ?? 30}
+                        onChange={(e) => setMembershipConfig({ ...membershipConfig, platformFee: Number(e.target.value) })}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 rounded-xl shadow-lg uppercase"
+                  >
+                    SAVE & PUBLISH PRICING CONFIGURATION
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 3: ADD/MANAGE SCREENINGS */}
             {activeTab === 'SCREENINGS' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Create Form */}
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
                   <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
-                    ADD NEW MATCHDAY SCREENING
+                    ADD NEW SCREENING TICKET EVENT
                   </h3>
 
                   <form onSubmit={handleCreateScreening} className="space-y-4">
@@ -580,7 +717,7 @@ export default function AdminDashboardPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">STARTING PRICE (₹)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">PRICE (₹)</label>
                         <input
                           type="number"
                           value={newScreening.price}
@@ -605,17 +742,17 @@ export default function AdminDashboardPage() {
                       className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2 uppercase"
                     >
                       <PlusIcon className="w-4 h-4" />
-                      <span>PUBLISH SCREENING WITH PHASES</span>
+                      <span>PUBLISH SCREENING TICKET EVENT</span>
                     </button>
                   </form>
                 </div>
 
-                {/* List & Phase Controller */}
+                {/* List & Manual Price Controller */}
                 <div className="lg:col-span-7 space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <h3 className="font-display text-xl font-bold text-white uppercase flex items-center gap-2">
                       <LayersIcon className="w-5 h-5 text-[#E60012]" />
-                      <span>LIVE SCREENINGS & PHASE RELEASES</span>
+                      <span>LIVE SCREENINGS ({screenings.length})</span>
                     </h3>
                   </div>
 
@@ -630,48 +767,16 @@ export default function AdminDashboardPage() {
                               📍 {sc.venueName} • 📅 {sc.date}
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-xs font-display text-white/60 uppercase">CURRENT TICKET PRICE</div>
-                            <div className="font-display text-3xl font-bold text-[#E60012]">₹{sc.price}</div>
-                            <span className="bg-[#050505] border border-[#E60012] text-[#E60012] text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
-                              {sc.activePhaseName || 'PHASE 1 LIVE'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Phase Selector Controls for Admin */}
-                        <div className="space-y-2">
-                          <label className="text-xs font-display text-white/90 font-bold uppercase tracking-wider block">
-                            ADMIN: SWITCH ACTIVE TICKET RELEASE PHASE & PRICE
-                          </label>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {(sc.phases || [
-                              { phaseName: 'PHASE 1 - EARLY BIRD', price: sc.price, isActive: true },
-                              { phaseName: 'PHASE 2 - REGULAR PASS', price: sc.price + 50, isActive: false },
-                              { phaseName: 'PHASE 3 - FINAL RELEASE', price: sc.price + 100, isActive: false }
-                            ]).map((phase, pIdx) => (
-                              <button
-                                key={pIdx}
-                                type="button"
-                                onClick={() => handlePhaseChange(sc.id, phase.phaseName, phase.price)}
-                                className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                                  sc.activePhaseName === phase.phaseName || (pIdx === 0 && !sc.activePhaseName)
-                                    ? 'bg-[#E60012]/15 border-[#E60012] text-white shadow-lg'
-                                    : 'bg-[#050505] border-white/15 text-white/70 hover:border-white/30 hover:text-white'
-                                }`}
-                              >
-                                <div className="text-[10px] font-display font-bold uppercase tracking-wider text-white/80">
-                                  {phase.phaseName}
-                                </div>
-                                <div className="font-display text-xl font-bold text-white mt-1">
-                                  ₹{phase.price}
-                                </div>
-                                <div className="text-[9px] font-sans mt-1 uppercase font-bold text-[#E60012]">
-                                  {sc.activePhaseName === phase.phaseName || (pIdx === 0 && !sc.activePhaseName) ? '🟢 CURRENTLY LIVE' : 'ACTIVATE PHASE'}
-                                </div>
-                              </button>
-                            ))}
+                          <div className="text-right space-y-1">
+                            <div className="text-xs font-display text-white/60 uppercase">MANUAL TICKET PRICE</div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                value={sc.price}
+                                onChange={(e) => updateScreeningPrice(sc.id, Number(e.target.value))}
+                                className="w-24 bg-[#050505] border border-[#E60012] rounded-lg px-2 py-1 text-right font-display text-xl font-bold text-[#E60012]"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -681,7 +786,98 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 3: GALLERY SETTINGS */}
+            {/* TAB 4: ADD/MANAGE PRODUCTS */}
+            {activeTab === 'PRODUCTS' && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
+                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
+                    ADD NEW MERCHANDISE PRODUCT
+                  </h3>
+
+                  <form onSubmit={handleCreateProduct} className="space-y-4">
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">PRODUCT NAME *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Official MUSC Pune Track Jacket"
+                        value={newProduct.name}
+                        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">PRICE (₹) *</label>
+                        <input
+                          type="number"
+                          required
+                          value={newProduct.price}
+                          onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">CATEGORY</label>
+                        <select
+                          value={newProduct.category}
+                          onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value as any })}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        >
+                          <option value="Apparel">Apparel</option>
+                          <option value="Accessories">Accessories</option>
+                          <option value="Collectibles">Collectibles</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">IMAGE URL *</label>
+                      <input
+                        type="url"
+                        required
+                        placeholder="https://res.cloudinary.com/..."
+                        value={newProduct.image}
+                        onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2 uppercase"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      <span>ADD PRODUCT TO SHOP</span>
+                    </button>
+                  </form>
+                </div>
+
+                <div className="lg:col-span-7 space-y-4">
+                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
+                    LIVE PRODUCTS ({products.length})
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {products.map((p) => (
+                      <div key={p.id} className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex gap-4 items-center">
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
+                          <Image src={p.image} alt={p.name} fill className="object-cover" />
+                        </div>
+                        <div>
+                          <h4 className="font-display text-xl font-bold text-white uppercase">{p.name}</h4>
+                          <div className="font-display text-lg font-bold text-[#E60012]">₹{p.price}</div>
+                          <span className="text-[10px] font-sans text-white/60">{p.category}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: GALLERY ARCHIVE */}
             {activeTab === 'GALLERY' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
@@ -695,7 +891,7 @@ export default function AdminDashboardPage() {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Pune Reds Victory Roar"
+                        placeholder="e.g. MUSC Pune Victory Roar"
                         value={newGal.title}
                         onChange={(e) => setNewGal({ ...newGal, title: e.target.value })}
                         className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
@@ -743,7 +939,7 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 4: TICKET LEDGER & CSV EXPORT */}
+            {/* TAB 6: TICKET LEDGER & CSV EXPORT */}
             {activeTab === 'LEDGER' && (
               <div className="space-y-6 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/10 pb-4 gap-4">

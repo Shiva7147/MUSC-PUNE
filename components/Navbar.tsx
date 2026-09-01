@@ -37,10 +37,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navLinks = [
     { name: 'ABOUT', href: '/about' },
     { name: 'SCREENINGS', href: '/screenings' },
-    { name: 'MERCH', href: '/merchandise' },
+    { name: 'TRIP TO OLD TRAFFORD', href: '/tours' },
     { name: 'MEMBERSHIP', href: '/membership' },
+    { name: 'MERCH', href: '/merchandise' },
     { name: 'GALLERY', href: '/gallery' },
     { name: 'CHANTS', href: '/chants' },
+    { name: 'CONTACT US', href: '/contact' },
     { name: 'ADMIN', href: '/admin' },
   ];
 
@@ -82,12 +84,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Link>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden xl:flex items-center gap-5">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-5">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="font-display text-base font-bold tracking-tight text-white hover:text-[#E60012] transition-colors uppercase relative py-1"
+                className="font-display text-sm xl:text-base font-bold tracking-tight text-white hover:text-[#E60012] transition-colors uppercase relative py-1 shrink-0"
               >
                 {link.name}
               </Link>
@@ -116,13 +118,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold tracking-tight px-4 py-2.5 rounded-2xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
             >
               <Ticket className="w-4 h-4 shrink-0" />
-              <span>BOOK TICKETS</span>
+              <span>SCREENING TICKETS</span>
             </Link>
 
             {/* Mobile Menu Trigger */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0"
+              className="lg:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-5 h-5" />
@@ -133,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-black border border-white/20 shrink-0">
@@ -159,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-3xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
+                  className="font-display text-2xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
                 >
                   <span>{link.name}</span>
                   <span className="text-xs font-sans text-[#E60012]">

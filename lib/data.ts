@@ -1,4 +1,4 @@
-import { Screening, Product, TourPackage, GalleryItem, FanChant, TeamMember } from './types';
+import { Screening, Product, TourPackage, GalleryItem, FanChant, TeamMember, MembershipConfig } from './types';
 
 export const officialClubDetails = {
   name: 'MUSC Pune',
@@ -28,6 +28,20 @@ export const officialClubDetails = {
 export const officialLogoUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1787381769/WhatsApp_Image_2026-08-22_at_12.09.49_AM_cof7cr.jpg';
 export const officialMembershipImageUrl = 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1787381769/WhatsApp_Image_2026-08-22_at_12.35.49_AM_ox8tpz.jpg';
 
+export const defaultMembershipConfig: MembershipConfig = {
+  basePrice: 999,
+  sizePrices: {
+    'S': 999,
+    'M': 999,
+    'L': 999,
+    'XL': 999,
+    'XXL': 1099,
+    'XXXL': 1199,
+  },
+  taxRate: 0.18,
+  platformFee: 30,
+};
+
 export const upcomingScreenings: Screening[] = [
   {
     id: 'screening-mufc-lfc',
@@ -39,19 +53,19 @@ export const upcomingScreenings: Screening[] = [
     awayLogo: '🔴',
     date: 'Sunday, March 15, 2026',
     time: '09:00 PM IST',
-    venueName: 'BIRA 91 Taproom — The Mills',
+    venueName: 'BIRA 91 Taproom, The Mills',
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 350,
-    activePhaseName: 'PHASE 1 - EARLY BIRD',
+    activePhaseName: 'PHASE 1 - REGULAR RELEASE',
     phases: [
-      { phaseName: 'PHASE 1 - EARLY BIRD', price: 350, isActive: true },
-      { phaseName: 'PHASE 2 - REGULAR PASS', price: 400, isActive: false },
+      { phaseName: 'PHASE 1 - REGULAR RELEASE', price: 350, isActive: true },
+      { phaseName: 'PHASE 2 - ADVANCE TICKETS', price: 400, isActive: false },
       { phaseName: 'PHASE 3 - FINAL RELEASE', price: 450, isActive: false }
     ],
     featured: true,
     status: 'FILLING_FAST',
-    description: '90 minutes. One room. Everyone singing. Join Pune’s Red Army at BIRA 91 Taproom, The Mills for an iconic matchday screening with high-decibel audio and chant sessions.',
+    description: '90 minutes. One room. Everyone singing. Join MUSC Pune at BIRA 91 Taproom, The Mills for an iconic screening ticket event with high-decibel audio and chant sessions.',
     gateOpening: '07:30 PM IST',
     inclusions: [
       'Guaranteed Entry to Main Stadium Screening Arena',
@@ -64,7 +78,9 @@ export const upcomingScreenings: Screening[] = [
       'Please carry digital ticket QR code on smartphone',
       'Right of admission reserved by MUSC Pune & Venue Management',
       'Stag entries allowed subject to prior registration'
-    ]
+    ],
+    capacity: 250,
+    remainingSeats: 42,
   },
   {
     id: 'screening-mufc-afc',
@@ -76,14 +92,14 @@ export const upcomingScreenings: Screening[] = [
     awayLogo: '🔴',
     date: 'Saturday, April 04, 2026',
     time: '10:00 PM IST',
-    venueName: 'BIRA 91 Taproom — The Mills',
+    venueName: 'BIRA 91 Taproom, The Mills',
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 300,
-    activePhaseName: 'PHASE 1 - EARLY BIRD',
+    activePhaseName: 'PHASE 1 - REGULAR RELEASE',
     phases: [
-      { phaseName: 'PHASE 1 - EARLY BIRD', price: 300, isActive: true },
-      { phaseName: 'PHASE 2 - REGULAR PASS', price: 350, isActive: false }
+      { phaseName: 'PHASE 1 - REGULAR RELEASE', price: 300, isActive: true },
+      { phaseName: 'PHASE 2 - ADVANCE TICKETS', price: 350, isActive: false }
     ],
     featured: false,
     status: 'UPCOMING',
@@ -92,12 +108,14 @@ export const upcomingScreenings: Screening[] = [
     inclusions: [
       'Access to Taproom Screening Zone',
       '₹150 Food & Drink Voucher Included',
-      'Live Fan Chant Session Led by Pune’s Red Army'
+      'Live Fan Chant Session Led by MUSC Pune'
     ],
     rules: [
       'Valid ID required at entry (18+ venue)',
       'Digital QR code mandatory'
-    ]
+    ],
+    capacity: 200,
+    remainingSeats: 88,
   },
   {
     id: 'screening-mufc-mcfc',
@@ -109,14 +127,14 @@ export const upcomingScreenings: Screening[] = [
     awayLogo: '🔵',
     date: 'Sunday, April 26, 2026',
     time: '08:00 PM IST',
-    venueName: 'BIRA 91 Taproom — The Mills',
+    venueName: 'BIRA 91 Taproom, The Mills',
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 400,
-    activePhaseName: 'PHASE 1 - EARLY BIRD',
+    activePhaseName: 'PHASE 1 - REGULAR RELEASE',
     phases: [
-      { phaseName: 'PHASE 1 - EARLY BIRD', price: 400, isActive: true },
-      { phaseName: 'PHASE 2 - REGULAR PASS', price: 450, isActive: false },
+      { phaseName: 'PHASE 1 - REGULAR RELEASE', price: 400, isActive: true },
+      { phaseName: 'PHASE 2 - ADVANCE TICKETS', price: 450, isActive: false },
       { phaseName: 'PHASE 3 - FINAL RELEASE', price: 500, isActive: false }
     ],
     featured: false,
@@ -131,7 +149,9 @@ export const upcomingScreenings: Screening[] = [
     rules: [
       'Arrive at least 45 minutes prior to kickoff',
       'Non-refundable ticket passes'
-    ]
+    ],
+    capacity: 300,
+    remainingSeats: 115,
   }
 ];
 
@@ -176,7 +196,7 @@ export const merchandiseProducts: Product[] = [
 export const oldTraffordTours: TourPackage[] = [
   {
     id: 'tour-autumn-2026',
-    title: 'Old Trafford Group Trip',
+    title: 'Trip to Old Trafford',
     duration: '7 Days / 6 Nights',
     nextBatch: 'October 18 – 24, 2026',
     matchHighlights: ['Stretford End Tier 1 Ticket', 'Private Museum & Stadium Tour', 'First-Team Training Session Access'],
@@ -195,16 +215,16 @@ export const oldTraffordTours: TourPackage[] = [
 export const galleryImages: GalleryItem[] = [
   {
     id: 'gal-ot-main',
-    title: 'Old Trafford Group Pilgrimage',
+    title: 'Trip to Old Trafford Pilgrimage',
     category: 'Tours',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
     location: 'Old Trafford, Manchester',
     date: '10.11.2025',
-    caption: 'Pune delegation standing outside the Holy Trinity statue at Old Trafford.'
+    caption: 'MUSC Pune delegation standing outside the Holy Trinity statue at Old Trafford.'
   },
   {
     id: 'gal-ot-team',
-    title: 'Pune Team at Old Trafford',
+    title: 'MUSC Pune Team at Old Trafford',
     category: 'Tours',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865422/WhatsApp_Image_2026-08-16_at_12.29.15_PM_kzh1u3.jpg',
     location: 'Sir Matt Busby Way, Manchester',
@@ -218,7 +238,7 @@ export const galleryImages: GalleryItem[] = [
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_1_eibvrj.jpg',
     location: 'First-Team Dressing Room, Old Trafford',
     date: '11.11.2025',
-    caption: 'Pune’s Red Army members inside the sacred United dressing room.'
+    caption: 'MUSC Pune members inside the sacred United dressing room.'
   },
   {
     id: 'gal-legend-1',
@@ -267,7 +287,7 @@ export const galleryImages: GalleryItem[] = [
   },
   {
     id: 'gal-screening-1',
-    title: 'Pune Matchday Screening Roar',
+    title: 'Pune Screening Tickets Roar',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
     location: 'BIRA 91 Taproom, The Mills',
@@ -374,7 +394,7 @@ export const galleryImages: GalleryItem[] = [
     caption: 'Inside the press conference room at Old Trafford.'
   },
   {
-    id: 'gal-tour-8',
+    id: 'gal-tour-[#E60012]8',
     title: 'Stretford End Stand View',
     category: 'Tours',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_2_g2oiht.jpg',
@@ -387,7 +407,7 @@ export const galleryImages: GalleryItem[] = [
 export const fanChants: FanChant[] = [
   {
     id: 'chant-01',
-    title: '20 Times (Pune Terrace Edition)',
+    title: '20 Times (Terrace Edition)',
     origin: 'Stretford End / Adapted by MUSC Pune',
     popularContext: 'Sung standing at kickoff & after every United goal at screenings',
     lyrics: [
@@ -443,7 +463,7 @@ export const teamMembers: (TeamMember & {
   },
   {
     id: 'team-02',
-    name: 'Old Trafford Tour Squad',
+    name: 'Trip to Old Trafford Squad',
     role: 'Travel & Matchday Operations',
     ovr: 97,
     position: 'OPS',
@@ -454,7 +474,7 @@ export const teamMembers: (TeamMember & {
   },
   {
     id: 'team-03',
-    name: 'Screenings Ultras Lead',
+    name: 'Screenings Lead',
     role: 'Matchday Atmosphere & Chants',
     ovr: 96,
     position: 'MERCH',

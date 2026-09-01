@@ -1,5 +1,5 @@
 export interface ScreeningPhase {
-  phaseName: string; // e.g. "Phase 1 - Early Bird", "Phase 2", "Phase 3"
+  phaseName: string; // e.g. "Phase 1 - Regular Release", "Phase 2", "Phase 3"
   price: number;
   isActive: boolean;
 }
@@ -28,6 +28,8 @@ export interface Screening {
   gateOpening: string;
   inclusions: string[];
   rules: string[];
+  capacity?: number;
+  remainingSeats?: number;
 }
 
 export interface Product {
@@ -37,12 +39,21 @@ export interface Product {
   price: number;
   originalPrice?: number;
   taxRate?: number; // Configurable tax rate percentage (default 12%)
+  platformFee?: number; // Configurable platform fee per product
   image: string;
   description: string;
   availableSizes: string[];
+  sizePrices?: { [size: string]: number }; // Admin configurable price per size
   inStock: boolean;
   badge?: string;
   details: string[];
+}
+
+export interface MembershipConfig {
+  basePrice: number;
+  sizePrices: { [size: string]: number };
+  taxRate: number; // e.g. 0.18 for 18% GST
+  platformFee: number; // e.g. ₹30
 }
 
 export interface CartItem {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Ticket, Calendar, MapPin, Flame, ArrowRight, Barcode, Sparkles } from 'lucide-react';
+import { Ticket, Calendar, MapPin, Flame, ArrowRight, Barcode, Sparkles, Users } from 'lucide-react';
 import { Screening } from '@/lib/types';
 import { upcomingScreenings } from '@/lib/data';
 
@@ -27,22 +27,22 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
           <div>
             <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold uppercase">
               <Flame className="w-4 h-4" />
-              <span>PHASE-WISE TICKET RELEASE ENGINE</span>
+              <span>OFFICIAL TICKET RELEASE ENGINE</span>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
-              MATCHDAY <span className="text-[#E60012]">TICKETS</span>
+              SCREENING <span className="text-[#E60012]">TICKETS</span>
             </h2>
             <p className="text-sm text-white/70 max-w-xl mt-2 font-sans">
-              Official matchday screening tickets for Manchester United fans in Pune. Phase-wise releases with guaranteed entry & F&B cover vouchers.
+              Official matchday screening tickets for Manchester United fans in Pune. Guaranteed entry & F&B cover vouchers at BIRA 91 Taproom, The Mills.
             </p>
           </div>
 
           <div className="badge-pune text-xs font-display px-3 py-1 font-bold rounded-lg shrink-0 w-max">
-            🔴 PHASE TICKETING SYSTEM LIVE
+            🔴 TICKET PORTAL LIVE
           </div>
         </div>
 
-        {/* Featured Perforated Ticket Stub Card */}
+        {/* Featured Ticket Stub Card */}
         <div className="bg-[#171717] border-2 border-[#E60012]/60 rounded-3xl overflow-hidden shadow-2xl relative mb-12 sm:mb-16">
           <div className="grid grid-cols-1 lg:grid-cols-12">
             {/* Poster / Match Image */}
@@ -57,7 +57,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-[#171717]/40 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#171717]/50 lg:to-[#171717]" />
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2">
                 <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-md shadow-lg uppercase">
-                  {featured.activePhaseName || 'PHASE 1 - EARLY BIRD'}
+                  {featured.activePhaseName || 'PHASE 1'}
                 </span>
                 <span className="bg-black/80 border border-white/20 text-white text-xs font-display font-bold px-3 py-1.5 rounded-md">
                   FEATURED MATCHDAY
@@ -77,14 +77,17 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   {featured.matchTitle}
                 </h3>
 
-                {/* Real-time Phase Ticket Release Badge */}
+                {/* Remaining Seats Tracker */}
                 <div className="mt-4 space-y-1.5">
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
-                    <span className="text-[#E60012] font-bold">🔥 {featured.activePhaseName || 'PHASE 1 LIVE'} — LIMITED TICKETS</span>
+                    <span className="text-[#E60012] font-bold flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5" />
+                      <span>REMAINING SEATS: {featured.remainingSeats ?? 42} / {featured.capacity ?? 250}</span>
+                    </span>
                     <span className="text-white/60 font-mono">₹{featured.price}</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-[#050505] overflow-hidden border border-white/10">
-                    <div className="h-full bg-[#E60012] w-[80%]" />
+                    <div className="h-full bg-[#E60012] w-[82%]" />
                   </div>
                 </div>
 
@@ -104,10 +107,10 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <span className="text-[#E60012] font-bold">{featured.venueName}</span>
                 </div>
                 <div className="flex items-center justify-between pt-0.5">
-                  <span className="text-white/60">RELEASE PRICE</span>
+                  <span className="text-white/60">TICKET PRICE</span>
                   <div className="text-right">
                     <span className="font-display text-2xl font-bold text-white">₹{featured.price}</span>
-                    <span className="text-[10px] text-white/50 block font-mono">{featured.activePhaseName || 'PHASE 1'}</span>
+                    <span className="text-[10px] text-white/50 block font-mono">SCREENING TICKET</span>
                   </div>
                 </div>
               </div>
@@ -128,7 +131,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-white/20 uppercase"
                 >
                   <Ticket className="w-5 h-5" />
-                  <span>BOOK TICKETS</span>
+                  <span>GET SCREENING TICKETS</span>
                 </button>
               </div>
             </div>
@@ -138,7 +141,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
         {/* Secondary Upcoming Stub Grid */}
         <div>
           <h3 className="font-display text-3xl font-bold text-white mb-6 uppercase">
-            UPCOMING MATCHDAY TICKETS
+            MORE SCREENING TICKETS
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -151,7 +154,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <div className="flex items-center justify-between text-xs font-display text-white/60 mb-2">
                     <span>{sc.competition}</span>
                     <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#E60012] border border-[#E60012]/30 font-bold uppercase">
-                      {sc.activePhaseName || 'PHASE 1'}
+                      REMAINING: {sc.remainingSeats ?? 88} SEATS
                     </span>
                   </div>
 
@@ -180,7 +183,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                     onClick={() => onSelectScreening(sc)}
                     className="bg-[#050505] hover:bg-[#E60012] text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase"
                   >
-                    <span>BOOK TICKETS</span>
+                    <span>SCREENING TICKETS</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>

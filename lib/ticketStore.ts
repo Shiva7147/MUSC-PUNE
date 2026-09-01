@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
-import { Screening, GalleryItem } from './types';
-import { upcomingScreenings, galleryImages as defaultGallery } from './data';
+import { Screening, GalleryItem, Product, MembershipConfig } from './types';
+import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig } from './data';
 
 export interface AdminTicketRecord {
   ticketId: string;
@@ -25,6 +25,8 @@ export interface AdminTicketRecord {
 const TICKETS_STORAGE_KEY = 'musc_pune_tickets_v1';
 const SCREENINGS_STORAGE_KEY = 'musc_pune_screenings_v1';
 const GALLERY_STORAGE_KEY = 'musc_pune_gallery_v1';
+const PRODUCTS_STORAGE_KEY = 'musc_pune_products_v1';
+const MEMBERSHIP_CONFIG_KEY = 'musc_pune_membership_config_v1';
 
 // Helper to safely load data from LocalStorage
 const loadStorage = <T>(key: string, fallback: T): T => {
@@ -51,6 +53,8 @@ const saveStorage = <T>(key: string, data: T) => {
 let ticketsMemory: AdminTicketRecord[] = loadStorage(TICKETS_STORAGE_KEY, []);
 let screeningsMemory: Screening[] = loadStorage(SCREENINGS_STORAGE_KEY, upcomingScreenings);
 let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGallery);
+let productsMemory: Product[] = loadStorage(PRODUCTS_STORAGE_KEY, defaultProducts);
+let membershipConfigMemory: MembershipConfig = loadStorage(MEMBERSHIP_CONFIG_KEY, defaultMembershipConfig);
 
 // LISTENERS FOR REACTIVE UPDATES ACROSS COMPONENTS
 type Listener = () => void;
@@ -80,8 +84,6 @@ export const generateTicketPass = async (
 ): Promise<AdminTicketRecord> => {
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const ticketId = `MUSCPUN-${randomNum}`;
-
-  // Clean Payload: High Contrast & Robust Scanning
   const qrPayload = ticketId;
 
   // Generate ultra crisp high-contrast black/white QR code
@@ -132,7 +134,6 @@ export const verifyTicketScan = (
   const rawText = scannedCode.trim();
   let ticketId = rawText;
 
-  // Extract Ticket ID using regex if payload contains extra data or JSON
   const match = rawText.match(/MUSCPUN-\d+/i);
   if (match) {
     ticketId = match[0].toUpperCase();
@@ -157,7 +158,6 @@ export const verifyTicketScan = (
     };
   }
 
-  // Mark as checked in
   const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   target.checkedIn = true;
   target.checkedInAt = nowStr;
@@ -176,7 +176,7 @@ export const verifyTicketScan = (
 };
 
 // -------------------------------------------------------------
-// DYNAMIC SCREENINGS ADMIN MANAGEMENT WITH PHASE RELEASE PERSISTENCE
+// DYNAMIC SCREENINGS ADMIN MANAGEMENT
 // -------------------------------------------------------------
 
 export const getScreeningsStore = (): Screening[] => {
@@ -189,25 +189,57 @@ export const addScreeningToStore = (newScreening: Screening) => {
   notifyListeners();
 };
 
-export const updateScreeningPhase = (screeningId: string, activePhaseName: string, price: number) => {
+export const updateScreeningPrice = (screeningId: string, price: number, taxRate?: number, platformFee?: number) => {
   const current = getScreeningsStore();
   const updated = current.map((sc) => {
     if (sc.id === screeningId) {
-      const updatedPhases = (sc.phases || []).map((p) => ({
-        ...p,
-        isActive: p.phaseName === activePhaseName,
-      }));
       return {
         ...sc,
         price,
-        activePhaseName,
-        phases: updatedPhases,
+        taxRate: taxRate !== undefined ? taxRate : sc.taxRate,
+        platformFee: platformFee !== undefined ? platformFee : sc.platformFee,
       };
     }
     return sc;
   });
   screeningsMemory = updated;
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+  notifyListeners();
+};
+
+// -------------------------------------------------------------
+// DYNAMIC PRODUCTS ADMIN MANAGEMENT
+// -------------------------------------------------------------
+
+export const getProductsStore = (): Product[] => {
+  return loadStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+};
+
+export const addProductToStore = (newProduct: Product) => {
+  productsMemory = [newProduct, ...productsMemory];
+  saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+  notifyListeners();
+};
+
+export const updateProductInStore = (updatedProduct: Product) => {
+  const current = getProductsStore();
+  const updated = current.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
+  productsMemory = updated;
+  saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+  notifyListeners();
+};
+
+// -------------------------------------------------------------
+// DYNAMIC MEMBERSHIP CONFIG ADMIN MANAGEMENT
+// -------------------------------------------------------------
+
+export const getMembershipConfigStore = (): MembershipConfig => {
+  return loadStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+};
+
+export const updateMembershipConfigStore = (newConfig: MembershipConfig) => {
+  membershipConfigMemory = newConfig;
+  saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
   notifyListeners();
 };
 

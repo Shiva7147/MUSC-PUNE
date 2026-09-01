@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus } from 'lucide-react';
 import { Screening } from '@/lib/types';
@@ -24,6 +24,36 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<AdminTicketRecord | null>(null);
+
+  // Close modal safely & reset overflow body state
+  const handleResetAndClose = () => {
+    setStep('DETAILS');
+    setQuantity(1);
+    setName('');
+    setEmail('');
+    setPhone('');
+    setBookingData(null);
+    onClose();
+  };
+
+  // ESC Key listener & overflow lock cleanup
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleResetAndClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -69,25 +99,23 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
     }
   };
 
-  const handleReset = () => {
-    setStep('DETAILS');
-    setQuantity(1);
-    setName('');
-    setEmail('');
-    setPhone('');
-    setBookingData(null);
-    onClose();
-  };
-
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#171717] border border-[#E60012]/40 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative">
-        {/* Close Button */}
+    <div
+      onClick={handleResetAndClose}
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#171717] border border-[#E60012]/40 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-8"
+      >
+        {/* Prominent High-Visibility Close Button */}
         <button
-          onClick={handleReset}
-          className="absolute top-4 right-4 p-2.5 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white z-10"
+          type="button"
+          onClick={handleResetAndClose}
+          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-[#050505] border border-white/20 text-white/90 hover:text-white hover:border-[#E60012] z-20 shadow-xl transition-all"
+          aria-label="Close Ticket Modal"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 text-[#E60012]" />
         </button>
 
         {step === 'DETAILS' ? (
@@ -99,9 +127,9 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               </div>
               <div className="flex items-center gap-2 text-xs font-display tracking-tight text-white/90 uppercase font-bold">
                 <Ticket className="w-4 h-4 text-white" />
-                <span>OFFICIAL MATCHDAY TICKETING</span>
+                <span>OFFICIAL SCREENING TICKETS</span>
               </div>
-              <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase">
+              <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase pr-8">
                 {screening.matchTitle}
               </h3>
               <p className="text-xs text-white/80 font-display font-bold mt-1 uppercase">{screening.competition}</p>
@@ -221,7 +249,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                     <span className="font-mono">₹{baseAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-white/70">
-                    <span>Applicable Tax (18% GST)</span>
+                    <span>Applicable Tax ({Math.round(taxRate * 100)}% GST)</span>
                     <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
@@ -240,7 +268,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   disabled={loading}
                   className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase"
                 >
-                  <span>{loading ? 'GENERATING TICKETS...' : 'BOOK TICKETS'}</span>
+                  <span>{loading ? 'GENERATING TICKETS...' : 'GET SCREENING TICKETS'}</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </form>
@@ -255,7 +283,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
 
             <div>
               <span className="px-3.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-display font-bold uppercase tracking-tight">
-                ✓ TICKETS BOOKED SUCCESSFULLY
+                ✓ SCREENING TICKETS BOOKED
               </span>
               <h3 className="font-display text-3xl font-bold text-white mt-2 uppercase">YOU ARE GOING TO THE MATCH!</h3>
               <p className="text-xs text-white/70 font-sans mt-1">
@@ -319,7 +347,8 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               </a>
 
               <button
-                onClick={handleReset}
+                type="button"
+                onClick={handleResetAndClose}
                 className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all uppercase"
               >
                 DONE & CLOSE

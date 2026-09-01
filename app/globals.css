@@ -69,6 +69,29 @@ h1, h2, h3, h4, .font-display {
   font-family: 'Noto Sans Devanagari', sans-serif;
 }
 
+/* Tasteful Text Shimmer & Glow for Hindi Hero Slogan */
+@keyframes textShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.text-shimmer-hindi {
+  background: linear-gradient(
+    90deg,
+    #FFFFFF 0%,
+    #FFFFFF 25%,
+    #FF4D5A 45%,
+    #FFFFFF 65%,
+    #FFFFFF 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: textShimmer 8s ease-in-out infinite;
+  text-shadow: 0 0 35px rgba(230, 0, 18, 0.4);
+}
+
 /* Body & Micro Typography */
 p, span, li, button, input, label {
   font-family: 'Inter', sans-serif;
