@@ -39,14 +39,14 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
-        {/* HINDI OFFICIAL SLOGAN HEADLINE (Replaces Pune United Always) */}
+        {/* HINDI OFFICIAL SLOGAN HEADLINE */}
         <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-shimmer-hindi leading-tight tracking-normal drop-shadow-[0_15px_30px_rgba(0,0,0,0.95)] max-w-3xl mx-auto px-2">
-          एक शहर, एक क्लब, एक प्रेम, मैनचेस्टर यूनाइटेड
+          एक शहर, एक क्लब, एक प्यार, मैनचेस्टर यूनाइटेड
         </h1>
 
         {/* English Subtitle */}
         <p className="text-sm sm:text-base md:text-lg text-white/90 font-sans max-w-2xl mx-auto leading-relaxed font-medium px-2 drop-shadow-md">
-          Manchester United Supporters Club Pune (MUSC Pune) is the official supporters club for Manchester United fans in Pune. We bring Reds together through screening tickets, community events, and Old Trafford group trips.
+          Manchester United Supporters Club Pune (MUSC Pune) is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
         </p>
 
         {/* 3 MUSCB BENGALURU PROPORTIONED CTA BUTTONS */}

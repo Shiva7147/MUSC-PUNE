@@ -5,9 +5,9 @@ export const officialClubDetails = {
   fullName: 'Official Manchester United Supporters Club - Pune',
   establishedYear: 2011,
   tagline: "Pune’s Red Army",
-  email: 'manunitedpune@gmail.com',
-  grievanceEmail: 'admin@manutdpune.com',
-  founderEmail: 'ebrahimred@gmail.com',
+  email: 'ebrahimmred@gmail.com',
+  grievanceEmail: 'ebrahimmred@gmail.com',
+  founderEmail: 'ebrahimmred@gmail.com',
   phone: '+91 7276735140',
   whatsapp: '+91 7276735140',
   socials: {
@@ -65,18 +65,17 @@ export const upcomingScreenings: Screening[] = [
     ],
     featured: true,
     status: 'FILLING_FAST',
-    description: '90 minutes. One room. Everyone singing. Join MUSC Pune at BIRA 91 Taproom, The Mills for an iconic screening ticket event with high-decibel audio and chant sessions.',
+    description: '90 minutes. One room. Everyone singing. Join MUSC Pune for an iconic match screening with high-decibel audio and chant sessions.',
     gateOpening: '07:30 PM IST',
     inclusions: [
-      'Guaranteed Entry to Main Stadium Screening Arena',
-      '₹200 Redeemable Cover Voucher for Food & Beverage',
+      'Entry to Match Screening Arena',
       'Official MUSC Pune Matchday Badge & Sticker Pack',
       'Entry into Half-time Jersey Giveaway Raffle'
     ],
     rules: [
       'Matchday scarves and red club wear strongly encouraged',
       'Please carry digital ticket QR code on smartphone',
-      'Right of admission reserved by MUSC Pune & Venue Management',
+      'Right of admission reserved by MUSC Pune Management',
       'Stag entries allowed subject to prior registration'
     ],
     capacity: 250,
@@ -103,11 +102,10 @@ export const upcomingScreenings: Screening[] = [
     ],
     featured: false,
     status: 'UPCOMING',
-    description: 'A classic rivalry under the lights of The Mills. Big screen projection, taproom atmosphere, and pre-match chant sets.',
+    description: 'A classic rivalry under the lights. Big screen projection, taproom atmosphere, and pre-match chant sets.',
     gateOpening: '08:30 PM IST',
     inclusions: [
-      'Access to Taproom Screening Zone',
-      '₹150 Food & Drink Voucher Included',
+      'Access to Match Screening Zone',
       'Live Fan Chant Session Led by MUSC Pune'
     ],
     rules: [
@@ -143,7 +141,6 @@ export const upcomingScreenings: Screening[] = [
     gateOpening: '06:30 PM IST',
     inclusions: [
       'Prime Seating with Unobstructed View',
-      '₹250 Beverage / Food Voucher',
       'Derby Special Commemorative Wristband'
     ],
     rules: [
@@ -199,16 +196,16 @@ export const oldTraffordTours: TourPackage[] = [
     title: 'Trip to Old Trafford',
     duration: '7 Days / 6 Nights',
     nextBatch: 'October 18 – 24, 2026',
-    matchHighlights: ['Stretford End Tier 1 Ticket', 'Private Museum & Stadium Tour', 'First-Team Training Session Access'],
+    matchHighlights: ['Match Tickets', 'Stadium and Museum Tour', 'Accommodation'],
     includedFeatures: [
       'Guaranteed Match Ticket for Premier League Fixture',
       'Group Flight Assistance (PNQ ➔ MAN)',
-      'Hotel Stay near Old Trafford',
+      'Hotel Accommodation near Old Trafford',
       'Exclusive Manchester Supporters Meetup',
-      'Guided City & Stadium Tour'
+      'Guided Stadium and Museum Tour'
     ],
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
-    description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from PNQ to Manchester to witness United live at the Theatre of Dreams.'
+    description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from PNQ to Manchester to witness United live at the Theatre of Dreams with match tickets, stadium and museum tour, and accommodation included.'
   }
 ];
 
@@ -287,7 +284,7 @@ export const galleryImages: GalleryItem[] = [
   },
   {
     id: 'gal-screening-1',
-    title: 'Pune Screening Tickets Roar',
+    title: 'Pune Match Screenings Roar',
     category: 'Screenings',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
     location: 'BIRA 91 Taproom, The Mills',
@@ -394,7 +391,7 @@ export const galleryImages: GalleryItem[] = [
     caption: 'Inside the press conference room at Old Trafford.'
   },
   {
-    id: 'gal-tour-[#E60012]8',
+    id: 'gal-tour-8',
     title: 'Stretford End Stand View',
     category: 'Tours',
     imageUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_2_g2oiht.jpg',
@@ -464,23 +461,23 @@ export const teamMembers: (TeamMember & {
   {
     id: 'team-02',
     name: 'Trip to Old Trafford Squad',
-    role: 'Travel & Matchday Operations',
+    role: 'Travel & Operations',
     ovr: 97,
     position: 'OPS',
     stats: { pac: 95, cht: 96, scr: 99, psn: 98 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
-    bioPlaceholder: 'Managing Old Trafford pilgrimages and BIRA 91 Taproom screening partnerships.',
+    bioPlaceholder: 'Managing Old Trafford pilgrimages and screening partnerships.',
     socials: { instagram: 'https://www.instagram.com/musc_pune' }
   },
   {
     id: 'team-03',
     name: 'Screenings Lead',
-    role: 'Matchday Atmosphere & Chants',
+    role: 'Match Atmosphere & Chants',
     ovr: 96,
     position: 'MERCH',
     stats: { pac: 94, cht: 95, scr: 93, psn: 99 },
     photoUrl: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865411/WhatsApp_Image_2026-08-16_at_11.53.51_AM_ddhmkc.jpg',
-    bioPlaceholder: 'Leading Pune chants and terrace soundscapes during screenings at BIRA 91 Taproom, The Mills.',
+    bioPlaceholder: 'Leading Pune chants and terrace soundscapes during match screenings.',
     socials: { instagram: 'https://www.instagram.com/musc_pune' }
   },
   {

@@ -103,7 +103,7 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
               MANCHESTER UNITED <span className="text-[#E60012]">FAN CHANTS</span>
             </h2>
             <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
-              Learn the chant lyrics sung loudest at our Pune matchday screenings at BIRA 91 Taproom, The Mills with real-time Web Audio crowd synthesis.
+              Learn the chant lyrics sung loudest at our Pune matchday screening.
             </p>
           </div>
 
@@ -119,7 +119,7 @@ export const FanChantsSection: React.FC<FanChantsSectionProps> = ({ chants }) =>
             <div>
               <div className="text-[10px] font-display text-white/60 uppercase">MAX TERRACE NOISE</div>
               <div className="font-display text-xl font-bold text-white">
-                118 dB <span className="text-xs font-sans text-[#E60012] font-normal">@ THE MILLS</span>
+                118 dB <span className="text-xs font-sans text-[#E60012] font-normal">@ SCREENINGS</span>
               </div>
             </div>
           </div>

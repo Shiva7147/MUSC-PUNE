@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { officialClubDetails } from '@/lib/data';
 
 export const ContactSection: React.FC = () => {
@@ -37,7 +37,7 @@ export const ContactSection: React.FC = () => {
               CONTACT <span className="text-[#E60012]">MUSC PUNE</span>
             </h2>
             <p className="text-sm text-white/70 max-w-xl mt-2 font-sans">
-              Have questions about matchday screening tickets, Old Trafford tour registrations, or membership? Reach out to the committee directly.
+              Have questions about matchday screenings, Old Trafford tour registrations, or membership? Reach out to the committee directly.
             </p>
           </div>
 
@@ -68,18 +68,6 @@ export const ContactSection: React.FC = () => {
                   <div className="font-bold text-white text-base">Official Email</div>
                   <a href={`mailto:${officialClubDetails.email}`} className="text-xs text-[#E60012] underline hover:text-white mt-1 block">
                     {officialClubDetails.email}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="p-3.5 rounded-2xl bg-[#050505] text-[#E60012] border border-white/10 shrink-0">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-bold text-white text-base">Screening Venue</div>
-                  <a href={officialClubDetails.regularVenue.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-white/80 hover:text-[#E60012] mt-1 block">
-                    {officialClubDetails.regularVenue.name}
                   </a>
                 </div>
               </div>

@@ -1,36 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ShieldCheck, Award, Sparkles, Shirt, Ticket, Users, Calendar } from 'lucide-react';
 import { officialLogoUrl, officialMembershipImageUrl } from '@/lib/data';
-import { MembershipConfig } from '@/lib/types';
-import { getMembershipConfigStore, subscribeStore } from '@/lib/ticketStore';
 
 export const MembershipSection: React.FC = () => {
-  const [config, setConfig] = useState<MembershipConfig>(getMembershipConfigStore());
   const [selectedSize, setSelectedSize] = useState<'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL'>('L');
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      setConfig(getMembershipConfigStore());
-    };
-    const unsubscribe = subscribeStore(handleUpdate);
-    return () => unsubscribe();
-  }, []);
 
   const sizes: ('S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL')[] = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
-  // Calculate dynamic price per selected size
-  const activeBasePrice = config.sizePrices?.[selectedSize] ?? config.basePrice ?? 999;
-  const taxRate = config.taxRate ?? 0.18;
-  const taxAmount = Math.round(activeBasePrice * taxRate);
-  const platformFee = config.platformFee ?? 30;
-  const totalPayable = activeBasePrice + taxAmount + platformFee;
-
   const benefits = [
     { title: 'Exclusive Merchandise', detail: 'Official MUSC Pune Supporter T-Shirt included', icon: Shirt },
-    { title: 'Matchday Experience', detail: 'Priority seating & chant zone at BIRA 91 Taproom', icon: Ticket },
+    { title: 'Matchday Experience', detail: 'Priority seating & chant zone at official match screenings', icon: Ticket },
     { title: 'Community Events', detail: 'Access to exclusive member meetups & raffles', icon: Users },
     { title: 'One Free Screening', detail: '100% complimentary entry ticket to any screening', icon: Calendar },
   ];
@@ -53,11 +36,11 @@ export const MembershipSection: React.FC = () => {
           </h2>
 
           <p className="text-sm sm:text-base text-white/80 font-sans max-w-xl mx-auto leading-relaxed">
-            Choose your size and membership option. Pricing is set by the admin.
+            Join the official Manchester United supporters club in Pune. Unlock exclusive local and international member benefits, merchandise, and screening access.
           </p>
         </div>
 
-        {/* SPECTACULAR PHYSICAL-STYLE MEMBERSHIP CARD WITH 100% VISIBLE OFFICIAL IMAGE */}
+        {/* PHYSICAL-STYLE MEMBERSHIP CARD WITH VISIBLE POSTER */}
         <div className="max-w-5xl mx-auto glass-card rounded-[2.5rem] p-6 sm:p-10 bg-gradient-to-br from-[#1A1A1A] via-[#0E0E0E] to-[#141414] border-2 border-[#E60012]/70 shadow-[0_20px_60px_rgba(230,0,18,0.3)] space-y-8 relative overflow-hidden">
           {/* Main Grid: Official Membership Image + Card Specifications */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -92,8 +75,8 @@ export const MembershipSection: React.FC = () => {
                 </div>
 
                 <div className="bg-[#050505] p-3 px-5 rounded-2xl border border-white/15 w-full sm:w-auto flex sm:block items-center justify-between">
-                  <span className="text-[10px] font-display text-white/50 uppercase block">ALL-INCLUSIVE PRICE</span>
-                  <span className="font-display text-3xl font-bold text-[#E60012]">₹{totalPayable}</span>
+                  <span className="text-[10px] font-display text-white/50 uppercase block">MEMBERSHIP STATUS</span>
+                  <span className="font-display text-xl font-bold text-emerald-400">REGISTRATIONS OPEN</span>
                 </div>
               </div>
 
@@ -128,58 +111,32 @@ export const MembershipSection: React.FC = () => {
                   SELECT OFFICIAL T-SHIRT SIZE *
                 </label>
                 <div className="flex flex-wrap items-center gap-2">
-                  {sizes.map((size) => {
-                    const sizePrice = config.sizePrices?.[size] ?? config.basePrice ?? 999;
-                    return (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => setSelectedSize(size)}
-                        className={`px-3.5 py-2 rounded-xl font-display text-sm sm:text-base font-bold border transition-all flex items-center gap-1.5 ${
-                          selectedSize === size
-                            ? 'bg-[#E60012] text-white border-[#E60012] shadow-lg shadow-[#E60012]/40 scale-105'
-                            : 'bg-[#050505] text-white/70 border-white/15 hover:text-white hover:border-white/30'
-                        }`}
-                      >
-                        <span>{size}</span>
-                        <span className="text-[10px] font-sans font-normal opacity-80">(₹{sizePrice})</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Checkout Breakdown */}
-              <div className="p-3.5 rounded-2xl bg-[#050505] border border-white/10 space-y-1.5 text-xs font-sans">
-                <div className="flex justify-between text-white/70">
-                  <span>Base Price (Size {selectedSize})</span>
-                  <span className="font-mono text-white">₹{activeBasePrice}</span>
-                </div>
-                <div className="flex justify-between text-white/70">
-                  <span>Applicable Tax ({Math.round(taxRate * 100)}% GST)</span>
-                  <span className="font-mono text-white">₹{taxAmount}</span>
-                </div>
-                <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
-                  <span>Platform & Processing Fee</span>
-                  <span className="font-mono text-white">₹{platformFee}</span>
-                </div>
-                <div className="flex justify-between font-display text-xl font-bold text-white pt-0.5">
-                  <span>TOTAL PAYABLE</span>
-                  <span className="text-[#E60012]">₹{totalPayable}</span>
+                  {sizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2.5 rounded-xl font-display text-base font-bold border transition-all ${
+                        selectedSize === size
+                          ? 'bg-[#E60012] text-white border-[#E60012] shadow-lg shadow-[#E60012]/40 scale-105'
+                          : 'bg-[#050505] text-white/70 border-white/15 hover:text-white hover:border-white/30'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Major High-Impact CTA Button */}
-              <div>
-                <a
-                  href={`https://wa.me/917276735140?text=Hi%20MUSC%20Pune,%20I%20want%20to%20Join%20Pune's%20Red%20Army%20with%20the%20Official%20Membership!%20(T-Shirt%20Size:%20${selectedSize},%20Total:%20₹${totalPayable})`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <div className="pt-2">
+                <Link
+                  href={`/membership?size=${selectedSize}`}
                   className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-2xl font-bold py-4 px-8 rounded-2xl shadow-[0_10px_35px_rgba(230,0,18,0.4)] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] border border-white/20 uppercase"
                 >
                   <Award className="w-6 h-6" />
                   <span>JOIN PUNE&apos;S RED ARMY</span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Plane, Calendar, CheckCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Plane, Calendar, CheckCircle, ShieldCheck } from 'lucide-react';
 import { TourPackage } from '@/lib/types';
 import { EnquiryModal } from '@/components/EnquiryModal';
 
@@ -30,7 +30,7 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
               TRIP TO <span className="text-[#E60012]">OLD TRAFFORD</span>
             </h2>
             <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
-              Fly directly out of Pune (PNQ) with fellow supporters to Manchester for Premier League matchday seats, dressing room tours, and first-team training access.
+              Fly directly out of Pune (PNQ) with fellow supporters to Manchester for Premier League match tickets, stadium and museum tour, and accommodation.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
                     <span>NEXT BATCH: {featured.nextBatch} ({featured.duration})</span>
                   </div>
 
-                  <h3 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight">
+                  <h3 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight uppercase">
                     {featured.title}
                   </h3>
 
@@ -95,10 +95,10 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
                 <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
                   <button
                     onClick={() => setSelectedTour(featured)}
-                    className="w-full bg-[#171717] hover:bg-black border border-[#E60012] text-[#FFC400] font-display text-sm tracking-wider font-bold py-4 px-6 rounded-xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-base tracking-wider font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase cursor-pointer"
                   >
-                    <Plane className="w-4 h-4 text-[#E60012]" />
-                    <span>ENQUIRE ABOUT THE NEXT TRIP</span>
+                    <Plane className="w-4 h-4 text-white" />
+                    <span>BOOK THE TRIP</span>
                   </button>
                   <div className="flex items-center justify-center gap-1.5 text-[10px] font-sans text-white/50">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -115,7 +115,7 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
         <EnquiryModal
           isOpen={true}
           onClose={() => setSelectedTour(null)}
-          defaultSubject={`Old Trafford Tour Enquiry — ${selectedTour.title}`}
+          defaultSubject={`Old Trafford Tour Registration — ${selectedTour.title}`}
         />
       )}
     </section>

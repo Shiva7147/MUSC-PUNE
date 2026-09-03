@@ -19,6 +19,12 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
   const featured = activeList.find((s) => s.featured) || activeList[0] || upcomingScreenings[0];
   const upcomingList = activeList.filter((s) => s.id !== featured.id);
 
+  // Percentage calculations
+  const totalCap = featured.capacity ?? 250;
+  const remSeats = featured.remainingSeats ?? 42;
+  const filledPct = Math.min(100, Math.round(((totalCap - remSeats) / totalCap) * 100));
+  const remPct = 100 - filledPct;
+
   return (
     <section id="screenings" className="py-16 sm:py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -33,7 +39,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
               SCREENING <span className="text-[#E60012]">TICKETS</span>
             </h2>
             <p className="text-sm text-white/70 max-w-xl mt-2 font-sans">
-              Official matchday screening tickets for Manchester United fans in Pune. Guaranteed entry & F&B cover vouchers at BIRA 91 Taproom, The Mills.
+              Official matchday screening tickets for Manchester United fans in Pune.
             </p>
           </div>
 
@@ -77,17 +83,16 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   {featured.matchTitle}
                 </h3>
 
-                {/* Remaining Seats Tracker */}
+                {/* Percentage Seat Tracker */}
                 <div className="mt-4 space-y-1.5">
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
                     <span className="text-[#E60012] font-bold flex items-center gap-1">
                       <Users className="w-3.5 h-3.5" />
-                      <span>REMAINING SEATS: {featured.remainingSeats ?? 42} / {featured.capacity ?? 250}</span>
+                      <span>🔥 {filledPct}% SEATS FILLED ({remPct}% REMAINING)</span>
                     </span>
-                    <span className="text-white/60 font-mono">₹{featured.price}</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-[#050505] overflow-hidden border border-white/10">
-                    <div className="h-full bg-[#E60012] w-[82%]" />
+                  <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
+                    <div className="h-full bg-[#E60012]" style={{ width: `${filledPct}%` }} />
                   </div>
                 </div>
 
@@ -102,16 +107,9 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <span className="text-white/60">DATE & TIME</span>
                   <span className="text-white font-bold">{featured.date} • {featured.time}</span>
                 </div>
-                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <div className="flex items-center justify-between pt-0.5">
                   <span className="text-white/60">VENUE</span>
                   <span className="text-[#E60012] font-bold">{featured.venueName}</span>
-                </div>
-                <div className="flex items-center justify-between pt-0.5">
-                  <span className="text-white/60">TICKET PRICE</span>
-                  <div className="text-right">
-                    <span className="font-display text-2xl font-bold text-white">₹{featured.price}</span>
-                    <span className="text-[10px] text-white/50 block font-mono">SCREENING TICKET</span>
-                  </div>
                 </div>
               </div>
 
@@ -145,50 +143,52 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {upcomingList.map((sc) => (
-              <div
-                key={sc.id}
-                className="bg-[#171717] border border-white/10 hover:border-[#E60012]/60 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between space-y-4 shadow-xl"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs font-display text-white/60 mb-2">
-                    <span>{sc.competition}</span>
-                    <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#E60012] border border-[#E60012]/30 font-bold uppercase">
-                      REMAINING: {sc.remainingSeats ?? 88} SEATS
-                    </span>
+            {upcomingList.map((sc) => {
+              const scCap = sc.capacity ?? 200;
+              const scRem = sc.remainingSeats ?? 88;
+              const scFilledPct = Math.min(100, Math.round(((scCap - scRem) / scCap) * 100));
+
+              return (
+                <div
+                  key={sc.id}
+                  className="bg-[#171717] border border-white/10 hover:border-[#E60012]/60 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between space-y-4 shadow-xl"
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-display text-white/60 mb-2">
+                      <span>{sc.competition}</span>
+                      <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#E60012] border border-[#E60012]/30 font-bold uppercase">
+                        {scFilledPct}% FILLED
+                      </span>
+                    </div>
+
+                    <h4 className="font-display text-3xl font-bold text-white group-hover:text-[#E60012] transition-colors uppercase">
+                      {sc.matchTitle}
+                    </h4>
+
+                    <div className="mt-4 space-y-1.5 text-xs font-sans text-white/70">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5 text-[#E60012]" />
+                        <span>{sc.date} • {sc.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3.5 h-3.5 text-[#E60012]" />
+                        <span>{sc.venueName}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <h4 className="font-display text-3xl font-bold text-white group-hover:text-[#E60012] transition-colors uppercase">
-                    {sc.matchTitle}
-                  </h4>
-
-                  <div className="mt-4 space-y-1.5 text-xs font-sans text-white/70">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3.5 h-3.5 text-[#E60012]" />
-                      <span>{sc.date} • {sc.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-[#E60012]" />
-                      <span>{sc.venueName}</span>
-                    </div>
+                  <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-end">
+                    <button
+                      onClick={() => onSelectScreening(sc)}
+                      className="bg-[#050505] hover:bg-[#E60012] text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase"
+                    >
+                      <span>GET SCREENING TICKETS</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-
-                <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-between">
-                  <div className="font-display text-2xl font-bold text-[#E60012]">
-                    ₹{sc.price} <span className="text-xs text-white/50 font-sans font-normal">/ ticket</span>
-                  </div>
-
-                  <button
-                    onClick={() => onSelectScreening(sc)}
-                    className="bg-[#050505] hover:bg-[#E60012] text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase"
-                  >
-                    <span>SCREENING TICKETS</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

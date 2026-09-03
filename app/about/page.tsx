@@ -27,7 +27,7 @@ export default function AboutPage() {
                 PUNE MADE US A COMMUNITY.
               </h1>
               <p className="text-base text-[#F5F5F5]/80 font-sans leading-relaxed">
-                Founded in 2021 by lifelong Red Devils, Manchester United Supporters Club Pune (MUSC Pune) connects over 500+ fans across Maharashtra for stadium-like screening matchdays, Old Trafford group pilgrimages, and local terrace streetwear.
+                Founded in 2011 by lifelong Red Devils, Manchester United Supporters Club Pune (MUSC Pune) connects over 500+ fans across Maharashtra for stadium-like match screenings, Old Trafford group pilgrimages, and local terrace events.
               </p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function AboutPage() {
                 90 MINUTES. ONE ROOM. EVERYONE SINGING.
               </h2>
               <p className="text-sm text-[#F5F5F5]/80 font-sans leading-relaxed">
-                Whether it is a 09:00 PM kickoff at Viman Nagar or a late midnight derby at Koregaon Park, Pune Reds turn local venues into Stretford End outposts with non-stop chants, high-decibel audio, and red club flags.
+                Whether it is a weekend kickoff or a late midnight derby, MUSC Pune supporters turn local venues into Stretford End outposts with non-stop chants, high-decibel audio, and red club flags.
               </p>
 
               <div className="pt-4 flex flex-wrap gap-4">
