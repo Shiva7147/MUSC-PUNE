@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ShoppingBag, Plane, Camera, Tv, Users } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Plane, Camera, Tv, Users, ExternalLink } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { TopEventScroller } from '@/components/TopEventScroller';
@@ -26,6 +26,8 @@ export default function Home() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState<boolean>(false);
   const [enquiryOpen, setEnquiryOpen] = useState<boolean>(false);
+
+  const bookTripUrl = 'https://manutdpune.com/product/oldtrafford/';
 
   const refreshStoreData = () => {
     setScreenings(getScreeningsStore());
@@ -242,8 +244,12 @@ export default function Home() {
         </section>
       )}
 
-      {/* 6. DYNAMIC MEMBERSHIP SECTION */}
-      <MembershipSection />
+      {/* 6. DYNAMIC MEMBERSHIP SECTION (Homepage Redirects to /membership) */}
+      <MembershipSection
+        onJoinOverride={() => {
+          window.location.href = '/membership';
+        }}
+      />
 
       {/* 7. TRIP TO OLD TRAFFORD */}
       <section className="py-20 sm:py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
@@ -258,13 +264,15 @@ export default function Home() {
               </h2>
             </div>
 
-            <Link
-              href="/tours"
+            <a
+              href={bookTripUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-tight"
             >
               <span>VIEW TRIP DETAILS</span>
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </a>
           </div>
 
           <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border border-white/10 bg-[#171717]">
@@ -295,13 +303,16 @@ export default function Home() {
                 </div>
 
                 <div className="pt-3 border-t border-white/10 space-y-3">
-                  <Link
-                    href="/tours"
+                  <a
+                    href={bookTripUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-base font-bold tracking-tight py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase cursor-pointer"
                   >
-                    <Plane className="w-4 h-4 text-white" />
+                    <Plane className="w-5 h-5 text-white" />
                     <span>BOOK THE TRIP</span>
-                  </Link>
+                    <ExternalLink className="w-4 h-4 text-white/80" />
+                  </a>
                 </div>
               </div>
             </div>
@@ -343,8 +354,8 @@ export default function Home() {
                     href={`/merchandise`}
                     className="bg-[#E60012] hover:bg-[#C40010] text-white text-xs sm:text-sm font-display font-bold tracking-tight py-3 px-5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_4px_15px_rgba(230,0,18,0.25)] uppercase w-full sm:w-auto cursor-pointer inline-flex"
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>VIEW MERCHANDISE</span>
+                    <ShoppingBag className="w-4 h-4 text-white" />
+                    <span className="text-white">VIEW MERCHANDISE</span>
                   </Link>
                 </div>
               </div>

@@ -3,10 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, Phone, ShieldCheck, Heart } from 'lucide-react';
+import { Mail, Phone, ShieldCheck, Heart, MessageCircle } from 'lucide-react';
 import { officialLogoUrl, officialClubDetails } from '@/lib/data';
 
 export const Footer: React.FC = () => {
+  const whatsappUrl = 'https://wa.me/917276735140';
+
   return (
     <footer className="bg-[#050505] text-[#F5F5F5] border-t border-white/10 relative overflow-hidden">
       {/* 1. CONTINUOUS FOOTER MARQUEE TICKER TRACK */}
@@ -68,7 +70,11 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs font-sans text-white/70">
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#E60012] shrink-0" />
-                <span>{officialClubDetails.phone}</span>
+                <a href={`tel:+917276735140`} className="hover:text-white transition-colors">{officialClubDetails.phone}</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline transition-colors font-medium">WhatsApp Community (+91 7276735140)</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#E60012] shrink-0" />

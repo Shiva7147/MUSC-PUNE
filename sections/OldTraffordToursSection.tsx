@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { Plane, Calendar, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Plane, Calendar, CheckCircle, ShieldCheck, ExternalLink } from 'lucide-react';
 import { TourPackage } from '@/lib/types';
-import { EnquiryModal } from '@/components/EnquiryModal';
 
 interface OldTraffordToursSectionProps {
   tours: TourPackage[];
@@ -13,8 +12,8 @@ interface OldTraffordToursSectionProps {
 export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = ({
   tours,
 }) => {
-  const [selectedTour, setSelectedTour] = useState<TourPackage | null>(null);
   const featured = tours[0];
+  const bookTripUrl = 'https://manutdpune.com/product/oldtrafford/';
 
   return (
     <section id="tours" className="py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
@@ -93,13 +92,16 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
                 </div>
 
                 <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
-                  <button
-                    onClick={() => setSelectedTour(featured)}
+                  <a
+                    href={bookTripUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-base tracking-wider font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase cursor-pointer"
                   >
-                    <Plane className="w-4 h-4 text-white" />
+                    <Plane className="w-5 h-5 text-white" />
                     <span>BOOK THE TRIP</span>
-                  </button>
+                    <ExternalLink className="w-4 h-4 text-white/80" />
+                  </a>
                   <div className="flex items-center justify-center gap-1.5 text-[10px] font-sans text-white/50">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                     <span>OFFICIAL SUPPORTERS CLUB VISA GUIDANCE INCLUDED</span>
@@ -110,14 +112,6 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
           </div>
         )}
       </div>
-
-      {selectedTour && (
-        <EnquiryModal
-          isOpen={true}
-          onClose={() => setSelectedTour(null)}
-          defaultSubject={`Old Trafford Tour Registration — ${selectedTour.title}`}
-        />
-      )}
     </section>
   );
 };

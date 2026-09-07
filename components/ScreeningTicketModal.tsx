@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus } from 'lucide-react';
+import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText } from 'lucide-react';
 import { Screening } from '@/lib/types';
 import { generateTicketPass, AdminTicketRecord } from '@/lib/ticketStore';
+import { generatePDFTicketPass } from '@/lib/pdfTicketGenerator';
+import { dispatchWhatsAppTicketMessage } from '@/lib/whatsappService';
 
 interface ScreeningTicketModalProps {
   isOpen: boolean;
@@ -25,7 +27,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<AdminTicketRecord | null>(null);
 
-  // Close modal safely & reset overflow body state
+  // Close modal safely & reset state
   const handleResetAndClose = () => {
     setStep('DETAILS');
     setQuantity(1);
@@ -266,7 +268,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase cursor-pointer"
                 >
                   <span>{loading ? 'GENERATING TICKETS...' : 'GET SCREENING TICKETS'}</span>
                   <ArrowRight className="w-5 h-5" />
@@ -336,24 +338,43 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Action Buttons: Download Image, Download PDF & WhatsApp Dispatch */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <a
                 href={bookingData?.qrDataUrl}
                 download={`${bookingData?.ticketId}-QR.png`}
-                className="flex-1 bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+                className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all"
               >
-                <Download className="w-4 h-4 text-white" />
-                <span>DOWNLOAD TICKET QR</span>
+                <Download className="w-3.5 h-3.5 text-white" />
+                <span>PNG QR</span>
               </a>
 
               <button
                 type="button"
-                onClick={handleResetAndClose}
-                className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all uppercase"
+                onClick={() => bookingData && generatePDFTicketPass(bookingData)}
+                className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
-                DONE & CLOSE
+                <FileText className="w-3.5 h-3.5 text-[#E60012]" />
+                <span>PDF PASS</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => bookingData && dispatchWhatsAppTicketMessage(bookingData)}
+                className="bg-[#171717] hover:bg-black border border-emerald-500/50 text-emerald-400 font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>WHATSAPP</span>
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={handleResetAndClose}
+              className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-4 rounded-xl shadow-lg transition-all uppercase cursor-pointer"
+            >
+              DONE & CLOSE
+            </button>
           </div>
         )}
       </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, Send, MessageSquare, CheckCircle2, MessageCircle } from 'lucide-react';
 import { officialClubDetails } from '@/lib/data';
 
 export const ContactSection: React.FC = () => {
@@ -13,6 +13,8 @@ export const ContactSection: React.FC = () => {
     subject: 'General Enquiry',
     message: '',
   });
+
+  const whatsappUrl = 'https://wa.me/917276735140';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,12 +53,29 @@ export const ContactSection: React.FC = () => {
           <div className="lg:col-span-5 space-y-6 glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 flex flex-col justify-between">
             <div className="space-y-6 font-sans text-sm">
               <div className="flex items-start gap-4">
+                <div className="p-3.5 rounded-2xl bg-[#050505] text-emerald-400 border border-white/10 shrink-0">
+                  <MessageCircle className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <div className="font-bold text-white text-base">Direct WhatsApp</div>
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-emerald-400 hover:underline mt-1 block font-mono"
+                  >
+                    +91 7276735140 (Click to Chat)
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
                 <div className="p-3.5 rounded-2xl bg-[#050505] text-[#E60012] border border-white/10 shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-bold text-white text-base">Phone & WhatsApp</div>
-                  <p className="text-xs text-white/80 mt-1">{officialClubDetails.phone}</p>
+                  <div className="font-bold text-white text-base">Phone Line</div>
+                  <p className="text-xs text-white/80 mt-1 font-mono">{officialClubDetails.phone}</p>
                 </div>
               </div>
 
@@ -85,7 +104,7 @@ export const ContactSection: React.FC = () => {
                 <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto animate-bounce" />
                 <h3 className="font-display text-3xl font-bold text-white uppercase">ENQUIRY SENT SUCCESSFULLY!</h3>
                 <p className="text-xs font-sans text-white/80 max-w-md mx-auto">
-                  Thank you for reaching out. A committee member will get back to you shortly on WhatsApp or Email.
+                  Thank you for reaching out. A committee member will get back to you shortly on WhatsApp (+91 7276735140) or Email.
                 </p>
               </div>
             ) : (
@@ -158,7 +177,7 @@ export const ContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20 cursor-pointer"
                 >
                   <Send className="w-5 h-5" />
                   <span>SEND ENQUIRY TO COMMITTEE</span>

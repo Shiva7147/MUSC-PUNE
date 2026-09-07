@@ -35,7 +35,7 @@ export interface Screening {
 export interface Product {
   id: string;
   name: string;
-  category: 'Apparel' | 'Accessories' | 'Collectibles';
+  category: 'Apparel' | 'Accessories' | 'Collectibles' | 'Membership';
   price: number;
   originalPrice?: number;
   taxRate?: number; // Configurable tax rate percentage (default 12%)
