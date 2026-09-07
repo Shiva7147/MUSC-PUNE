@@ -27,7 +27,7 @@ export default function AboutPage() {
                 PUNE MADE US A COMMUNITY.
               </h1>
               <p className="text-base text-[#F5F5F5]/80 font-sans leading-relaxed">
-                Founded in 2011 by lifelong Red Devils, Manchester United Supporters Club Pune (MUSC Pune) connects over 500+ fans across Maharashtra for stadium-like match screenings, Old Trafford group pilgrimages, and local terrace events.
+                Founded in 2011 by lifelong Red Devils, Manchester United Supporters Club Pune connects over 500+ fans across Maharashtra for stadium-like match screenings, Old Trafford group pilgrimages, and local terrace events.
               </p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function AboutPage() {
                 90 MINUTES. ONE ROOM. EVERYONE SINGING.
               </h2>
               <p className="text-sm text-[#F5F5F5]/80 font-sans leading-relaxed">
-                Whether it is a weekend kickoff or a late midnight derby, MUSC Pune supporters turn local venues into Stretford End outposts with non-stop chants, high-decibel audio, and red club flags.
+                Whether it is a weekend kickoff or a late midnight derby, Manchester United Supporters Club Pune turns local venues into Stretford End outposts with non-stop chants, high-decibel audio, and red club flags.
               </p>
 
               <div className="pt-4 flex flex-wrap gap-4">
@@ -66,13 +66,15 @@ export default function AboutPage() {
                   <Ticket className="w-4 h-4" />
                   <span>VIEW MATCHDAY SCREENINGS</span>
                 </Link>
-                <Link
-                  href="/tours"
+                <a
+                  href="https://manutdpune.com/product/oldtrafford/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-[#171717] hover:bg-black border border-[#E60012] text-[#FFC400] font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-xl hover:scale-[1.02]"
                 >
                   <Plane className="w-4 h-4 text-[#E60012]" />
                   <span>TRIP TO OLD TRAFFORD</span>
-                </Link>
+                </a>
               </div>
             </div>
           </div>

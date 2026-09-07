@@ -8,10 +8,12 @@ import { Screening } from '@/lib/types';
 
 interface HeroSectionProps {
   featuredScreening?: Screening | null;
-  onOpenScreeningModal: () => void;
+  onOpenScreeningModal?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = () => {
+  const whatsappUrl = 'https://wa.me/917276735140';
+
   return (
     <section className="relative min-h-[92vh] flex flex-col justify-center items-center overflow-hidden bg-[#050505] pt-32 sm:pt-36 pb-16">
       {/* 1. Hero Background Image */}
@@ -39,14 +41,14 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
-        {/* HINDI OFFICIAL SLOGAN HEADLINE */}
+        {/* HINDI OFFICIAL SLOGAN HEADLINE WITH 'PREM' CLEARLY VISIBLE */}
         <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-shimmer-hindi leading-tight tracking-normal drop-shadow-[0_15px_30px_rgba(0,0,0,0.95)] max-w-3xl mx-auto px-2">
-          एक शहर, एक क्लब, एक प्यार, मैनचेस्टर यूनाइटेड
+          एक शहर, एक क्लब, <span className="text-[#E60012] font-black underline underline-offset-8 decoration-[#E60012]/60">एक प्रेम</span>, मैनचेस्टर यूनाइटेड
         </h1>
 
-        {/* English Subtitle */}
+        {/* English Subtitle (Without bracketed title) */}
         <p className="text-sm sm:text-base md:text-lg text-white/90 font-sans max-w-2xl mx-auto leading-relaxed font-medium px-2 drop-shadow-md">
-          Manchester United Supporters Club Pune (MUSC Pune) is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
+          Manchester United Supporters Club Pune is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
         </p>
 
         {/* 3 MUSCB BENGALURU PROPORTIONED CTA BUTTONS */}
@@ -54,7 +56,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           {/* Button 1: Become Official Member */}
           <Link
             href="/membership"
-            className="w-full bg-[#B3000C] hover:bg-[#E60012] text-white font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-[0_8px_30px_rgba(179,0,12,0.5)] flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 border border-white/20"
+            className="w-full bg-[#B3000C] hover:bg-[#E60012] text-white font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-[0_8px_30px_rgba(179,0,12,0.5)] flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 border border-white/20 uppercase"
           >
             <Star className="w-5 h-5 shrink-0 text-white fill-white" />
             <span>Become Official Member</span>
@@ -62,19 +64,19 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
 
           {/* Button 2: Join WhatsApp Community */}
           <a
-            href="https://chat.whatsapp.com/MUSCPuneOfficial"
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full bg-[#242424]/90 hover:bg-[#2F2F2F] text-white border border-white/20 font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 backdrop-blur-md"
+            className="w-full bg-[#242424]/90 hover:bg-[#2F2F2F] text-white border border-white/20 font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 backdrop-blur-md uppercase"
           >
-            <MessageCircle className="w-5 h-5 shrink-0 text-white" />
+            <MessageCircle className="w-5 h-5 shrink-0 text-emerald-400" />
             <span>Join WhatsApp Community</span>
           </a>
 
           {/* Button 3: View Upcoming Events */}
           <Link
             href="/screenings"
-            className="w-full bg-transparent hover:bg-white/10 text-white border border-white/30 hover:border-white font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 backdrop-blur-sm"
+            className="w-full bg-transparent hover:bg-white/10 text-white border border-white/30 hover:border-white font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 backdrop-blur-sm uppercase"
           >
             <Calendar className="w-5 h-5 shrink-0 text-white" />
             <span>View Upcoming Events</span>

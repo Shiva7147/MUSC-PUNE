@@ -4,17 +4,20 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, Menu, X, Ticket } from 'lucide-react';
-import { CartItem } from '@/lib/types';
+import { CartItem, Screening } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
+import { TopEventScroller } from './TopEventScroller';
 
 interface NavbarProps {
   cartItems?: CartItem[];
+  upcomingScreening?: Screening | null;
   onOpenCart?: () => void;
   onOpenScreeningModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   cartItems = [],
+  upcomingScreening,
   onOpenCart = () => {},
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,6 +37,18 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Body overflow lock when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   const navLinks = [
     { name: 'ABOUT', href: '/about' },
     { name: 'SCREENINGS', href: '/screenings' },
@@ -48,94 +63,100 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <header
-        className={`fixed top-9 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-2 shadow-2xl'
-            : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/75 to-transparent py-2.5'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
-          {/* Official Emblem Logo Badge */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="relative w-11 h-11 rounded-2xl overflow-hidden bg-black border-2 border-[#E60012] group-hover:scale-105 transition-transform shadow-lg flex items-center justify-center p-0.5 shrink-0">
-              <Image
-                src={officialLogoUrl}
-                alt="MUSC Pune Official Logo"
-                fill
-                priority
-                quality={95}
-                className="object-cover object-center"
-              />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-lg sm:text-xl text-white group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
-                  MUSC PUNE
-                </span>
-                <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
-                  पुणे
+      <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-300">
+        {/* 1. TOP MATCHDAY TICKER (STICKY ON ALL PAGES) */}
+        <TopEventScroller upcomingScreening={upcomingScreening} />
+
+        {/* 2. MAIN FLOATING GLASS NAVIGATION BAR */}
+        <div
+          className={`mt-9 transition-all duration-300 ${
+            isScrolled
+              ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-2 shadow-2xl'
+              : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/85 to-transparent py-2.5'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+            {/* Official Emblem Logo Badge */}
+            <Link href="/" className="flex items-center gap-3 group shrink-0">
+              <div className="relative w-11 h-11 rounded-2xl overflow-hidden bg-black border-2 border-[#E60012] group-hover:scale-105 transition-transform shadow-lg flex items-center justify-center p-0.5 shrink-0">
+                <Image
+                  src={officialLogoUrl}
+                  alt="MUSC Pune Official Logo"
+                  fill
+                  priority
+                  quality={95}
+                  className="object-cover object-center"
+                />
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display font-bold text-lg sm:text-xl text-white group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
+                    MUSC PUNE
+                  </span>
+                  <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
+                    पुणे
+                  </span>
+                </div>
+                <span className="text-[9px] sm:text-[10px] text-white/60 uppercase font-sans font-medium mt-0.5">
+                  OFFICIAL SUPPORTERS CLUB
                 </span>
               </div>
-              <span className="text-[9px] sm:text-[10px] text-white/60 uppercase font-sans font-medium mt-0.5">
-                OFFICIAL SUPPORTERS CLUB
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-4 xl:gap-5">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="font-display text-sm xl:text-base font-bold tracking-tight text-white hover:text-[#E60012] transition-colors uppercase relative py-1 shrink-0"
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Header Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Shopping Cart Trigger */}
-            <button
-              onClick={onOpenCart}
-              className="relative p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white hover:border-[#E60012] transition-all group shrink-0"
-              aria-label="View Shopping Cart"
-            >
-              <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#E60012]" />
-              {totalCartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#E60012] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce shadow-md">
-                  {totalCartCount}
-                </span>
-              )}
-            </button>
-
-            {/* Book Tickets CTA on Tablet & Desktop */}
-            <Link
-              href="/screenings"
-              className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold tracking-tight px-4 py-2.5 rounded-2xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
-            >
-              <Ticket className="w-4 h-4 shrink-0" />
-              <span>SCREENING TICKETS</span>
             </Link>
 
-            {/* Mobile Menu Trigger */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0"
-              aria-label="Open Mobile Menu"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
+            {/* Desktop Nav Links */}
+            <nav className="hidden lg:flex items-center gap-4 xl:gap-5">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="font-display text-sm xl:text-base font-bold tracking-tight text-white hover:text-[#E60012] transition-colors uppercase relative py-1 shrink-0"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Header Action Buttons */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* Shopping Cart Trigger */}
+              <button
+                onClick={onOpenCart}
+                className="relative p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white hover:border-[#E60012] transition-all group shrink-0 cursor-pointer"
+                aria-label="View Shopping Cart"
+              >
+                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#E60012]" />
+                {totalCartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#E60012] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce shadow-md">
+                    {totalCartCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Book Tickets CTA on Tablet & Desktop */}
+              <Link
+                href="/screenings"
+                className="hidden sm:flex items-center gap-1.5 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold tracking-tight px-4 py-2.5 rounded-2xl transition-all shadow-[0_4px_20px_rgba(230,0,18,0.35)] hover:scale-[1.03] active:scale-95 border border-white/20 shrink-0 whitespace-nowrap"
+              >
+                <Ticket className="w-4 h-4 shrink-0" />
+                <span>SCREENING TICKETS</span>
+              </Link>
+
+              {/* Mobile Menu Trigger */}
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0 cursor-pointer"
+                aria-label="Open Mobile Menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] lg:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-black border border-white/20 shrink-0">
@@ -148,9 +169,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2.5 rounded-2xl bg-[#171717] border border-white/15 text-white/70 hover:text-white"
+              className="p-2.5 rounded-2xl bg-[#171717] border border-white/15 text-white/70 hover:text-white cursor-pointer"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6 text-[#E60012]" />
             </button>
           </div>
 
@@ -161,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-2xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2 flex items-center justify-between border-b border-white/5"
+                  className="font-display text-2xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2.5 flex items-center justify-between border-b border-white/5"
                 >
                   <span>{link.name}</span>
                   <span className="text-xs font-sans text-[#E60012]">
@@ -171,14 +192,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               ))}
             </div>
 
-            <div className="mt-8 pt-4 border-t border-white/10 flex flex-col gap-3">
+            <div className="mt-8 pt-4 border-t border-white/10 flex flex-col gap-3 pb-6">
               <Link
                 href="/screenings"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl font-bold tracking-tight py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] uppercase"
               >
                 <Ticket className="w-5 h-5" />
-                GET SCREENING TICKETS
+                <span>GET SCREENING TICKETS</span>
               </Link>
             </div>
           </div>

@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { ArrowRight, ShoppingBag, Plane, Camera, Tv, Users, ExternalLink } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { TopEventScroller } from '@/components/TopEventScroller';
 import { HeroMarquee } from '@/components/HeroMarquee';
 import { HeroSection } from '@/sections/HeroSection';
 import { MembershipSection } from '@/sections/MembershipSection';
@@ -84,12 +83,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
-      {/* 0. TOP EVENT TICKER SCROLLER */}
-      <TopEventScroller upcomingScreening={featuredScreening} />
-
-      {/* Floating Glass Navbar */}
+      {/* Floating Sticky Glass Navbar */}
       <Navbar
         cartItems={cartItems}
+        upcomingScreening={featuredScreening}
         onOpenCart={() => setCartOpen(true)}
       />
 
@@ -114,7 +111,7 @@ export default function Home() {
               PUNE&apos;S <span className="text-[#E60012]">MANCHESTER UNITED HOME</span>
             </h2>
             <p className="text-base sm:text-lg text-white/80 font-sans leading-relaxed max-w-2xl mx-auto pt-2">
-              Manchester United Supporters Club Pune (MUSC Pune) is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
+              Manchester United Supporters Club Pune is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
             </p>
           </div>
 
