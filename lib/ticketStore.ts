@@ -244,13 +244,13 @@ export const updateMembershipConfigStore = (newConfig: MembershipConfig) => {
 };
 
 // -------------------------------------------------------------
-// DYNAMIC GALLERY ADMIN MANAGEMENT
 export const getGalleryStore = (): GalleryItem[] => {
   const stored = loadStorage(GALLERY_STORAGE_KEY, galleryMemory);
-  const storedIds = new Set(stored.map((g) => g.id));
+  const cleanStored = stored.filter((g) => !g.id.startsWith('gal-pune-2026-'));
+  const storedIds = new Set(cleanStored.map((g) => g.id));
   const missingDefaults = defaultGallery.filter((g) => !storedIds.has(g.id));
-  if (missingDefaults.length > 0) {
-    const merged = [...missingDefaults, ...stored];
+  if (missingDefaults.length > 0 || cleanStored.length !== stored.length) {
+    const merged = [...missingDefaults, ...cleanStored];
     saveStorage(GALLERY_STORAGE_KEY, merged);
     galleryMemory = merged;
     return merged;
