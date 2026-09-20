@@ -42,8 +42,8 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
         </div>
 
         {/* HINDI OFFICIAL SLOGAN HEADLINE WITH 'PREM' CLEARLY VISIBLE */}
-        <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-shimmer-hindi leading-tight tracking-normal drop-shadow-[0_15px_30px_rgba(0,0,0,0.95)] max-w-3xl mx-auto px-2">
-          एक शहर, एक क्लब, <span className="text-[#E60012] font-black underline underline-offset-8 decoration-[#E60012]/60">एक प्रेम</span>, मैनचेस्टर यूनाइटेड
+        <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] max-w-3xl mx-auto px-2">
+          एक शहर, एक क्लब, <span className="text-[#E60012]">एक प्रेम</span>, मैनचेस्टर यूनाइटेड
         </h1>
 
         {/* English Subtitle (Without bracketed title) */}

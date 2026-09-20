@@ -45,7 +45,7 @@ export const AboutSection: React.FC = () => {
           </h2>
 
           <p className="text-base sm:text-lg text-white/90 font-sans leading-relaxed">
-            Manchester United Supporters Club Pune (MUSC Pune) brings Reds together through screening tickets, community events, and Old Trafford group trips. Founded in 2011, we are the home of Manchester United supporters in Pune.
+            Manchester United Supporters Club Pune brings Reds together through match screenings, community events, and Old Trafford group trips. Founded in 2011, we are the home of Manchester United supporters in Pune.
           </p>
         </div>
 

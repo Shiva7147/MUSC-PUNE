@@ -662,11 +662,12 @@ export default function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">PLATFORM FEE (₹)</label>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">PLATFORM FEE RATE (%)</label>
                       <input
                         type="number"
-                        value={membershipConfig.platformFee ?? 30}
-                        onChange={(e) => setMembershipConfig({ ...membershipConfig, platformFee: Number(e.target.value) })}
+                        step="0.01"
+                        value={(membershipConfig.platformFeeRate ?? 0.03) * 100}
+                        onChange={(e) => setMembershipConfig({ ...membershipConfig, platformFeeRate: Number(e.target.value) / 100 })}
                         className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
                       />
                     </div>

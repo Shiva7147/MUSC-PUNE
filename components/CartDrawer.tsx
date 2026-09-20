@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { X, Trash2, ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react';
 import { CartItem } from '@/lib/types';
+import { getMembershipConfigStore } from '@/lib/ticketStore';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -22,10 +23,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const membershipConfig = getMembershipConfigStore();
   const baseTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const taxRate = 0.12; // 12% apparel GST
+  const taxRate = membershipConfig.taxRate ?? 0.18; // GST rate (e.g. 18%)
   const taxAmount = Math.round(baseTotal * taxRate);
-  const finalTotal = baseTotal + taxAmount;
+  const platformFeeRate = membershipConfig.platformFeeRate ?? 0.03; // Platform Fee rate (e.g. 3%)
+  const platformFeeAmount = Math.round(baseTotal * platformFeeRate);
+  const finalTotal = baseTotal + taxAmount + platformFeeAmount;
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
@@ -33,7 +37,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       .map((item) => `${item.product.name} (Size: ${item.size}, Qty: ${item.quantity}) - ₹${item.product.price * item.quantity}`)
       .join('%0A');
 
-    const whatsappMessage = `Hi MUSC Pune, I want to order the following official merchandise:%0A%0A${itemsSummary}%0A%0ATotal Payable (incl. GST): ₹${finalTotal}%0A%0APlease assist with payment & shipping!`;
+    const whatsappMessage = `Hi MUSC Pune, I want to order the following official merchandise:%0A%0A${itemsSummary}%0A%0ASubtotal: ₹${baseTotal}%0AGST (${Math.round(taxRate * 100)}%): ₹${taxAmount}%0APlatform Fee (${Math.round(platformFeeRate * 100)}%): ₹${platformFeeAmount}%0A%0ATotal Payable: ₹${finalTotal}%0A%0APlease assist with payment & shipping!`;
     window.open(`https://wa.me/917276735140?text=${whatsappMessage}`, '_blank');
   };
 
@@ -115,15 +119,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-1.5 text-xs font-sans">
                 <div className="flex justify-between text-white/70">
                   <span>Subtotal</span>
-                  <span className="font-mono">₹{baseTotal}</span>
+                  <span className="font-mono">₹{baseTotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>GST (12%)</span>
-                  <span className="font-mono">₹{taxAmount}</span>
+                  <span>GST ({Math.round(taxRate * 100)}%)</span>
+                  <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between text-white/70">
+                  <span>Platform Fee ({Math.round(platformFeeRate * 100)}%)</span>
+                  <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between font-display text-xl font-bold text-white pt-2 border-t border-white/10">
-                  <span>TOTAL</span>
-                  <span className="text-[#E60012]">₹{finalTotal}</span>
+                  <span>TOTAL PAYABLE</span>
+                  <span className="text-[#E60012]">₹{finalTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 

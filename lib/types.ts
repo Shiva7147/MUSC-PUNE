@@ -20,8 +20,9 @@ export interface Screening {
   price: number;
   activePhaseName?: string;
   phases?: ScreeningPhase[];
-  taxRate?: number; // Configurable tax rate percentage (default 18%)
-  platformFee?: number; // Configurable platform fee per ticket (default ₹30)
+  taxRate?: number; // Configurable tax rate percentage (default 0.18 for 18%)
+  platformFeeRate?: number; // Configurable platform fee percentage (default 0.03 for 3%)
+  platformFee?: number; // Fallback flat fee
   featured: boolean;
   status: 'UPCOMING' | 'FILLING_FAST' | 'SOLD_OUT';
   description: string;
@@ -38,8 +39,9 @@ export interface Product {
   category: 'Apparel' | 'Accessories' | 'Collectibles' | 'Membership';
   price: number;
   originalPrice?: number;
-  taxRate?: number; // Configurable tax rate percentage (default 12%)
-  platformFee?: number; // Configurable platform fee per product
+  taxRate?: number; // Configurable tax rate percentage (default 0.18)
+  platformFeeRate?: number; // Configurable platform fee percentage (default 0.03)
+  platformFee?: number;
   image: string;
   description: string;
   availableSizes: string[];
@@ -53,7 +55,8 @@ export interface MembershipConfig {
   basePrice: number;
   sizePrices: { [size: string]: number };
   taxRate: number; // e.g. 0.18 for 18% GST
-  platformFee: number; // e.g. ₹30
+  platformFeeRate: number; // e.g. 0.03 for 3% platform fee
+  platformFee?: number;
 }
 
 export interface CartItem {

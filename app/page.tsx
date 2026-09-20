@@ -241,8 +241,9 @@ export default function Home() {
         </section>
       )}
 
-      {/* 6. DYNAMIC MEMBERSHIP SECTION (Homepage Redirects to /membership) */}
+      {/* 6. DYNAMIC MEMBERSHIP SECTION (Homepage Shows Local Tier & Redirects to /membership) */}
       <MembershipSection
+        isHomepage={true}
         onJoinOverride={() => {
           window.location.href = '/membership';
         }}

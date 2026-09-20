@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText } from 'lucide-react';
 import { Screening } from '@/lib/types';
-import { generateTicketPass, AdminTicketRecord } from '@/lib/ticketStore';
+import { generateTicketPass, AdminTicketRecord, getMembershipConfigStore } from '@/lib/ticketStore';
 import { generatePDFTicketPass } from '@/lib/pdfTicketGenerator';
 import { dispatchWhatsAppTicketMessage } from '@/lib/whatsappService';
 
@@ -59,12 +59,14 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Dynamic Taxes & Fees Calculation
+  // Dynamic Taxes & Fees Calculation (Percentage Based)
+  const membershipConfig = getMembershipConfigStore();
   const baseAmount = screening.price * quantity;
-  const taxRate = screening.taxRate ?? 0.18; // 18% GST
+  const taxRate = screening.taxRate ?? membershipConfig.taxRate ?? 0.18; // GST percentage
   const taxAmount = Math.round(baseAmount * taxRate);
-  const platformFee = screening.platformFee ?? 30; // ₹30 platform fee
-  const totalAmount = baseAmount + taxAmount + platformFee;
+  const platformFeeRate = screening.platformFeeRate ?? membershipConfig.platformFeeRate ?? 0.03; // Platform Fee percentage
+  const platformFeeAmount = Math.round(baseAmount * platformFeeRate);
+  const totalAmount = baseAmount + taxAmount + platformFeeAmount;
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,170 +106,171 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   return (
     <div
       onClick={handleResetAndClose}
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#171717] border border-[#E60012]/40 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-8"
+        className="bg-[#171717] border border-[#E60012]/40 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-auto"
       >
-        {/* Prominent High-Visibility Close Button */}
+        {/* Prominent High-Visibility Sticky Close Button */}
         <button
           type="button"
           onClick={handleResetAndClose}
-          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-[#050505] border border-white/20 text-white/90 hover:text-white hover:border-[#E60012] z-20 shadow-xl transition-all"
+          className="absolute top-3 right-3 p-2.5 rounded-2xl bg-[#050505]/90 border border-white/20 text-white/90 hover:text-white hover:border-[#E60012] z-30 shadow-xl transition-all"
           aria-label="Close Ticket Modal"
         >
           <X className="w-5 h-5 text-[#E60012]" />
         </button>
 
-        {step === 'DETAILS' ? (
-          <div>
-            {/* Modal Header Banner */}
-            <div className="bg-gradient-to-r from-[#99000A] via-[#E60012] to-[#99000A] p-6 relative overflow-hidden">
-              <div className="absolute right-2 -bottom-6 text-7xl font-bold font-display opacity-10 select-none">
-                MATCHDAY
-              </div>
-              <div className="flex items-center gap-2 text-xs font-display tracking-tight text-white/90 uppercase font-bold">
-                <Ticket className="w-4 h-4 text-white" />
-                <span>OFFICIAL SCREENING TICKETS</span>
-              </div>
-              <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase pr-8">
-                {screening.matchTitle}
-              </h3>
-              <p className="text-xs text-white/80 font-display font-bold mt-1 uppercase">{screening.competition}</p>
-            </div>
-
-            {/* Event Info Brief */}
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-[#050505] border border-white/10 text-xs">
-                <div className="flex items-center gap-2 text-white/90">
-                  <Calendar className="w-4 h-4 text-[#E60012] shrink-0" />
-                  <div>
-                    <div className="font-display text-[10px] text-white/60">DATE</div>
-                    <div className="font-bold">{screening.date}</div>
-                  </div>
+        <div className="flex-1 overflow-y-auto">
+          {step === 'DETAILS' ? (
+            <div>
+              {/* Modal Header Banner */}
+              <div className="bg-gradient-to-r from-[#99000A] via-[#E60012] to-[#99000A] p-6 relative overflow-hidden">
+                <div className="absolute right-2 -bottom-6 text-7xl font-bold font-display opacity-10 select-none">
+                  MATCHDAY
                 </div>
-                <div className="flex items-center gap-2 text-white/90">
-                  <Clock className="w-4 h-4 text-[#E60012] shrink-0" />
-                  <div>
-                    <div className="font-display text-[10px] text-white/60">KICKOFF</div>
-                    <div className="font-bold">{screening.time}</div>
-                  </div>
+                <div className="flex items-center gap-2 text-xs font-display tracking-tight text-white/90 uppercase font-bold">
+                  <Ticket className="w-4 h-4 text-white" />
+                  <span>OFFICIAL SCREENING TICKETS</span>
                 </div>
-                <div className="col-span-2 flex items-center gap-2 text-white/90 pt-2 border-t border-white/10">
-                  <MapPin className="w-4 h-4 text-[#E60012] shrink-0" />
-                  <div>
-                    <div className="font-display text-[10px] text-white/60">VENUE</div>
-                    <div className="font-bold text-white">{screening.venueName}</div>
-                  </div>
-                </div>
+                <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase pr-8">
+                  {screening.matchTitle}
+                </h3>
+                <p className="text-xs text-white/80 font-display font-bold mt-1 uppercase">{screening.competition}</p>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleBookingSubmit} className="space-y-4">
-                {/* Quantity Stepper (1 to 10) */}
-                <div>
-                  <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
-                    NUMBER OF TICKETS (MAX 10 / BOOKING)
-                  </label>
-                  <div className="flex items-center justify-between bg-[#050505] border border-white/15 rounded-xl p-3">
-                    <span className="text-xs text-white/80 font-sans font-medium">Select Quantity (₹{screening.price} / ticket)</span>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                        disabled={quantity <= 1}
-                        className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="font-display text-2xl font-bold text-white w-6 text-center">{quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => setQuantity((prev) => Math.min(10, prev + 1))}
-                        disabled={quantity >= 10}
-                        className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* User Info Fields */}
-                <div className="space-y-3 pt-1">
-                  <div>
-                    <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">FULL NAME *</label>
-                    <div className="relative">
-                      <User className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Rahul Sharma"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012] placeholder:text-neutral-400"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Event Info Brief */}
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-[#050505] border border-white/10 text-xs">
+                  <div className="flex items-center gap-2 text-white/90">
+                    <Calendar className="w-4 h-4 text-[#E60012] shrink-0" />
                     <div>
-                      <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">EMAIL ADDRESS *</label>
+                      <div className="font-display text-[10px] text-white/60">DATE</div>
+                      <div className="font-bold">{screening.date}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/90">
+                    <Clock className="w-4 h-4 text-[#E60012] shrink-0" />
+                    <div>
+                      <div className="font-display text-[10px] text-white/60">KICKOFF</div>
+                      <div className="font-bold">{screening.time}</div>
+                    </div>
+                  </div>
+                  <div className="col-span-2 flex items-center gap-2 text-white/90 pt-2 border-t border-white/10">
+                    <MapPin className="w-4 h-4 text-[#E60012] shrink-0" />
+                    <div>
+                      <div className="font-display text-[10px] text-white/60">VENUE</div>
+                      <div className="font-bold text-white">{screening.venueName}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleBookingSubmit} className="space-y-4">
+                  {/* Quantity Stepper (1 to 10) */}
+                  <div>
+                    <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
+                      NUMBER OF TICKETS (MAX 10 / BOOKING)
+                    </label>
+                    <div className="flex items-center justify-between bg-[#050505] border border-white/15 rounded-xl p-3">
+                      <span className="text-xs text-white/80 font-sans font-medium">Select Quantity (₹{screening.price} / ticket)</span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                          disabled={quantity <= 1}
+                          className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="font-display text-2xl font-bold text-white w-6 text-center">{quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => setQuantity((prev) => Math.min(10, prev + 1))}
+                          disabled={quantity >= 10}
+                          className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* User Info Fields */}
+                  <div className="space-y-3 pt-1">
+                    <div>
+                      <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">FULL NAME *</label>
                       <div className="relative">
-                        <Mail className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
+                        <User className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
                         <input
-                          type="email"
+                          type="text"
                           required
-                          placeholder="rahul@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-[#050505] border border-white/15 rounded-xl pl-10 pr-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012] placeholder:text-neutral-400"
+                          placeholder="e.g. Rahul Sharma"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012] placeholder:text-neutral-400"
                         />
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">PHONE / WHATSAPP *</label>
-                      <div className="relative">
-                        <Phone className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
-                        <input
-                          type="tel"
-                          required
-                          placeholder="+91 7276735140"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="w-full bg-[#050505] border border-white/15 rounded-xl pl-10 pr-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012] placeholder:text-neutral-400"
-                        />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">EMAIL ADDRESS *</label>
+                        <div className="relative">
+                          <Mail className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
+                          <input
+                            type="email"
+                            required
+                            placeholder="rahul@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-[#050505] border border-white/15 rounded-xl pl-10 pr-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012] placeholder:text-neutral-400"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1">PHONE / WHATSAPP *</label>
+                        <div className="relative">
+                          <Phone className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
+                          <input
+                            type="tel"
+                            required
+                            placeholder="+91 7276735140"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full bg-[#050505] border border-white/15 rounded-xl pl-10 pr-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012] placeholder:text-neutral-400"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Taxes & Platform Fee Detailed Breakdown */}
-                <div className="p-4 rounded-xl bg-[#050505] border border-white/10 space-y-1.5 text-xs font-sans">
-                  <div className="flex justify-between text-white/70">
-                    <span>Base Price ({quantity} Ticket{quantity > 1 ? 's' : ''})</span>
-                    <span className="font-mono">₹{baseAmount.toLocaleString('en-IN')}</span>
+                  {/* Taxes & Platform Fee Detailed Breakdown */}
+                  <div className="p-4 rounded-xl bg-[#050505] border border-white/10 space-y-1.5 text-xs font-sans">
+                    <div className="flex justify-between text-white/70">
+                      <span>Base Price ({quantity} Ticket{quantity > 1 ? 's' : ''})</span>
+                      <span className="font-mono">₹{baseAmount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-white/70">
+                      <span>Applicable Tax ({Math.round(taxRate * 100)}% GST)</span>
+                      <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
+                      <span>Platform & Booking Fee ({Math.round(platformFeeRate * 100)}%)</span>
+                      <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between font-display text-base font-bold text-white pt-1">
+                      <span>TOTAL PAYABLE</span>
+                      <span className="text-[#E60012]">₹{totalAmount.toLocaleString('en-IN')}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-white/70">
-                    <span>Applicable Tax ({Math.round(taxRate * 100)}% GST)</span>
-                    <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
-                    <span>Platform & Booking Fee</span>
-                    <span className="font-mono">₹{platformFee.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between font-display text-base font-bold text-white pt-1">
-                    <span>TOTAL PAYABLE</span>
-                    <span className="text-[#E60012]">₹{totalAmount.toLocaleString('en-IN')}</span>
-                  </div>
-                </div>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={loading}
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={loading}
                   className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase cursor-pointer"
                 >
                   <span>{loading ? 'GENERATING TICKETS...' : 'GET SCREENING TICKETS'}</span>
@@ -377,6 +380,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

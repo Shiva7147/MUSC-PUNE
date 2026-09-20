@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ShoppingBag, Menu, X, Ticket } from 'lucide-react';
 import { CartItem, Screening } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
+import { getScreeningsStore } from '@/lib/ticketStore';
 import { TopEventScroller } from './TopEventScroller';
 
 interface NavbarProps {
@@ -22,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const activeScreening = upcomingScreening || getScreeningsStore()[0];
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -63,13 +65,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 z-[50] transition-all duration-300">
         {/* 1. TOP MATCHDAY TICKER (STICKY ON ALL PAGES) */}
-        <TopEventScroller upcomingScreening={upcomingScreening} />
+        <TopEventScroller upcomingScreening={activeScreening} />
 
         {/* 2. MAIN FLOATING GLASS NAVIGATION BAR */}
         <div
-          className={`mt-9 transition-all duration-300 ${
+          className={`transition-all duration-300 ${
             isScrolled
               ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10 py-2 shadow-2xl'
               : 'bg-gradient-to-b from-[#050505]/95 via-[#050505]/85 to-transparent py-2.5'

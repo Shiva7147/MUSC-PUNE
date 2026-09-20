@@ -5,9 +5,9 @@ export const officialClubDetails = {
   fullName: 'Official Manchester United Supporters Club - Pune',
   establishedYear: 2011,
   tagline: "Pune’s Red Army",
-  email: 'ebrahimmred@gmail.com',
-  grievanceEmail: 'ebrahimmred@gmail.com',
-  founderEmail: 'ebrahimmred@gmail.com',
+  email: 'manutdpune@gmail.com',
+  grievanceEmail: 'ebrahhimred@gmail.com',
+  founderEmail: 'ebrahhimred@gmail.com',
   phone: '+91 7276735140',
   whatsapp: '+91 7276735140',
   socials: {
@@ -39,6 +39,7 @@ export const defaultMembershipConfig: MembershipConfig = {
     'XXXL': 1199,
   },
   taxRate: 0.18,
+  platformFeeRate: 0.03,
   platformFee: 30,
 };
 
