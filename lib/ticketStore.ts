@@ -245,10 +245,17 @@ export const updateMembershipConfigStore = (newConfig: MembershipConfig) => {
 
 // -------------------------------------------------------------
 // DYNAMIC GALLERY ADMIN MANAGEMENT
-// -------------------------------------------------------------
-
 export const getGalleryStore = (): GalleryItem[] => {
-  return loadStorage(GALLERY_STORAGE_KEY, galleryMemory);
+  const stored = loadStorage(GALLERY_STORAGE_KEY, galleryMemory);
+  const storedIds = new Set(stored.map((g) => g.id));
+  const missingDefaults = defaultGallery.filter((g) => !storedIds.has(g.id));
+  if (missingDefaults.length > 0) {
+    const merged = [...missingDefaults, ...stored];
+    saveStorage(GALLERY_STORAGE_KEY, merged);
+    galleryMemory = merged;
+    return merged;
+  }
+  return stored;
 };
 
 export const addGalleryItemToStore = (newItem: GalleryItem) => {
