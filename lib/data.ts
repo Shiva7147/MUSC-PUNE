@@ -6,8 +6,8 @@ export const officialClubDetails = {
   establishedYear: 2011,
   tagline: "Pune’s Red Army",
   email: 'manutdpune@gmail.com',
-  grievanceEmail: 'ebrahhimred@gmail.com',
-  founderEmail: 'ebrahhimred@gmail.com',
+  grievanceEmail: 'ebrahimred@gmail.com',
+  founderEmail: 'ebrahimred@gmail.com',
   phone: '+91 7276735140',
   whatsapp: '+91 7276735140',
   socials: {
