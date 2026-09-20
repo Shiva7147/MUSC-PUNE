@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Camera, X, Play, MapPin, Eye } from 'lucide-react';
+import { Camera, Play, MapPin, Eye, Pause } from 'lucide-react';
 import { galleryImages } from '@/lib/data';
 import { GalleryItem } from '@/lib/types';
+import { GalleryLightbox } from '@/components/GalleryLightbox';
 
 export const GallerySection: React.FC = () => {
-  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   // High-res optimized Cloudinary photography list
   const optimizedGallery = galleryImages.map((img) => ({
@@ -17,6 +19,16 @@ export const GallerySection: React.FC = () => {
 
   const mainFeature = optimizedGallery[0];
   const supportingGrid = optimizedGallery.slice(1, 5);
+
+  const openLightbox = (index: number, startPlaying: boolean = false) => {
+    setSelectedIndex(index);
+    setIsPlaying(startPlaying);
+  };
+
+  const closeLightbox = () => {
+    setSelectedIndex(null);
+    setIsPlaying(false);
+  };
 
   return (
     <section id="gallery" className="py-24 bg-[#050505] relative border-t border-white/10 overflow-hidden">
@@ -46,7 +58,7 @@ export const GallerySection: React.FC = () => {
           {/* Main Feature Frame */}
           {mainFeature && (
             <div
-              onClick={() => setSelectedImage(mainFeature)}
+              onClick={() => openLightbox(0)}
               className="lg:col-span-7 relative aspect-[16/10] rounded-3xl overflow-hidden glass-card border border-white/10 hover:border-[#E60012] group cursor-pointer shadow-2xl bg-[#171717]"
             >
               <Image
@@ -57,7 +69,7 @@ export const GallerySection: React.FC = () => {
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-              
+
               <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2 text-[10px] font-sans font-bold text-[#FFC400] uppercase tracking-wider">
@@ -81,10 +93,10 @@ export const GallerySection: React.FC = () => {
 
           {/* 4 Supporting Frames Grid */}
           <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-            {supportingGrid.map((img) => (
+            {supportingGrid.map((img, idx) => (
               <div
-                key={img.id}
-                onClick={() => setSelectedImage(img)}
+                key={img.id || idx}
+                onClick={() => openLightbox(idx + 1)}
                 className="relative aspect-square rounded-2xl overflow-hidden glass-card border border-white/10 hover:border-[#E60012] group cursor-pointer shadow-lg bg-[#171717]"
               >
                 <Image
@@ -95,7 +107,7 @@ export const GallerySection: React.FC = () => {
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-                
+
                 <div className="absolute bottom-3 left-3 right-3 text-[#F5F5F5]">
                   <div className="text-[9px] font-display text-[#FFC400] font-bold uppercase">{img.date}</div>
                   <h4 className="font-display text-xs font-bold truncate">{img.title}</h4>
@@ -105,52 +117,46 @@ export const GallerySection: React.FC = () => {
           </div>
         </div>
 
-        {/* Film Strip Horizontal Track */}
-        <div className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex items-center gap-4 overflow-x-auto no-scrollbar shadow-inner">
-          <div className="flex items-center gap-2 text-xs font-display font-bold text-[#FFC400] uppercase shrink-0">
-            <Play className="w-4 h-4 text-[#E60012]" />
-            <span>FULL ROLL:</span>
-          </div>
-          {optimizedGallery.map((img) => (
+        {/* Film Strip Horizontal Track with Play Slideshow Control */}
+        <div className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 overflow-x-auto no-scrollbar shadow-inner">
+          <div className="flex items-center gap-3 shrink-0">
             <button
-              key={img.id}
-              onClick={() => setSelectedImage(img)}
-              className="relative w-16 h-12 rounded-lg overflow-hidden shrink-0 border border-white/15 hover:border-[#E60012] transition-all group"
+              onClick={() => openLightbox(0, true)}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#E60012] hover:bg-[#c80010] text-white font-display text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-105 active:scale-95"
             >
-              <Image src={img.imageUrl} alt={img.title} fill className="object-cover group-hover:scale-110 transition-transform" />
+              <Play className="w-4 h-4 fill-current" />
+              <span>PLAY SLIDESHOW</span>
             </button>
-          ))}
+            <span className="text-xs font-display font-bold text-[#FFC400] uppercase hidden sm:inline">
+              FULL ROLL ({optimizedGallery.length} PHOTOS)
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+            {optimizedGallery.map((img, idx) => (
+              <button
+                key={img.id || idx}
+                onClick={() => openLightbox(idx)}
+                className="relative w-16 h-12 rounded-lg overflow-hidden shrink-0 border border-white/15 hover:border-[#E60012] transition-all group"
+                title={`Click to view: ${img.title}`}
+              >
+                <Image src={img.imageUrl} alt={img.title} fill className="object-cover group-hover:scale-110 transition-transform" />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Image Lightbox Modal */}
-      {selectedImage && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4">
-          <div className="relative max-w-4xl w-full bg-[#171717] border border-[#E60012]/40 rounded-3xl overflow-hidden shadow-2xl space-y-4 p-6 text-[#F5F5F5]">
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-black/80 text-white hover:text-[#E60012]"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black">
-              <Image src={selectedImage.imageUrl} alt={selectedImage.title} fill quality={100} className="object-contain" />
-            </div>
-
-            <div className="flex items-center justify-between border-t border-white/10 pt-4">
-              <div>
-                <div className="text-xs font-display text-[#FFC400] font-bold uppercase">{selectedImage.location} • {selectedImage.date}</div>
-                <h3 className="font-display text-2xl font-bold text-[#F5F5F5]">{selectedImage.title}</h3>
-                <p className="text-xs font-sans text-[#F5F5F5]/80 mt-1">{selectedImage.caption}</p>
-              </div>
-              <span className="badge-united text-xs font-display px-3 py-1.5 rounded-xl font-bold">
-                🔴 OFFICIAL ARCHIVE
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Interactive Lightbox with Auto-Play and Arrow Key Controls */}
+      <GalleryLightbox
+        isOpen={selectedIndex !== null}
+        onClose={closeLightbox}
+        items={optimizedGallery}
+        currentIndex={selectedIndex ?? 0}
+        onNavigate={(newIdx) => setSelectedIndex(newIdx)}
+        isPlaying={isPlaying}
+        onTogglePlay={() => setIsPlaying((prev) => !prev)}
+      />
     </section>
   );
 };
