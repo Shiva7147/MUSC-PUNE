@@ -36,10 +36,10 @@ export const ContactSection: React.FC = () => {
               <span>OFFICIAL SUPPORTERS CLUB CONTACT</span>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
-              CONTACT <span className="text-[#E60012]">MUSC PUNE</span>
+              CONTACT <span className="text-[#E60012]">MUFC PUNE</span>
             </h2>
             <p className="text-sm text-white/70 max-w-xl mt-2 font-sans">
-              Have questions about matchday screenings, Old Trafford tour registrations, or membership? Reach out to the committee directly.
+              Have questions about matchday screenings, Old Trafford tour registrations, or membership? Reach out to us directly.
             </p>
           </div>
 
@@ -93,7 +93,7 @@ export const ContactSection: React.FC = () => {
             </div>
 
             <div className="p-4 rounded-2xl bg-[#050505] border border-white/10 text-xs font-sans text-white/60">
-              Founder & Grievance Officer: <strong className="text-white">{officialClubDetails.grievanceOfficer}</strong> ({officialClubDetails.grievanceEmail})
+              Grievance Officer: <strong className="text-white">{officialClubDetails.grievanceOfficer}</strong> ({officialClubDetails.grievanceEmail})
             </div>
           </div>
 
@@ -102,9 +102,9 @@ export const ContactSection: React.FC = () => {
             {submitted ? (
               <div className="py-16 text-center space-y-4">
                 <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto animate-bounce" />
-                <h3 className="font-display text-3xl font-bold text-white uppercase">ENQUIRY SENT SUCCESSFULLY!</h3>
+                <h3 className="font-display text-3xl font-bold text-white uppercase">INQUIRY SENT SUCCESSFULLY!</h3>
                 <p className="text-xs font-sans text-white/80 max-w-md mx-auto">
-                  Thank you for reaching out. A committee member will get back to you shortly on WhatsApp (+91 7276735140) or Email.
+                  Thank you for reaching out. We will get back to you shortly on WhatsApp (+91 7276735140) or Email.
                 </p>
               </div>
             ) : (
@@ -180,7 +180,7 @@ export const ContactSection: React.FC = () => {
                   className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20 cursor-pointer"
                 >
                   <Send className="w-5 h-5" />
-                  <span>SEND ENQUIRY TO COMMITTEE</span>
+                  <span>Send Inquiry to MUFC Pune</span>
                 </button>
               </form>
             )}

@@ -16,6 +16,7 @@ import {
   Armchair,
   MessageCircle,
   AlertCircle,
+  Send,
 } from 'lucide-react';
 import { officialLogoUrl, officialMembershipImageUrl } from '@/lib/data';
 import { Product, MembershipConfig } from '@/lib/types';
@@ -24,14 +25,12 @@ import { getMembershipConfigStore, subscribeStore } from '@/lib/ticketStore';
 interface MembershipSectionProps {
   onAddToCart?: (product: Product, size: string, quantity: number) => void;
   onOpenCart?: () => void;
-  onJoinOverride?: () => void;
   isHomepage?: boolean;
 }
 
 export const MembershipSection: React.FC<MembershipSectionProps> = ({
   onAddToCart,
   onOpenCart,
-  onJoinOverride,
   isHomepage = false,
 }) => {
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -52,44 +51,24 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
 
   const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
-  const globalOumBenefits = [
-    'Priority access to face value home & away match tickets at Old Trafford',
-    'Priority invitations to official Manchester United events & Meet & Greets',
-    'Member-only discounts on Old Trafford Museum & Stadium Tours',
-    'Early purchase rights on official United merchandise drops',
-    'Access to digital yearbook & exclusive premium media content',
-  ];
-
-  const localMuscPuneBenefits = [
-    '100% Complimentary ticket to any one match screening of your choice',
-    'Official MUFC Pune T-shirt included with every membership',
-    'Priority seating at all matchday screenings in Pune',
-    'Access to exclusive member-only meetups, events & raffles',
-    'Access to the official MUSC Pune WhatsApp community',
-  ];
-
   const localTierFeatures = [
-    { title: 'Official T-Shirt', detail: 'Official MUFC Pune Supporter T-Shirt included', icon: Shirt },
-    { title: '100% Complimentary Ticket', detail: 'Free entry ticket to any 1 matchday screening', icon: Ticket },
-    { title: 'Matchday Experience', detail: 'Priority seating at all screenings in Pune', icon: Armchair },
-    { title: 'Community Events', detail: 'Access to exclusive member meetups & raffles', icon: Gift },
-    { title: 'WhatsApp Community', detail: 'Direct access to Pune’s Red Army group', icon: MessageCircle },
+    { title: 'Official MUFC Pune T-Shirt', detail: 'Official supporter kit (Select size S to XXL)', icon: Shirt },
+    { title: '100% Complimentary Screening Ticket', detail: '1 Free entry pass to any 1 matchday screening', icon: Ticket },
+    { title: 'Priority Seating', detail: 'Reserved front-row seating at all Pune screenings', icon: Armchair },
+    { title: 'Exclusive Member Privileges', detail: 'Access to member meetups, raffles & WhatsApp group', icon: Gift },
+  ];
+
+  const globalOumBenefits = [
+    'Priority access to face-value home & away match tickets at Old Trafford',
+    'Official Manchester United Membership Pack & Digital Crest Pass',
+    '10% discount at official Megastore (online & Old Trafford)',
+    'Exclusive access to digital yearbook & United media streams',
   ];
 
   const handleJoinClicked = () => {
-    // If on homepage, redirect directly to dedicated membership page
-    if (onJoinOverride || isHomepage) {
-      if (onJoinOverride) {
-        onJoinOverride();
-      } else {
-        window.location.href = '/membership';
-      }
-      return;
-    }
-
     if (!selectedSize) {
       setSizeError(true);
-      alert('Please select your official T-Shirt size before adding to cart.');
+      alert('Please select your official T-Shirt size (S, M, L, XL, XXL) before joining Pune’s Red Army.');
       return;
     }
 
@@ -99,7 +78,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
     const dynamicPrice =
       membershipConfig.sizePrices && membershipConfig.sizePrices[selectedSize]
         ? membershipConfig.sizePrices[selectedSize]
-        : membershipConfig.basePrice || 799;
+        : membershipConfig.basePrice || 999;
 
     const membershipItem: Product = {
       id: 'musc-pune-membership',
@@ -124,211 +103,42 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
     if (onAddToCart) {
       onAddToCart(membershipItem, selectedSize, 1);
     } else {
-      alert(`Pune's Red Army Membership (Size: ${selectedSize}) added to cart!`);
       if (onOpenCart) onOpenCart();
     }
   };
 
   return (
-    <section id="membership" className="py-20 sm:py-28 bg-[#050505] relative overflow-hidden border-t border-white/10 text-white">
+    <section id="membership" className="py-16 sm:py-24 bg-[#050505] relative overflow-hidden border-t border-white/10 text-white">
       {/* Background Atmosphere Overlays */}
       <div className="absolute inset-0 bg-radial from-[#E60012]/10 via-transparent to-transparent pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
-        {/* PAGE OVERVIEW & HEADER */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        {/* ONE CLEAN HEADING ONLY AS REQUESTED */}
+        <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#171717] border border-white/15 text-xs font-display text-[#E60012] font-bold uppercase shadow-lg">
             <ShieldCheck className="w-4 h-4 text-[#E60012]" />
-            <span>OFFICIAL SUPPORTERS CLUB MEMBERSHIP</span>
+            <span>OFFICIAL MANCHESTER UNITED SUPPORTERS CLUB</span>
           </div>
 
-          <h1 className="font-display text-5xl sm:text-7xl font-bold text-white uppercase leading-none">
+          <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-white uppercase leading-none">
             PUNE&apos;S RED ARMY <span className="text-[#E60012]">MEMBERSHIP</span>
           </h1>
 
           <p className="text-sm sm:text-base text-white/80 font-sans max-w-2xl mx-auto leading-relaxed">
             {isHomepage ? (
-              <>Join the official local Manchester United supporters club for Pune. Get your official T-Shirt, free match screening ticket, priority seating, and exclusive community access.</>
+              <>Select your official T-Shirt size below to join Pune&apos;s Red Army and checkout directly.</>
             ) : (
-              <>Welcome to the official membership center for Manchester United fans in Pune. We offer official global membership through <strong className="text-white">One United Membership (OUM)</strong> and official local club membership through <strong className="text-[#E60012]">Pune&apos;s Red Army Membership</strong>.</>
+              <>Explore our two official membership avenues: Official Local Supporters Club Membership and Global One United Membership (OUM).</>
             )}
           </p>
         </div>
 
-        {/* 2. OUM (ONE UNITED MEMBERSHIP) SECTION — ONLY ON DEDICATED MEMBERSHIP PAGE */}
-        {!isHomepage && (
-          <div className="glass-card rounded-[2.5rem] p-6 sm:p-10 bg-[#171717] border border-white/15 space-y-8 shadow-2xl relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/15 pb-6 gap-4">
-              <div>
-                <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded uppercase">
-                  GLOBAL RECOGNITION
-                </span>
-                <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mt-2 uppercase flex items-center gap-2">
-                  <Globe className="w-7 h-7 text-[#E60012]" />
-                  <span>01. Official One United Membership (OUM)</span>
-                </h2>
-                <p className="text-xs sm:text-sm text-white/70 font-sans mt-1">
-                  Purchased directly on Manchester United&apos;s official portal (<code className="text-[#E60012] font-mono">manutd.com</code>).
-                </p>
-              </div>
-
-              <div className="bg-[#050505] p-3.5 px-5 rounded-2xl border border-white/15 shrink-0 text-left sm:text-right">
-                <div className="text-[10px] font-display text-white/50 uppercase">OFFICIAL MAN UTD PRICE</div>
-                <div className="font-display text-2xl font-bold text-white">STARTS AT £37.50</div>
-              </div>
-            </div>
-
-            {/* 2-Step Onboarding Guide */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Step 1 */}
-              <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 space-y-3 relative group hover:border-[#E60012]/60 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] font-display font-bold text-lg flex items-center justify-center">
-                  01
-                </div>
-                <h3 className="font-display text-xl font-bold text-white uppercase">Step 01: Buy Your OUM</h3>
-                <p className="text-xs text-white/80 font-sans leading-relaxed">
-                  Purchase your One United Membership (Full, Premium, or Junior — <em>not Forwarding</em>) on <code className="text-[#E60012]">manutd.com</code>. Starts at £37.50.
-                </p>
-                <div className="pt-2 border-t border-white/10 text-[11px] text-amber-400 font-sans italic">
-                  * Forwarding memberships do not count towards official supporters club registration.
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 space-y-3 relative group hover:border-[#E60012]/60 transition-all">
-                <div className="w-10 h-10 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] font-display font-bold text-lg flex items-center justify-center">
-                  02
-                </div>
-                <h3 className="font-display text-xl font-bold text-white uppercase">Step 02: Register with a Pune Address</h3>
-                <p className="text-xs text-white/80 font-sans leading-relaxed">
-                  Use a <strong>Pune mailing address</strong> during checkout on <code className="text-[#E60012]">manutd.com</code> so you are mapped to MUSC Pune.
-                </p>
-                <div className="pt-2 border-t border-white/10 text-[11px] text-amber-400 font-sans italic">
-                  * Direct Debit is only available for eligible UK/US bank accounts.
-                </div>
-              </div>
-            </div>
-
-            {/* Single Redirection Action Link */}
-            <div className="pt-4 border-t border-white/15 flex items-center justify-center sm:justify-start">
-              <a
-                href="https://www.manutd.com/en/tickets-and-hospitality/membership"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 px-8 rounded-xl flex items-center gap-2 shadow-lg transition-all border border-white/20 uppercase cursor-pointer"
-              >
-                <span>Buy One United Membership</span>
-                <ExternalLink className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* 3. DUAL-COLUMN BENEFITS MATRIX — ONLY ON DEDICATED MEMBERSHIP PAGE */}
-        {!isHomepage && (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <span className="badge-united text-xs font-display font-bold px-3.5 py-1 rounded-full uppercase">
-                COMPREHENSIVE BENEFIT COMPARISON
-              </span>
-              <h2 className="font-display text-3xl sm:text-5xl font-bold text-white uppercase">
-                DUAL-LAYER <span className="text-[#E60012]">BENEFITS MATRIX</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-white/70 font-sans max-w-xl mx-auto">
-                Compare international Manchester United privileges with official local MUSC Pune community perks.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Column: Global Man United Benefits */}
-              <div className="bg-[#171717] border border-white/15 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div>
-                      <span className="text-[10px] font-display text-white/60 font-bold uppercase tracking-wider block">OFFICIAL MAN UTD</span>
-                      <h3 className="font-display text-2xl font-bold text-white uppercase">Global Man United Benefits</h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-2xl bg-[#050505] border border-white/20 flex items-center justify-center text-white">
-                      <Globe className="w-5 h-5" />
-                    </div>
-                  </div>
-
-                  <ul className="space-y-3.5 text-xs sm:text-sm font-sans text-white/90">
-                    {globalOumBenefits.map((b, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-4 border-t border-white/10 text-xs font-mono text-white/50">
-                  Purchased directly on manutd.com
-                </div>
-              </div>
-
-              {/* Right Column: Pune's Red Army Membership */}
-              <div className="bg-gradient-to-br from-[#1F1415] via-[#171717] to-[#120B0C] border-2 border-[#E60012]/70 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/15 pb-4">
-                    <div>
-                      <span className="text-[10px] font-display text-[#E60012] font-bold uppercase tracking-wider block">OFFICIAL MUSC PUNE</span>
-                      <h3 className="font-display text-2xl font-bold text-white uppercase">Pune&apos;s Red Army Membership</h3>
-                    </div>
-                    <div className="w-10 h-10 rounded-2xl bg-[#E60012] text-white flex items-center justify-center shadow-lg">
-                      <Star className="w-5 h-5 fill-white" />
-                    </div>
-                  </div>
-
-                  <ul className="space-y-3.5 text-xs sm:text-sm font-sans text-white/90">
-                    {localMuscPuneBenefits.map((b, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <Star className="w-5 h-5 text-[#E60012] fill-[#E60012] shrink-0 mt-0.5" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-4 border-t border-white/15 flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#E60012] font-bold uppercase">
-                    Included with Pune&apos;s Red Army Membership
-                  </span>
-                  <a
-                    href={whatsappNumberUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-sans text-emerald-400 hover:underline flex items-center gap-1"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp Community</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 4. SINGLE LOCAL TIER: "PUNE'S RED ARMY MEMBERSHIP" */}
-        <div className="space-y-8">
-          <div className="text-center space-y-2">
-            <span className="badge-pune text-xs font-display font-bold px-3.5 py-1 rounded-full uppercase">
-              OFFICIAL LOCAL MEMBERSHIP
-            </span>
-            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white uppercase">
-              02. PUNE&apos;S RED ARMY <span className="text-[#E60012]">MEMBERSHIP</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-white/70 font-sans max-w-xl mx-auto">
-              Select your official T-Shirt size and click join to proceed to checkout with the active admin rate.
-            </p>
-          </div>
-
-          {/* Card Component (.plan-card) */}
+        {/* 1. PUNE'S RED ARMY MEMBERSHIP BLOCK (LOCAL) */}
+        <div className="space-y-6">
           <div className="plan-card max-w-5xl mx-auto glass-card rounded-[2.5rem] p-6 sm:p-10 bg-gradient-to-br from-[#1A1A1A] via-[#0E0E0E] to-[#141414] border-2 border-[#E60012]/70 shadow-[0_20px_60px_rgba(230,0,18,0.35)] space-y-8 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left: Official Membership Card Poster Image */}
-              <div className="lg:col-span-5 relative w-full h-[380px] sm:h-[460px] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-black group flex items-center justify-center p-2">
+              {/* Left: Official Membership Poster Image */}
+              <div className="lg:col-span-5 relative w-full h-[360px] sm:h-[440px] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-black group flex items-center justify-center p-2">
                 <Image
                   src={officialMembershipImageUrl}
                   alt="Official MUSC Pune Membership Card Poster"
@@ -351,36 +161,36 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                       <span className="bg-[#E60012] text-white text-[10px] font-display font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
                         🔴 Official Local Membership
                       </span>
-                      <h3 className="font-display text-3xl font-bold text-white uppercase leading-none mt-1">
+                      <h3 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase leading-none mt-1">
                         Pune&apos;s Red Army Membership
                       </h3>
                     </div>
                   </div>
 
-                  <div className="bg-[#050505] p-3 px-5 rounded-2xl border border-white/15 w-full sm:w-auto flex sm:block items-center justify-between">
-                    <span className="text-[10px] font-display text-white/50 uppercase block">MEMBERSHIP STATUS</span>
-                    <span className="font-display text-lg font-bold text-emerald-400">REGISTRATIONS OPEN</span>
+                  <div className="bg-[#050505] p-3 px-4 rounded-2xl border border-white/15 w-full sm:w-auto flex sm:block items-center justify-between">
+                    <span className="text-[10px] font-display text-white/50 uppercase block">STATUS</span>
+                    <span className="font-display text-sm font-bold text-emerald-400">REGISTRATIONS OPEN</span>
                   </div>
                 </div>
 
-                {/* Included Features List */}
+                {/* Included Local Membership Features */}
                 <div className="space-y-3">
                   <div className="text-xs font-display text-white/90 font-bold uppercase flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#E60012]" />
-                    <span>INCLUDED LOCAL MEMBERSHIP FEATURES:</span>
+                    <span>INCLUDED MEMBERSHIP BENEFITS:</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {localTierFeatures.map((f, idx) => {
                       const IconComp = f.icon;
                       return (
-                        <div key={idx} className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#050505] border border-white/10 text-xs font-sans text-white/90 shadow-md">
+                        <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-[#050505] border border-white/10 text-xs font-sans text-white/90 shadow-md">
                           <div className="w-9 h-9 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] flex items-center justify-center shrink-0">
                             <IconComp className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="font-bold text-white text-sm">{f.title}</div>
-                            <div className="text-white/60 text-xs mt-0.5">{f.detail}</div>
+                            <div className="font-bold text-white text-xs sm:text-sm">{f.title}</div>
+                            <div className="text-white/60 text-[11px] mt-0.5">{f.detail}</div>
                           </div>
                         </div>
                       );
@@ -391,13 +201,13 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                 {/* Interactive T-Shirt Size Selector Component */}
                 <div className="space-y-2.5 pt-2 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="pune-tshirt-size" className="block text-xs font-display text-white/90 font-bold uppercase">
+                    <label className="block text-xs font-display text-white/90 font-bold uppercase">
                       Select Official T-Shirt Size: *
                     </label>
                     {sizeError && (
                       <span className="text-xs font-display text-[#E60012] font-bold flex items-center gap-1 animate-pulse">
                         <AlertCircle className="w-3.5 h-3.5" />
-                        <span>Size Selection Required</span>
+                        <span>Size Required</span>
                       </span>
                     )}
                   </div>
@@ -407,7 +217,6 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                       <button
                         key={sz}
                         type="button"
-                        id={`size-btn-${sz}`}
                         onClick={() => {
                           setSelectedSize(sz);
                           setSizeError(false);
@@ -424,12 +233,12 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                   </div>
                 </div>
 
-                {/* Cart Add Action Button (onJoinClicked) */}
+                {/* Direct Checkout CTA Button */}
                 <div className="pt-2">
                   <button
                     type="button"
                     onClick={handleJoinClicked}
-                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-2xl font-bold py-4 px-8 rounded-2xl shadow-[0_10px_35px_rgba(230,0,18,0.45)] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] border border-white/20 uppercase cursor-pointer"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl sm:text-2xl font-bold py-4 px-8 rounded-2xl shadow-[0_10px_35px_rgba(230,0,18,0.45)] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] border border-white/20 uppercase cursor-pointer"
                   >
                     <ShoppingBag className="w-6 h-6 shrink-0 text-white" />
                     <span>JOIN PUNE&apos;S RED ARMY</span>
@@ -439,6 +248,93 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
             </div>
           </div>
         </div>
+
+        {/* 2. OUM (ONE UNITED MEMBERSHIP) BLOCK (GLOBAL) — DISPLAYED ON DEDICATED MEMBERSHIP PAGE */}
+        {!isHomepage && (
+          <div className="max-w-5xl mx-auto glass-card rounded-[2.5rem] p-6 sm:p-10 bg-[#171717] border border-white/15 space-y-8 shadow-2xl relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/15 pb-6 gap-4">
+              <div>
+                <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded uppercase">
+                  GLOBAL MANCHESTER UNITED MEMBERSHIP
+                </span>
+                <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mt-2 uppercase flex items-center gap-2">
+                  <Globe className="w-7 h-7 text-[#E60012]" />
+                  <span>One United Membership (OUM)</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-white/70 font-sans mt-1">
+                  Official international membership purchased directly via Manchester United (<code className="text-[#E60012] font-mono">manutd.com</code>).
+                </p>
+              </div>
+
+              <div className="bg-[#050505] p-3.5 px-5 rounded-2xl border border-white/15 shrink-0 text-left sm:text-right">
+                <div className="text-[10px] font-display text-white/50 uppercase">MAN UTD PRICE</div>
+                <div className="font-display text-2xl font-bold text-white">STARTS AT £37.50</div>
+              </div>
+            </div>
+
+            {/* 3-Step OUM Onboarding Guide */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Step 1 */}
+              <div className="bg-[#050505] border border-white/10 rounded-2xl p-5 space-y-3 relative group hover:border-[#E60012]/60 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] font-display font-bold text-lg flex items-center justify-center">
+                  01
+                </div>
+                <h3 className="font-display text-lg font-bold text-white uppercase">Step 01: Buy Your OUM</h3>
+                <p className="text-xs text-white/80 font-sans leading-relaxed">
+                  Purchase your Official One United Membership (Full, Premium, or Junior) on <code className="text-[#E60012]">manutd.com</code>.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="bg-[#050505] border border-white/10 rounded-2xl p-5 space-y-3 relative group hover:border-[#E60012]/60 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] font-display font-bold text-lg flex items-center justify-center">
+                  02
+                </div>
+                <h3 className="font-display text-lg font-bold text-white uppercase">Step 02: Pune Mailing Address</h3>
+                <p className="text-xs text-white/80 font-sans leading-relaxed">
+                  Use a <strong>Pune mailing address</strong> during checkout on <code className="text-[#E60012]">manutd.com</code> to map your membership to MUSC Pune.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="bg-[#050505] border border-white/10 rounded-2xl p-5 space-y-3 relative group hover:border-[#E60012]/60 transition-all">
+                <div className="w-10 h-10 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] font-display font-bold text-lg flex items-center justify-center">
+                  03
+                </div>
+                <h3 className="font-display text-lg font-bold text-white uppercase">Step 03: Share Confirmation</h3>
+                <p className="text-xs text-white/80 font-sans leading-relaxed">
+                  Forward your OUM receipt email to <a href="mailto:manutdpune@gmail.com" className="text-[#E60012] underline">manutdpune@gmail.com</a> to register for Old Trafford ticket allocations.
+                </p>
+              </div>
+            </div>
+
+            {/* Global OUM Benefits List */}
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <h4 className="font-display text-xs font-bold text-white/90 uppercase tracking-wider">Global OUM Benefits Included:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-sans text-white/80">
+                {globalOumBenefits.map((b, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{b}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* External Link Action */}
+            <div className="pt-4 border-t border-white/15 flex items-center justify-center sm:justify-start">
+              <a
+                href="https://www.manutd.com/en/tickets-and-hospitality/membership"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 px-8 rounded-xl flex items-center gap-2 shadow-lg transition-all border border-white/20 uppercase cursor-pointer"
+              >
+                <span>Buy One United Membership on ManUtd.com</span>
+                <ExternalLink className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

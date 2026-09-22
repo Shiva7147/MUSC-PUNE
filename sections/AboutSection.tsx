@@ -9,21 +9,21 @@ export const AboutSection: React.FC = () => {
   const featureTabs = [
     {
       title: 'Match Screenings',
-      detail: 'High-decibel screening matchdays for Premier League, Champions League, and FA Cup at BIRA 91 Taproom, The Mills.',
+      detail: 'Every United match — Premier League, FA Cup, Champions League — watched live together with high-decibel audio and fan chants.',
       icon: Tv,
       href: '/screenings',
       tag: 'SCREENING TICKETS',
     },
     {
       title: 'Community Events',
-      detail: 'Football matchdays, turf tournaments, WhatsApp community meetups, and exclusive supporter gatherings across Pune.',
+      detail: 'In-person meetups, WhatsApp community, football matchdays, FPL competitions, and exclusive member events across Pune.',
       icon: Users,
       href: '/about',
       tag: 'COMMUNITY PERKS',
     },
     {
       title: 'Old Trafford Group Trips',
-      detail: 'Group pilgrimages to Manchester, matchday tickets at the Theatre of Dreams, stadium tours, and museum access.',
+      detail: 'Group match trips to the Theatre of Dreams with match tickets, museum and stadium tour, and accommodation included.',
       icon: Plane,
       href: '/tours',
       tag: 'PILGRIMAGE TRIP',
@@ -45,7 +45,7 @@ export const AboutSection: React.FC = () => {
           </h2>
 
           <p className="text-base sm:text-lg text-white/90 font-sans leading-relaxed">
-            Manchester United Supporters Club Pune brings Reds together through match screenings, community events, and Old Trafford group trips. Founded in 2011, we are the home of Manchester United supporters in Pune.
+            Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export const AboutSection: React.FC = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs sm:text-sm font-sans text-white font-semibold uppercase">
-            <span>📍 PUNE&apos;S RED ARMY • MATCHDAY AT THE MILLS</span>
+            <span>📍 PUNE&apos;S RED ARMY • OFFICIAL SUPPORTERS CLUB</span>
             <span className="hidden sm:inline-block bg-black/80 px-3 py-1 rounded-full border border-white/20">EST. 2011</span>
           </div>
         </div>

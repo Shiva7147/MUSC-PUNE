@@ -24,10 +24,6 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // TODO: CONNECT RESEND / SUPABASE EMAIL NOTIFICATION BACKEND
-    // // TODO: CONNECT ADMIN DASHBOARD ENQUIRY LIST
-
     setSubmitted(true);
   };
 
@@ -139,13 +135,12 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
               </div>
 
               {/* Submit CTA */}
-              {/* TODO: CONNECT RESEND EMAIL API */}
               <button
                 type="submit"
-                className="w-full bg-[#C8102E] hover:bg-[#870019] text-white font-display text-base tracking-wider font-bold py-3.5 rounded-xl shadow-lg shadow-[#C8102E]/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+                className="w-full bg-[#C8102E] hover:bg-[#870019] text-white font-display text-base tracking-wider font-bold py-3.5 rounded-xl shadow-lg shadow-[#C8102E]/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase"
               >
                 <Send className="w-4 h-4" />
-                <span>SUBMIT TOUR ENQUIRY</span>
+                <span>Send Inquiry to MUFC Pune</span>
               </button>
             </form>
           </div>
@@ -155,9 +150,9 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
               <CheckCircle className="w-10 h-10" />
             </div>
 
-            <h3 className="font-display text-2xl font-bold text-white">ENQUIRY RECEIVED!</h3>
+            <h3 className="font-display text-2xl font-bold text-white">INQUIRY RECEIVED!</h3>
             <p className="text-xs text-neutral-300 font-mono leading-relaxed">
-              Thank you, {name}. Our Old Trafford travel committee will get in touch with you shortly at {email} with batch details & itinerary.
+              Thank you, {name}. We will get in touch with you shortly at {email} with itinerary details.
             </p>
 
             <button

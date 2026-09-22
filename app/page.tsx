@@ -60,21 +60,21 @@ export default function Home() {
   const aboutCards = [
     {
       title: 'Match Screenings',
-      detail: 'Every United match — Premier League, FA Cup, Champions League — watched live together with high-decibel audio and fan chants.',
+      detail: 'Every United match watched live together with high-decibel audio, crowd chants, and red terrace flags.',
       icon: Tv,
       href: '/screenings',
       cta: 'EXPLORE SCREENINGS',
     },
     {
       title: 'Community Events',
-      detail: 'In-person meetups, WhatsApp community, football matchdays, FPL competitions, and exclusive member events across Pune.',
+      detail: 'In-person meetups, WhatsApp community, football matchdays, FPL competitions, and member raffles.',
       icon: Users,
       href: '/about',
       cta: 'JOIN COMMUNITY',
     },
     {
       title: 'Trip to Old Trafford',
-      detail: 'Group match trips to the Theatre of Dreams with match tickets, museum and stadium tour, and accommodation included.',
+      detail: 'Group match trips to the Theatre of Dreams with match tickets, museum and stadium tour, and accommodation.',
       icon: Plane,
       href: '/tours',
       cta: 'BOOK THE TRIP',
@@ -90,19 +90,16 @@ export default function Home() {
         onOpenCart={() => setCartOpen(true)}
       />
 
-      {/* 1. HERO SECTION WITH HINDI SLOGAN & 3 MUSCB BUTTONS */}
-      <HeroSection
-        featuredScreening={featuredScreening}
-        onOpenScreeningModal={() => setSelectedScreening(featuredScreening)}
-      />
+      {/* 1. HERO SECTION WITH SOLID WHITE HINDI SLOGAN & 3 MUSCB BUTTONS */}
+      <HeroSection />
 
       {/* 2. SCROLLER 01 — HERO MARQUEE (GLORY GLORY MAN UNITED) */}
       <HeroMarquee variant="primary" />
 
-      {/* 3. ABOUT MUSC PUNE (Flow: Title -> Short Intro Text -> Photo -> 3 Visual Feature Cards) */}
+      {/* 3. ABOUT MUSC PUNE */}
       <section id="about" className="py-16 sm:py-24 bg-[#050505] border-t border-white/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
-          {/* Title & Short Intro Text */}
+          {/* Title & Exact Subtitle Text */}
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <span className="badge-pune text-xs font-display font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider">
               ABOUT MUSC PUNE
@@ -111,7 +108,7 @@ export default function Home() {
               PUNE&apos;S <span className="text-[#E60012]">MANCHESTER UNITED HOME</span>
             </h2>
             <p className="text-base sm:text-lg text-white/80 font-sans leading-relaxed max-w-2xl mx-auto pt-2">
-              Manchester United Supporters Club Pune is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
+              Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
             </p>
           </div>
 
@@ -141,7 +138,7 @@ export default function Home() {
                 <Link
                   key={idx}
                   href={item.href}
-                  className="bg-[#171717] hover:bg-[#1C1C1C] border border-white/10 hover:border-[#E60012]/60 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6 transition-all duration-300 group shadow-xl hover:-translate-y-1 block"
+                  className="bg-[#171717] hover:bg-[#1C1C1C] border border-white/10 hover:border-[#E60012]/60 rounded-3xl p-6 sm:p-8 flex flex-col justify-between space-y-6 transition-all duration-300 group shadow-xl block"
                 >
                   <div className="space-y-4">
                     <div className="w-14 h-14 rounded-2xl bg-[#E60012]/15 border border-[#E60012]/30 flex items-center justify-center text-[#E60012] group-hover:scale-110 transition-transform">
@@ -166,7 +163,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. SCROLLER 02 — PUNE'S RED ARMY - LOUD AND PROUD */}
+      {/* 4. SCROLLER 02 — PUNE'S RED ARMY */}
       <HeroMarquee variant="pune-manchester" />
 
       {/* 5. SCREENING TICKETS */}
@@ -217,7 +214,7 @@ export default function Home() {
                     <h3 className="font-display text-4xl sm:text-5xl font-bold text-white mt-1 uppercase">{featuredScreening.matchTitle}</h3>
                     <div className="mt-3 text-xs sm:text-sm font-sans text-white/80 space-y-1">
                       <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
-                      <div>📍 {featuredScreening.venueName}</div>
+                      <div>📍 Matchday Screening Venue</div>
                     </div>
                   </div>
 
@@ -241,12 +238,11 @@ export default function Home() {
         </section>
       )}
 
-      {/* 6. DYNAMIC MEMBERSHIP SECTION (Homepage Shows Local Tier & Redirects to /membership) */}
+      {/* 6. DYNAMIC MEMBERSHIP SECTION (HOMEPAGE: Size Selection & Direct Cart Add) */}
       <MembershipSection
         isHomepage={true}
-        onJoinOverride={() => {
-          window.location.href = '/membership';
-        }}
+        onAddToCart={handleAddToCart}
+        onOpenCart={() => setCartOpen(true)}
       />
 
       {/* 7. TRIP TO OLD TRAFFORD */}
@@ -413,7 +409,7 @@ export default function Home() {
       <EnquiryModal
         isOpen={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
-        defaultSubject="Trip to Old Trafford Enquiry — Autumn 2026"
+        defaultSubject="Trip to Old Trafford Enquiry"
       />
 
       {/* Cart Drawer */}

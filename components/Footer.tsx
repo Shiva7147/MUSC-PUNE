@@ -2,20 +2,82 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { officialLogoUrl, officialClubDetails } from '@/lib/data';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#050505] text-[#F5F5F5] border-t border-white/10 py-6 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-2.5 text-center text-xs sm:text-sm font-sans text-white/70">
-        <div>
-          © {new Date().getFullYear()} MUSC Pune • Established 2011 • All rights reserved.
+    <footer className="bg-[#050505] text-[#F5F5F5] border-t border-white/10 relative overflow-hidden pt-16 pb-8">
+      {/* Background Watermark Devanagari / Marathi Typography */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 select-none overflow-hidden">
+        <span className="font-devanagari text-[11vw] font-black text-white tracking-tight uppercase whitespace-nowrap">
+          मँचेस्टर युनायटेड पुणे • पुणे्स रेड आर्मी
+        </span>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b border-white/10">
+          {/* Brand Identity Column */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="relative w-12 h-12 rounded-2xl overflow-hidden bg-black border border-white/20 shrink-0">
+                <Image src={officialLogoUrl} alt="MUSC Pune Official Logo" fill className="object-cover" />
+              </div>
+              <div>
+                <h3 className="font-display text-2xl font-bold text-[#F5F5F5] tracking-tight">MUSC PUNE</h3>
+                <p className="text-xs font-sans text-white/60">OFFICIAL MANCHESTER UNITED SUPPORTERS CLUB PUNE • EST. 2011</p>
+              </div>
+            </div>
+
+            <p className="text-xs font-sans text-white/70 max-w-lg leading-relaxed">
+              Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
+            </p>
+
+            <div className="flex items-center gap-3 pt-2 text-xs font-sans">
+              <a href={officialClubDetails.socials.instagram} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">Instagram</a>
+              <a href={officialClubDetails.socials.facebook} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">Facebook</a>
+              <a href={officialClubDetails.socials.youtube} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">YouTube</a>
+              <a href={officialClubDetails.socials.twitter} target="_blank" rel="noopener noreferrer" className="p-2 px-3 rounded-xl bg-[#171717] border border-white/10 hover:border-[#E60012] text-white hover:text-[#E60012] transition-all">X / Twitter</a>
+            </div>
+          </div>
+
+          {/* Legal Policies Column */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">POLICIES & LEGAL</h4>
+            <ul className="space-y-2 text-xs font-sans text-white/70">
+              <li><Link href="/privacy-policy" className="hover:text-[#E60012] transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-and-conditions" className="hover:text-[#E60012] transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/terms-and-conditions#refund-policy" className="hover:text-[#E60012] transition-colors">Refund & Returns Policy</Link></li>
+              <li><Link href="/terms-and-conditions#cancellation-policy" className="hover:text-[#E60012] transition-colors">Cancellation Policy</Link></li>
+              <li><Link href="/terms-and-conditions#shipping-policy" className="hover:text-[#E60012] transition-colors">Shipping & Delivery Policy</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact Details & Grievance Officer */}
+          <div className="lg:col-span-3 space-y-3 font-sans">
+            <h4 className="font-display text-base font-bold text-[#E60012] uppercase tracking-wider">CLUB CONTACT</h4>
+            <p className="text-xs text-white/80 leading-relaxed">
+              <strong>Official Email:</strong> <a href={`mailto:${officialClubDetails.email}`} className="text-white hover:text-[#E60012]">{officialClubDetails.email}</a><br />
+              <strong>Phone / WhatsApp:</strong> <span className="text-white font-mono">{officialClubDetails.phone}</span>
+            </p>
+            <div className="pt-3 border-t border-white/10 text-xs text-white/60 space-y-1">
+              <div className="font-bold text-white text-xs uppercase">Grievance Officer:</div>
+              <div>{officialClubDetails.grievanceOfficer}</div>
+              <div>Email: <a href={`mailto:${officialClubDetails.grievanceEmail}`} className="text-[#E60012] hover:underline">{officialClubDetails.grievanceEmail}</a></div>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-center gap-3 text-xs sm:text-sm">
-          <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
-          <span className="text-[#E60012] font-bold">•</span>
-          <Link href="/terms-and-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link>
-          <span className="text-[#E60012] font-bold">•</span>
-          <Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link>
+
+        {/* Footer Bottom Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] font-sans text-white/50 gap-4">
+          <div>© {new Date().getFullYear()} MUSC Pune (Est. 2011). All Rights Reserved.</div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/privacy-policy" className="hover:text-[#E60012] transition-colors">Privacy Policy</Link>
+            <span>•</span>
+            <Link href="/terms-and-conditions" className="hover:text-[#E60012] transition-colors">Terms & Conditions</Link>
+            <span>•</span>
+            <Link href="/contact" className="hover:text-[#E60012] transition-colors">Contact Us</Link>
+          </div>
         </div>
       </div>
     </footer>

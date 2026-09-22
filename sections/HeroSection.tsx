@@ -4,14 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MessageCircle, Calendar } from 'lucide-react';
-import { Screening } from '@/lib/types';
 
-interface HeroSectionProps {
-  featuredScreening?: Screening | null;
-  onOpenScreeningModal?: () => void;
-}
-
-export const HeroSection: React.FC<HeroSectionProps> = () => {
+export const HeroSection: React.FC = () => {
   const whatsappUrl = 'https://wa.me/917276735140';
 
   return (
@@ -41,26 +35,26 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
-        {/* HINDI OFFICIAL SLOGAN HEADLINE WITH 'PREM' CLEARLY VISIBLE */}
+        {/* HINDI TAGLINE HEADLINE: SOLID UNIFORM WHITE TEXT */}
         <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] max-w-3xl mx-auto px-2">
-          एक शहर, एक क्लब, <span className="text-[#E60012]">एक प्रेम</span>, मैनचेस्टर यूनाइटेड
+          एक शहर, एक क्लब, एक प्रेम - मैनचेस्टर यूनाइटेड
         </h1>
 
-        {/* English Subtitle (Without bracketed title) */}
+        {/* English Subtitle: Exact Wording Requested */}
         <p className="text-sm sm:text-base md:text-lg text-white/90 font-sans max-w-2xl mx-auto leading-relaxed font-medium px-2 drop-shadow-md">
-          Manchester United Supporters Club Pune is the official supporters club for Manchester United fans in Pune. We bring Reds together through match screenings, community events, and Old Trafford group trips.
+          Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
         </p>
 
         {/* 3 MUSCB BENGALURU PROPORTIONED CTA BUTTONS */}
         <div className="pt-4 flex flex-col items-center justify-center gap-3.5 max-w-md mx-auto w-full px-2">
-          {/* Button 1: Become Official Member */}
-          <Link
-            href="/membership"
+          {/* Button 1: Become Official Member -> Scrolls directly to #membership section */}
+          <a
+            href="#membership"
             className="w-full bg-[#B3000C] hover:bg-[#E60012] text-white font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-[0_8px_30px_rgba(179,0,12,0.5)] flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 border border-white/20 uppercase"
           >
             <Star className="w-5 h-5 shrink-0 text-white fill-white" />
             <span>Become Official Member</span>
-          </Link>
+          </a>
 
           {/* Button 2: Join WhatsApp Community */}
           <a
