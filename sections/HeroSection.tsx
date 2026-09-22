@@ -40,9 +40,9 @@ export const HeroSection: React.FC = () => {
           एक शहर, एक क्लब, एक प्रेम - मैनचेस्टर यूनाइटेड
         </h1>
 
-        {/* English Subtitle: Exact Wording Requested */}
+        {/* English Subtitle: Updated Official About Copy */}
         <p className="text-sm sm:text-base md:text-lg text-white/90 font-sans max-w-2xl mx-auto leading-relaxed font-medium px-2 drop-shadow-md">
-          Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
+          With 1,000+ passionate members and 100+ supporters coming together at our regular match screenings, we bring the spirit of Old Trafford to Pune. From match nights to group trips to the Theatre of Dreams, we are a family united by our love for Manchester United.
         </p>
 
         {/* 3 MUSCB BENGALURU PROPORTIONED CTA BUTTONS */}

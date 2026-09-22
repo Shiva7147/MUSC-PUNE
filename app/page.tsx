@@ -60,14 +60,14 @@ export default function Home() {
   const aboutCards = [
     {
       title: 'Match Screenings',
-      detail: 'Every United match watched live together with high-decibel audio, crowd chants, and red terrace flags.',
+      detail: 'Every United match watched live together with 100+ Reds, high-decibel audio, crowd chants, and red terrace flags.',
       icon: Tv,
       href: '/screenings',
       cta: 'EXPLORE SCREENINGS',
     },
     {
       title: 'Community Events',
-      detail: 'In-person meetups, WhatsApp community, football matchdays, FPL competitions, and member raffles.',
+      detail: 'Football meets, special events, fan gatherings, and shared experiences with 1,000+ members building lifelong friendships.',
       icon: Users,
       href: '/about',
       cta: 'JOIN COMMUNITY',
@@ -108,7 +108,7 @@ export default function Home() {
               PUNE&apos;S <span className="text-[#E60012]">MANCHESTER UNITED HOME</span>
             </h2>
             <p className="text-base sm:text-lg text-white/80 font-sans leading-relaxed max-w-2xl mx-auto pt-2">
-              Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
+              With 1,000+ passionate members and 100+ supporters coming together at our regular match screenings, we bring the spirit of Old Trafford to Pune. From match nights to group trips to the Theatre of Dreams, we are a family united by our love for Manchester United.
             </p>
           </div>
 
@@ -125,7 +125,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2">
               <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-md">
-                📍 PUNE&apos;S RED ARMY • EST. 2011
+                📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
               </span>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* 6. DYNAMIC MEMBERSHIP SECTION (HOMEPAGE: Size Selection & Direct Cart Add) */}
+      {/* 6. DYNAMIC MEMBERSHIP SECTION */}
       <MembershipSection
         isHomepage={true}
         onAddToCart={handleAddToCart}

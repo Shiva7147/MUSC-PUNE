@@ -9,21 +9,21 @@ export const AboutSection: React.FC = () => {
   const featureTabs = [
     {
       title: 'Match Screenings',
-      detail: 'Every United match — Premier League, FA Cup, Champions League — watched live together with high-decibel audio and fan chants.',
+      detail: 'Every United match watched live together with 100+ Reds, high-decibel audio, crowd chants, and red terrace flags.',
       icon: Tv,
       href: '/screenings',
       tag: 'SCREENING TICKETS',
     },
     {
       title: 'Community Events',
-      detail: 'In-person meetups, WhatsApp community, football matchdays, FPL competitions, and exclusive member events across Pune.',
+      detail: 'Football meets, special events, fan gatherings, and shared experiences with 1,000+ members building lifelong friendships.',
       icon: Users,
       href: '/about',
       tag: 'COMMUNITY PERKS',
     },
     {
       title: 'Old Trafford Group Trips',
-      detail: 'Group match trips to the Theatre of Dreams with match tickets, museum and stadium tour, and accommodation included.',
+      detail: 'Group pilgrimages to Manchester, matchday tickets at the Theatre of Dreams, stadium tours, and museum access.',
       icon: Plane,
       href: '/tours',
       tag: 'PILGRIMAGE TRIP',
@@ -45,7 +45,7 @@ export const AboutSection: React.FC = () => {
           </h2>
 
           <p className="text-base sm:text-lg text-white/90 font-sans leading-relaxed">
-            Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
+            With 1,000+ passionate members and 100+ supporters coming together at our regular match screenings, we bring the spirit of Old Trafford to Pune. From match nights to group trips to the Theatre of Dreams, we are a family united by our love for Manchester United.
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export const AboutSection: React.FC = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs sm:text-sm font-sans text-white font-semibold uppercase">
-            <span>📍 PUNE&apos;S RED ARMY • OFFICIAL SUPPORTERS CLUB</span>
+            <span>📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS</span>
             <span className="hidden sm:inline-block bg-black/80 px-3 py-1 rounded-full border border-white/20">EST. 2011</span>
           </div>
         </div>

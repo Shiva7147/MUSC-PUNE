@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MapPin, Ticket, Plane, Users, Camera } from 'lucide-react';
+import { Ticket, Plane, Users, Camera, Heart, Sparkles } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 
@@ -16,33 +16,38 @@ export default function AboutPage() {
         {/* Page Hero */}
         <section className="relative py-16 overflow-hidden border-b border-white/10">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-            <span className="badge-pune text-xs font-sans px-4 py-1.5 rounded-full font-bold uppercase tracking-wider">
-              OFFICIAL SUPPORTERS CLUB STORY
-            </span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#171717] border border-white/15 text-xs font-display text-[#E60012] font-bold uppercase shadow-lg">
+              <Sparkles className="w-4 h-4 text-[#FFC400]" />
+              <span>THE OFFICIAL MUSC PUNE STORY</span>
+            </div>
 
             <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold text-[#F5F5F5] uppercase tracking-tight leading-none">
-              ABOUT <span className="text-[#E60012]">MUSC PUNE</span>
+              ABOUT <span className="text-[#E60012]">THE CLUB</span>
             </h1>
 
-            {/* EXACT DESCRIPTION WORDING REQUESTED */}
+            {/* Introductory Summary Paragraph */}
             <p className="text-base sm:text-lg md:text-xl text-white/90 font-sans leading-relaxed max-w-3xl mx-auto font-medium">
-              Manchester United Supporters Club Pune is the official supporters club of Manchester United. We bring Reds together through matches, screening, community events, and Old Trafford group trips.
+              With 1,000+ passionate members and 100+ supporters coming together at our regular match screenings, we bring the spirit of Old Trafford to Pune. From unforgettable match nights and football meets to special events and group trips to the Theatre of Dreams, we are more than just a supporters club — we are a family united by our love for Manchester United.
             </p>
+
+            <div className="inline-block bg-[#E60012] text-white font-display text-xs sm:text-sm font-bold px-4 py-2 rounded-xl uppercase tracking-wider shadow-lg">
+              One club. One city. One passion. Glory, Glory Man United!
+            </div>
           </div>
         </section>
 
-        {/* LONG-FORM EDITORIAL STORYTELLING WITH EMBEDDED PHOTOS */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 font-sans text-white/80 text-base leading-relaxed">
+        {/* LONG-FORM CLUB STORY WITH EMBEDDED PHOTOGRAPHY */}
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 font-sans text-white/85 text-base sm:text-lg leading-relaxed">
           {/* Paragraph 1 */}
           <div className="space-y-4">
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-tight text-[#FFC400]">
-              1. BORN IN PUNE, BOUND BY MANCHESTER
+              WELCOME TO MANCHESTER UNITED SUPPORTERS CLUB PUNE
             </h2>
             <p>
-              Founded in 2011 by passionate Manchester United supporters, Manchester United Supporters Club Pune (MUSC Pune) was built on a simple belief: football should never be experienced alone in silence. Over the past decade, what began as a small gathering of diehard Reds in Pune coffee shops has transformed into Maharashtra’s largest, loudest official Manchester United fan community.
+              Welcome to Manchester United Supporters Club Pune, home to one of Pune&apos;s most passionate communities of Manchester United fans.
             </p>
             <p>
-              Whether it is a Saturday 5:00 PM Premier League kickoff or a midnight Champions League clash under lights, MUSC Pune brings together hundreds of supporters across Pune to recreate the electrifying matchday atmosphere of the Stretford End.
+              What started as a shared love for the Red Devils has grown into a thriving community of 1,000+ members, brought together by football, friendship and an unwavering passion for Manchester United. Whether it&apos;s a Premier League classic, a European night under the lights or a cup final, our match screenings regularly bring together 100+ Reds, creating an atmosphere filled with chants, celebrations, nerves and unforgettable moments.
             </p>
           </div>
 
@@ -51,7 +56,7 @@ export default function AboutPage() {
             <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
               <Image
                 src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_3_eivq1o.jpg"
-                alt="MUSC Pune Matchday Screening Atmosphere"
+                alt="MUSC Pune 100+ Reds Matchday Screening Atmosphere"
                 fill
                 quality={95}
                 className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
@@ -59,26 +64,23 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
                 <span className="bg-[#E60012] font-display font-bold px-3 py-1 rounded uppercase">
-                  📍 PUNE MATCHDAY SCREENING NIGHT
+                  📍 100+ REDS MATCHDAY SCREENING
                 </span>
-                <span className="text-white/70 hidden sm:inline">Stretford End Terrace Atmosphere in Pune</span>
+                <span className="text-white/70 hidden sm:inline">Chants, Celebrations & Unforgettable Moments</span>
               </div>
             </div>
             <p className="text-xs text-white/50 text-center font-mono italic">
-              Above: Pune supporters gathered for a Premier League matchday screening.
+              Above: 100+ Pune Reds coming together for a live matchday screening.
             </p>
           </div>
 
           {/* Paragraph 2 */}
           <div className="space-y-4">
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-tight text-[#FFC400]">
-              2. THE TERRACE CULTURE & COMMUNITY MATCHES
+              MORE THAN JUST FOOTBALL
             </h2>
             <p>
-              Match screenings are only one part of the MUSC Pune experience. Beyond the 90 minutes on screen, the club organizes regular community football matches, FPL leagues, kit reveal celebrations, and charity initiatives.
-            </p>
-            <p>
-              Every Pune screening features official United chant circles, banner displays, priority seating for official members, and authentic matchday energy. Through our active WhatsApp community, local Reds stay connected 365 days a year.
+              But we&apos;re about much more than watching football. Our community comes together through football meets, special events, fan gatherings and shared experiences, giving supporters the chance to build friendships that go far beyond the final whistle.
             </p>
           </div>
 
@@ -86,8 +88,8 @@ export default function AboutPage() {
           <div className="space-y-2">
             <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
               <Image
-                src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg"
-                alt="MUSC Pune Old Trafford Delegation"
+                src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg"
+                alt="MUSC Pune Old Trafford Delegation Trip"
                 fill
                 quality={95}
                 className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
@@ -97,29 +99,43 @@ export default function AboutPage() {
                 <span className="bg-[#E60012] font-display font-bold px-3 py-1 rounded uppercase">
                   ✈️ THEATRE OF DREAMS PILGRIMAGE
                 </span>
-                <span className="text-white/70 hidden sm:inline">MUSC Pune Delegation at Old Trafford</span>
+                <span className="text-white/70 hidden sm:inline">Turning Dreams into Memories for Life</span>
               </div>
             </div>
             <p className="text-xs text-white/50 text-center font-mono italic">
-              Above: Official MUSC Pune members representing the club live at Old Trafford, Manchester.
+              Above: MUSC Pune members on an official group trip to Old Trafford, Manchester.
             </p>
           </div>
 
           {/* Paragraph 3 */}
           <div className="space-y-4">
             <h2 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-tight text-[#FFC400]">
-              3. GROUP PILGRIMAGES TO OLD TRAFFORD
+              PILGRIMAGES TO THE THEATRE OF DREAMS
             </h2>
             <p>
-              For every true Manchester United fan, visiting Old Trafford is the ultimate dream. MUSC Pune facilitates official group trips from Pune to Manchester, securing official matchday tickets, stadium and museum tours, and accommodation for members.
+              And for those who dream of experiencing Manchester United at its home, we also organise and support Old Trafford group trips, helping our members turn the dream of visiting the Theatre of Dreams into a memory for life.
             </p>
             <p>
-              From walking down Sir Matt Busby Way to chanting in the Stretford End, our group pilgrimages offer Pune Reds the experience of a lifetime.
+              At Manchester United Supporters Club Pune, every goal is celebrated together, every defeat is felt together, and every new season begins with the same belief.
+            </p>
+            <p className="text-xl font-bold text-white pt-2 border-t border-white/10">
+              We&apos;re not just supporters watching a club. We&apos;re a community living the passion — together.
             </p>
           </div>
 
-          {/* CTAs */}
-          <div className="pt-8 border-t border-white/15 flex flex-wrap items-center justify-center gap-4">
+          {/* Slogan Banner Card */}
+          <div className="bg-gradient-to-r from-[#171717] via-[#1A0A0C] to-[#171717] border-2 border-[#E60012]/60 rounded-3xl p-8 text-center space-y-3 shadow-2xl">
+            <Heart className="w-8 h-8 text-[#E60012] mx-auto animate-pulse" />
+            <div className="font-display text-2xl sm:text-4xl font-bold text-white uppercase">
+              One club. One family. One passion.
+            </div>
+            <div className="font-display text-lg sm:text-xl text-[#FFC400] font-bold uppercase tracking-wider">
+              Manchester United Supporters Club Pune
+            </div>
+          </div>
+
+          {/* Action Navigation Buttons */}
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/screenings"
               className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02] uppercase"
