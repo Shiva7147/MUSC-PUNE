@@ -13,19 +13,19 @@ export default function AboutPage() {
       <Navbar />
 
       <div className="pt-28 pb-20">
-        {/* Page Hero */}
-        <section className="relative py-16 overflow-hidden border-b border-white/10">
+        {/* Page Hero Header */}
+        <section className="relative py-12 sm:py-16 overflow-hidden border-b border-white/10">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#171717] border border-white/15 text-xs font-display text-[#E60012] font-bold uppercase shadow-lg">
               <Sparkles className="w-4 h-4 text-[#FFC400]" />
-              <span>THE OFFICIAL MUSC PUNE STORY</span>
+              <span>MANCHESTER UNITED SUPPORTERS CLUB PUNE</span>
             </div>
 
             <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold text-[#F5F5F5] uppercase tracking-tight leading-none">
               ABOUT <span className="text-[#E60012]">THE CLUB</span>
             </h1>
 
-            {/* Introductory Summary Paragraph */}
+            {/* Document Header Text */}
             <p className="text-base sm:text-lg md:text-xl text-white/90 font-sans leading-relaxed max-w-3xl mx-auto font-medium">
               With 1,000+ passionate members and 100+ supporters coming together at our regular match screenings, we bring the spirit of Old Trafford to Pune. From unforgettable match nights and football meets to special events and group trips to the Theatre of Dreams, we are more than just a supporters club — we are a family united by our love for Manchester United.
             </p>
@@ -36,16 +36,20 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* LONG-FORM CLUB STORY WITH EMBEDDED PHOTOGRAPHY */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 font-sans text-white/85 text-base sm:text-lg leading-relaxed">
-          {/* Paragraph 1 */}
-          <div className="space-y-4">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-tight text-[#FFC400]">
-              WELCOME TO MANCHESTER UNITED SUPPORTERS CLUB PUNE
+        {/* FULL ABOUT THE CLUB / CLUB STORY DOCUMENT */}
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10 font-sans text-white/90 text-base sm:text-lg leading-relaxed">
+          {/* Welcome Heading & Intro */}
+          <div className="bg-[#171717] border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#FFC400] uppercase tracking-tight">
+              FULL ABOUT THE CLUB
             </h2>
-            <p>
+            <p className="text-lg sm:text-xl font-medium text-white leading-relaxed">
               Welcome to Manchester United Supporters Club Pune, home to one of Pune&apos;s most passionate communities of Manchester United fans.
             </p>
+          </div>
+
+          {/* Story Paragraph 1 */}
+          <div className="space-y-4">
             <p>
               What started as a shared love for the Red Devils has grown into a thriving community of 1,000+ members, brought together by football, friendship and an unwavering passion for Manchester United. Whether it&apos;s a Premier League classic, a European night under the lights or a cup final, our match screenings regularly bring together 100+ Reds, creating an atmosphere filled with chants, celebrations, nerves and unforgettable moments.
             </p>
@@ -64,21 +68,18 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
                 <span className="bg-[#E60012] font-display font-bold px-3 py-1 rounded uppercase">
-                  📍 100+ REDS MATCHDAY SCREENING
+                  📍 100+ REDS AT MATCH SCREENINGS
                 </span>
                 <span className="text-white/70 hidden sm:inline">Chants, Celebrations & Unforgettable Moments</span>
               </div>
             </div>
             <p className="text-xs text-white/50 text-center font-mono italic">
-              Above: 100+ Pune Reds coming together for a live matchday screening.
+              Above: 100+ Pune Reds gathered for a live matchday screening.
             </p>
           </div>
 
-          {/* Paragraph 2 */}
+          {/* Story Paragraph 2 */}
           <div className="space-y-4">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-tight text-[#FFC400]">
-              MORE THAN JUST FOOTBALL
-            </h2>
             <p>
               But we&apos;re about much more than watching football. Our community comes together through football meets, special events, fan gatherings and shared experiences, giving supporters the chance to build friendships that go far beyond the final whistle.
             </p>
@@ -103,27 +104,24 @@ export default function AboutPage() {
               </div>
             </div>
             <p className="text-xs text-white/50 text-center font-mono italic">
-              Above: MUSC Pune members on an official group trip to Old Trafford, Manchester.
+              Above: MUSC Pune members on an official group trip to Old Trafford.
             </p>
           </div>
 
-          {/* Paragraph 3 */}
+          {/* Story Paragraph 3 */}
           <div className="space-y-4">
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase tracking-tight text-[#FFC400]">
-              PILGRIMAGES TO THE THEATRE OF DREAMS
-            </h2>
             <p>
               And for those who dream of experiencing Manchester United at its home, we also organise and support Old Trafford group trips, helping our members turn the dream of visiting the Theatre of Dreams into a memory for life.
             </p>
             <p>
               At Manchester United Supporters Club Pune, every goal is celebrated together, every defeat is felt together, and every new season begins with the same belief.
             </p>
-            <p className="text-xl font-bold text-white pt-2 border-t border-white/10">
+            <p className="text-xl sm:text-2xl font-bold text-white pt-2 border-t border-white/10 text-[#FFC400]">
               We&apos;re not just supporters watching a club. We&apos;re a community living the passion — together.
             </p>
           </div>
 
-          {/* Slogan Banner Card */}
+          {/* Final Slogan Block */}
           <div className="bg-gradient-to-r from-[#171717] via-[#1A0A0C] to-[#171717] border-2 border-[#E60012]/60 rounded-3xl p-8 text-center space-y-3 shadow-2xl">
             <Heart className="w-8 h-8 text-[#E60012] mx-auto animate-pulse" />
             <div className="font-display text-2xl sm:text-4xl font-bold text-white uppercase">
