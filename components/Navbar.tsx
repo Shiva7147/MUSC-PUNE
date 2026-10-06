@@ -95,18 +95,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="font-display font-bold text-lg sm:text-xl text-white group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
                     MUSC PUNE
                   </span>
-                  <span className="bg-[#171717] border border-white/20 text-[9px] font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
+                  <span className="bg-[#171717] border border-white/20 text-xs font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
                     पुणे
                   </span>
                 </div>
-                <span className="text-[9px] sm:text-[10px] text-white/60 uppercase font-sans font-medium mt-0.5">
+                <span className="text-xs text-white/60 uppercase font-sans font-medium mt-0.5">
                   OFFICIAL SUPPORTERS CLUB
                 </span>
               </div>
             </Link>
 
-            {/* Desktop Nav Links */}
-            <nav className="hidden lg:flex items-center gap-4 xl:gap-5">
+            {/* Desktop Nav Links (xl breakpoint prevents 1024px collisions) */}
+            <nav className="hidden xl:flex items-center gap-4 xl:gap-5">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
@@ -123,12 +123,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Shopping Cart Trigger */}
               <button
                 onClick={onOpenCart}
-                className="relative p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white hover:border-[#E60012] transition-all group shrink-0 cursor-pointer"
+                className="relative p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white hover:border-[#E60012] transition-all group shrink-0 cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="View Shopping Cart"
               >
                 <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform text-[#E60012]" />
                 {totalCartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-[#E60012] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce shadow-md">
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#E60012] text-white text-xs font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-md">
                     {totalCartCount}
                   </span>
                 )}
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Mobile Menu Trigger */}
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0 cursor-pointer"
+                className="xl:hidden p-2.5 rounded-2xl bg-[#171717]/90 border border-white/15 text-white hover:text-white shrink-0 cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Open Mobile Menu"
               >
                 <Menu className="w-5 h-5" />
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] lg:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] xl:hidden flex flex-col bg-[#050505]/98 backdrop-blur-2xl text-white animate-in fade-in duration-200">
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-black border border-white/20 shrink-0">
@@ -166,12 +166,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               <div>
                 <div className="font-display tracking-tight font-bold text-xl text-white">MUSC PUNE</div>
-                <div className="text-[10px] font-sans text-white/60 uppercase">PUNE&apos;S RED ARMY</div>
+                <div className="text-xs font-sans text-white/60 uppercase">PUNE&apos;S RED ARMY</div>
               </div>
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2.5 rounded-2xl bg-[#171717] border border-white/15 text-white/70 hover:text-white cursor-pointer"
+              className="p-2.5 rounded-2xl bg-[#171717] border border-white/15 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X className="w-6 h-6 text-[#E60012]" />
             </button>

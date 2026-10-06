@@ -42,7 +42,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[60] overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-[#171717] border-l border-white/10 text-white shadow-2xl flex flex-col justify-between">
           {/* Header */}
@@ -53,9 +53,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white"
+              className="p-2.5 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close Cart"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-[#E60012]" />
             </button>
           </div>
 
@@ -87,22 +88,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="flex items-center bg-[#171717] rounded-lg border border-white/15">
                         <button
                           onClick={() => onUpdateQuantity(item.product.id, item.size, -1)}
-                          className="w-7 h-7 flex items-center justify-center text-white/80 hover:text-white"
+                          className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white cursor-pointer min-w-[32px] min-h-[32px]"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-3.5 h-3.5" />
                         </button>
                         <span className="font-display text-sm font-bold px-2">{item.quantity}</span>
                         <button
                           onClick={() => onUpdateQuantity(item.product.id, item.size, 1)}
-                          className="w-7 h-7 flex items-center justify-center text-white/80 hover:text-white"
+                          className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white cursor-pointer min-w-[32px] min-h-[32px]"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
                       <button
                         onClick={() => onRemoveItem(item.product.id, item.size)}
-                        className="text-white/40 hover:text-[#E60012] transition-colors p-1"
+                        className="text-white/40 hover:text-[#E60012] transition-colors p-1.5 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
+                        aria-label="Remove item"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -137,7 +139,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <button
                 onClick={handleCheckout}
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold tracking-tight py-4 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase border border-white/20"
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold tracking-tight py-4 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase border border-white/20 cursor-pointer min-h-[44px]"
               >
                 <span>PROCEED TO CHECKOUT</span>
                 <ArrowRight className="w-4 h-4" />

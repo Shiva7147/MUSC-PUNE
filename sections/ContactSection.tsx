@@ -93,7 +93,7 @@ export const ContactSection: React.FC = () => {
             </div>
 
             <div className="p-4 rounded-2xl bg-[#050505] border border-white/10 text-xs font-sans text-white/60">
-              Grievance Officer: <strong className="text-white">{officialClubDetails.grievanceOfficer}</strong> ({officialClubDetails.grievanceEmail})
+              Grievance Officer: <strong className="text-white">{officialClubDetails.grievanceOfficer}</strong> (<a href={`mailto:${officialClubDetails.grievanceEmail}`} className="text-[#E60012] underline hover:text-white">{officialClubDetails.grievanceEmail}</a>)
             </div>
           </div>
 
@@ -153,12 +153,12 @@ export const ContactSection: React.FC = () => {
                     <select
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3.5 rounded-xl bg-[#050505] border border-white/15 text-white text-sm font-sans focus:outline-none focus:border-[#E60012]"
+                      className="w-full px-4 py-3.5 rounded-xl bg-[#050505] border border-white/15 text-white text-sm font-sans focus:outline-none focus:border-[#E60012] cursor-pointer"
                     >
-                      <option value="Matchday Screening Tickets">Matchday Screening Tickets</option>
-                      <option value="Old Trafford Group Trip">Old Trafford Group Trip</option>
-                      <option value="Official Membership Pass">Official Membership Pass</option>
-                      <option value="General Enquiry">General Enquiry</option>
+                      <option value="Matchday Screening Tickets" className="bg-[#171717] text-white py-2">Matchday Screening Tickets</option>
+                      <option value="Old Trafford Group Trip" className="bg-[#171717] text-white py-2">Old Trafford Group Trip</option>
+                      <option value="Official Membership Pass" className="bg-[#171717] text-white py-2">Official Membership Pass</option>
+                      <option value="General Enquiry" className="bg-[#171717] text-white py-2">General Enquiry</option>
                     </select>
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export const ContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20 cursor-pointer"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20 cursor-pointer min-h-[44px]"
                 >
                   <Send className="w-5 h-5" />
                   <span>Send Inquiry to MUFC Pune</span>

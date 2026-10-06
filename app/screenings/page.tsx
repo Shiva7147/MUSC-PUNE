@@ -35,7 +35,7 @@ export default function ScreeningsPage() {
         onOpenScreeningModal={() => setSelectedScreening(screenings[0] || null)}
       />
 
-      <div className="pt-16">
+      <div className="pt-28 sm:pt-32">
         <ScreeningsSection
           screenings={screenings}
           onSelectScreening={(sc) => setSelectedScreening(sc)}

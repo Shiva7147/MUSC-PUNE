@@ -32,7 +32,7 @@ export default function MerchandisePage() {
         onOpenCart={() => setCartOpen(true)}
       />
 
-      <div className="pt-20">
+      <div className="pt-28 sm:pt-32">
         <MerchandiseSection
           products={merchandiseProducts}
           onAddToCart={handleAddToCart}

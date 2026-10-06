@@ -31,7 +31,7 @@ export default function MembershipPage() {
         onOpenCart={() => setCartOpen(true)}
       />
 
-      <div className="pt-20">
+      <div className="pt-28 sm:pt-32">
         <MembershipSection
           onAddToCart={handleAddToCart}
           onOpenCart={() => setCartOpen(true)}

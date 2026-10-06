@@ -116,7 +116,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
         <button
           type="button"
           onClick={handleResetAndClose}
-          className="absolute top-3 right-3 p-2.5 rounded-2xl bg-[#050505]/90 border border-white/20 text-white/90 hover:text-white hover:border-[#E60012] z-30 shadow-xl transition-all"
+          className="absolute top-3 right-3 p-2.5 rounded-2xl bg-[#050505]/90 border border-white/20 text-white/90 hover:text-white hover:border-[#E60012] z-30 shadow-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Close Ticket Modal"
         >
           <X className="w-5 h-5 text-[#E60012]" />
@@ -134,7 +134,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   <Ticket className="w-4 h-4 text-white" />
                   <span>OFFICIAL SCREENING TICKETS</span>
                 </div>
-                <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase pr-8">
+                <h3 className="font-display text-3xl font-bold text-white mt-1 leading-none uppercase pr-14 sm:pr-16">
                   {screening.matchTitle}
                 </h3>
                 <p className="text-xs text-white/80 font-display font-bold mt-1 uppercase">{screening.competition}</p>
@@ -146,21 +146,21 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   <div className="flex items-center gap-2 text-white/90">
                     <Calendar className="w-4 h-4 text-[#E60012] shrink-0" />
                     <div>
-                      <div className="font-display text-[10px] text-white/60">DATE</div>
+                      <div className="font-display text-xs text-white/60">DATE</div>
                       <div className="font-bold">{screening.date}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-white/90">
                     <Clock className="w-4 h-4 text-[#E60012] shrink-0" />
                     <div>
-                      <div className="font-display text-[10px] text-white/60">KICKOFF</div>
+                      <div className="font-display text-xs text-white/60">KICKOFF</div>
                       <div className="font-bold">{screening.time}</div>
                     </div>
                   </div>
                   <div className="col-span-2 flex items-center gap-2 text-white/90 pt-2 border-t border-white/10">
                     <MapPin className="w-4 h-4 text-[#E60012] shrink-0" />
                     <div>
-                      <div className="font-display text-[10px] text-white/60">VENUE</div>
+                      <div className="font-display text-xs text-white/60">VENUE</div>
                       <div className="font-bold text-white">{screening.venueName}</div>
                     </div>
                   </div>
@@ -173,14 +173,14 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                     <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
                       NUMBER OF TICKETS (MAX 10 / BOOKING)
                     </label>
-                    <div className="flex items-center justify-between bg-[#050505] border border-white/15 rounded-xl p-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-[#050505] border border-white/15 rounded-xl p-3">
                       <span className="text-xs text-white/80 font-sans font-medium">Select Quantity (₹{screening.price} / ticket)</span>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 justify-end">
                         <button
                           type="button"
                           onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                           disabled={quantity <= 1}
-                          className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30"
+                          className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30 min-w-[44px] min-h-[44px]"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
@@ -189,7 +189,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                           type="button"
                           onClick={() => setQuantity((prev) => Math.min(10, prev + 1))}
                           disabled={quantity >= 10}
-                          className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30"
+                          className="w-9 h-9 rounded-lg bg-[#171717] border border-white/20 text-white font-bold flex items-center justify-center hover:bg-[#E60012] transition-colors disabled:opacity-30 min-w-[44px] min-h-[44px]"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -271,115 +271,115 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   <button
                     type="submit"
                     disabled={loading}
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase cursor-pointer"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase cursor-pointer min-h-[44px]"
+                  >
+                    <span>{loading ? 'GENERATING TICKETS...' : 'GET SCREENING TICKETS'}</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </form>
+              </div>
+            </div>
+          ) : (
+            /* Confirmation Screen with QR Code */
+            <div className="p-6 text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center animate-bounce">
+                <CheckCircle className="w-10 h-10" />
+              </div>
+
+              <div>
+                <span className="px-3.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-display font-bold uppercase tracking-tight">
+                  ✓ SCREENING TICKETS BOOKED
+                </span>
+                <h3 className="font-display text-3xl font-bold text-white mt-2 uppercase">YOU ARE GOING TO THE MATCH!</h3>
+                <p className="text-xs text-white/70 font-sans mt-1">
+                  Present this QR code to the gate admin scanner at {bookingData?.venue}
+                </p>
+              </div>
+
+              {/* Ticket Card Visual */}
+              <div className="bg-[#050505] border-2 border-[#E60012]/60 rounded-3xl p-6 text-left space-y-4 relative overflow-hidden shadow-2xl">
+                <div className="flex justify-between items-start border-b border-white/10 pb-3">
+                  <div>
+                    <div className="text-xs font-display text-white/60 font-bold uppercase">TICKET ID</div>
+                    <div className="font-mono text-base font-bold text-white">{bookingData?.ticketId}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-display text-white/50 uppercase">GATE STATUS</div>
+                    <div className="font-display text-xs font-bold text-emerald-400 uppercase">UNCHECKED (ACTIVE)</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs font-sans text-white/80">
+                  <div>
+                    <span className="text-white/40 text-xs font-display uppercase font-bold">MATCHDAY HOLDER</span>
+                    <div className="font-bold text-white truncate">{bookingData?.userName}</div>
+                  </div>
+                  <div>
+                    <span className="text-white/40 text-xs font-display uppercase font-bold">TICKETS</span>
+                    <div className="font-bold text-white">{bookingData?.quantity} Ticket(s)</div>
+                  </div>
+                  <div className="col-span-2 pt-1">
+                    <span className="text-white/40 text-xs font-display uppercase font-bold">VENUE</span>
+                    <div className="font-bold text-[#E60012]">{bookingData?.venue}</div>
+                  </div>
+                </div>
+
+                {/* Real Authentic QR Code Image */}
+                {bookingData?.qrDataUrl && (
+                  <div className="pt-4 border-t border-dashed border-white/20 flex flex-col items-center justify-center space-y-2">
+                    <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-[#E60012]">
+                      <img
+                        src={bookingData.qrDataUrl}
+                        alt={`Ticket QR Code ${bookingData.ticketId}`}
+                        className="w-44 h-44 object-contain"
+                      />
+                    </div>
+                    <div className="text-xs font-mono text-white font-bold bg-[#171717] px-3 py-1 rounded-lg border border-white/10">
+                      SCAN AT GATE FOR INSTANT ENTRY
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons: Download Image, Download PDF & WhatsApp Dispatch */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <a
+                  href={bookingData?.qrDataUrl}
+                  download={`${bookingData?.ticketId}-QR.png`}
+                  className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all min-h-[44px]"
                 >
-                  <span>{loading ? 'GENERATING TICKETS...' : 'GET SCREENING TICKETS'}</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <Download className="w-3.5 h-3.5 text-white" />
+                  <span>PNG QR</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => bookingData && generatePDFTicketPass(bookingData)}
+                  className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#E60012]" />
+                  <span>PDF PASS</span>
                 </button>
-              </form>
-            </div>
-          </div>
-        ) : (
-          /* Confirmation Screen with QR Code */
-          <div className="p-6 text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center animate-bounce">
-              <CheckCircle className="w-10 h-10" />
-            </div>
 
-            <div>
-              <span className="px-3.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-display font-bold uppercase tracking-tight">
-                ✓ SCREENING TICKETS BOOKED
-              </span>
-              <h3 className="font-display text-3xl font-bold text-white mt-2 uppercase">YOU ARE GOING TO THE MATCH!</h3>
-              <p className="text-xs text-white/70 font-sans mt-1">
-                Present this QR code to the gate admin scanner at {bookingData?.venue}
-              </p>
-            </div>
-
-            {/* Ticket Card Visual */}
-            <div className="bg-[#050505] border-2 border-[#E60012]/60 rounded-3xl p-6 text-left space-y-4 relative overflow-hidden shadow-2xl ticket-notch-left ticket-notch-right">
-              <div className="flex justify-between items-start border-b border-white/10 pb-3">
-                <div>
-                  <div className="text-[10px] font-display text-white/60 font-bold uppercase">TICKET ID</div>
-                  <div className="font-mono text-base font-bold text-white">{bookingData?.ticketId}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] font-display text-white/50 uppercase">GATE STATUS</div>
-                  <div className="font-display text-xs font-bold text-emerald-400 uppercase">UNCHECKED (ACTIVE)</div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => bookingData && dispatchWhatsAppTicketMessage(bookingData)}
+                  className="bg-[#171717] hover:bg-black border border-emerald-500/50 text-emerald-400 font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>WHATSAPP</span>
+                </button>
               </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs font-sans text-white/80">
-                <div>
-                  <span className="text-white/40 text-[10px] font-display uppercase font-bold">MATCHDAY HOLDER</span>
-                  <div className="font-bold text-white truncate">{bookingData?.userName}</div>
-                </div>
-                <div>
-                  <span className="text-white/40 text-[10px] font-display uppercase font-bold">TICKETS</span>
-                  <div className="font-bold text-white">{bookingData?.quantity} Ticket(s)</div>
-                </div>
-                <div className="col-span-2 pt-1">
-                  <span className="text-white/40 text-[10px] font-display uppercase font-bold">VENUE</span>
-                  <div className="font-bold text-[#E60012]">{bookingData?.venue}</div>
-                </div>
-              </div>
-
-              {/* Real Authentic QR Code Image */}
-              {bookingData?.qrDataUrl && (
-                <div className="pt-4 border-t border-dashed border-white/20 flex flex-col items-center justify-center space-y-2">
-                  <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-[#E60012]">
-                    <img
-                      src={bookingData.qrDataUrl}
-                      alt={`Ticket QR Code ${bookingData.ticketId}`}
-                      className="w-44 h-44 object-contain"
-                    />
-                  </div>
-                  <div className="text-[11px] font-mono text-white font-bold bg-[#171717] px-3 py-1 rounded-lg border border-white/10">
-                    SCAN AT GATE FOR INSTANT ENTRY
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons: Download Image, Download PDF & WhatsApp Dispatch */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <a
-                href={bookingData?.qrDataUrl}
-                download={`${bookingData?.ticketId}-QR.png`}
-                className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all"
-              >
-                <Download className="w-3.5 h-3.5 text-white" />
-                <span>PNG QR</span>
-              </a>
 
               <button
                 type="button"
-                onClick={() => bookingData && generatePDFTicketPass(bookingData)}
-                className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                onClick={handleResetAndClose}
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-4 rounded-xl shadow-lg transition-all uppercase cursor-pointer min-h-[44px]"
               >
-                <FileText className="w-3.5 h-3.5 text-[#E60012]" />
-                <span>PDF PASS</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => bookingData && dispatchWhatsAppTicketMessage(bookingData)}
-                className="bg-[#171717] hover:bg-black border border-emerald-500/50 text-emerald-400 font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-              >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>WHATSAPP</span>
+                DONE & CLOSE
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleResetAndClose}
-              className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-4 rounded-xl shadow-lg transition-all uppercase cursor-pointer"
-            >
-              DONE & CLOSE
-            </button>
-          </div>
-        )}
+          )}
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ export default function ToursPage() {
     <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
       <Navbar />
 
-      <div className="pt-20">
+      <div className="pt-28 sm:pt-32">
         <OldTraffordToursSection tours={oldTraffordTours} />
       </div>
 
