@@ -267,6 +267,7 @@ export const verifyTicketScan = (
   allTickets[foundIndex] = target;
   ticketsMemory = allTickets;
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  syncTicketToSupabase(target);
   notifyListeners();
 
   return {
