@@ -235,6 +235,120 @@ export const getTicketStore = (): AdminTicketRecord[] => {
   return loadStorage(TICKETS_STORAGE_KEY, ticketsMemory);
 };
 
+export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> => {
+  try {
+    const res = await fetch('/api/tickets');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.tickets && Array.isArray(json.tickets)) {
+        const remoteIds = new Set(json.tickets.map((t: AdminTicketRecord) => t.ticketId));
+        const localOnly = ticketsMemory.filter((t) => !remoteIds.has(t.ticketId));
+        const merged = [...json.tickets, ...localOnly];
+        ticketsMemory = merged;
+        saveStorage(TICKETS_STORAGE_KEY, merged);
+        notifyListeners();
+        return merged;
+      }
+    }
+  } catch (err) {
+    console.error('Fetch remote tickets error:', err);
+  }
+  return ticketsMemory;
+};
+
+export const verifyTicketScanAsync = async (
+  scannedCode: string,
+  adminName: string = 'Gate Admin 1'
+): Promise<{ status: 'VALID' | 'ALREADY_USED' | 'INVALID'; ticket?: AdminTicketRecord; checkedInAt?: string }> => {
+  if (!scannedCode) return { status: 'INVALID' };
+
+  const rawText = scannedCode.trim();
+  let ticketId = rawText;
+
+  const match = rawText.match(/MUSCPUN-(?:FAIL-|APPROVED-)?\d+/i);
+  if (match) {
+    ticketId = match[0].toUpperCase();
+  }
+
+  // 1. Check local memory first
+  let allTickets = getTicketStore();
+  let foundIndex = allTickets.findIndex(
+    (t) => t.ticketId.toUpperCase() === ticketId.toUpperCase() || (t.userPhone && t.userPhone.includes(ticketId))
+  );
+
+  // 2. If not found in local memory, query Supabase database in real-time!
+  if (foundIndex === -1 && supabase) {
+    try {
+      const { data } = await supabase
+        .from('tickets')
+        .select('*')
+        .or(`ticket_id.ilike.${ticketId},user_phone.ilike.%${ticketId}%`)
+        .limit(1);
+
+      if (data && data.length > 0) {
+        const row = data[0];
+        const remoteRecord: AdminTicketRecord = {
+          ticketId: row.ticket_id,
+          screeningId: row.screening_id,
+          matchTitle: row.match_title,
+          venue: row.venue,
+          date: row.date,
+          time: row.time,
+          quantity: row.quantity,
+          totalAmount: Number(row.total_amount),
+          userName: row.user_name,
+          userEmail: row.user_email,
+          userPhone: row.user_phone,
+          bookingDate: row.booking_date ? new Date(row.booking_date).toLocaleString('en-IN') : new Date().toLocaleString('en-IN'),
+          qrDataUrl: row.qr_data_url || '',
+          paymentStatus: row.payment_status || 'SUCCESS',
+          checkedIn: Boolean(row.checked_in),
+          checkedInAt: row.checked_in_at,
+          checkedInBy: row.checked_in_by,
+        };
+
+        ticketsMemory = [remoteRecord, ...ticketsMemory];
+        saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+        allTickets = ticketsMemory;
+        foundIndex = 0;
+      }
+    } catch (err) {
+      console.error('Supabase query error during scan:', err);
+    }
+  }
+
+  if (foundIndex === -1) {
+    return { status: 'INVALID' };
+  }
+
+  const target = allTickets[foundIndex];
+
+  if (target.checkedIn) {
+    return {
+      status: 'ALREADY_USED',
+      ticket: target,
+      checkedInAt: target.checkedInAt,
+    };
+  }
+
+  const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  target.checkedIn = true;
+  target.checkedInAt = nowStr;
+  target.checkedInBy = adminName;
+
+  allTickets[foundIndex] = target;
+  ticketsMemory = allTickets;
+  saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  syncTicketToSupabase(target);
+  notifyListeners();
+
+  return {
+    status: 'VALID',
+    ticket: target,
+    checkedInAt: nowStr,
+  };
+};
+
 export const verifyTicketScan = (
   scannedCode: string,
   adminName: string = 'Gate Admin 1'
@@ -244,7 +358,7 @@ export const verifyTicketScan = (
   const rawText = scannedCode.trim();
   let ticketId = rawText;
 
-  const match = rawText.match(/MUSCPUN-\d+/i);
+  const match = rawText.match(/MUSCPUN-(?:FAIL-|APPROVED-)?\d+/i);
   if (match) {
     ticketId = match[0].toUpperCase();
   }

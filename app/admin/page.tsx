@@ -26,6 +26,8 @@ import {
 import {
   getTicketStore,
   verifyTicketScan,
+  verifyTicketScanAsync,
+  fetchRemoteTicketsAsync,
   getScreeningsStore,
   addScreeningToStore,
   updateScreeningPrice,
@@ -107,6 +109,9 @@ export default function AdminDashboardPage() {
     setMembershipConfig(getMembershipConfigStore());
     setTourConfig(getTourConfigStore());
     setGalleryList(getGalleryStore());
+    fetchRemoteTicketsAsync().then((remote) => {
+      if (remote && remote.length > 0) setTickets(remote);
+    });
   };
 
   useEffect(() => {
@@ -143,7 +148,13 @@ export default function AdminDashboardPage() {
 
       await scanner.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        {
+          fps: 10,
+          qrbox: (w, h) => ({
+            width: Math.floor(Math.min(w * 0.8, 260)),
+            height: Math.floor(Math.min(h * 0.8, 260)),
+          }),
+        },
         (decodedText) => {
           handleVerifyCode(decodedText);
         },
@@ -178,10 +189,10 @@ export default function AdminDashboardPage() {
     };
   }, [cameraActive]);
 
-  // Execute Ticket Verification Logic
-  const handleVerifyCode = (codeToTest: string) => {
+  // Execute Ticket Verification Logic (Async with real-time Supabase fallback)
+  const handleVerifyCode = async (codeToTest: string) => {
     if (!codeToTest.trim()) return;
-    const res = verifyTicketScan(codeToTest, 'Gate Admin 1');
+    const res = await verifyTicketScanAsync(codeToTest, 'Gate Admin 1');
     setScanResult(res);
   };
 
