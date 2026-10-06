@@ -1,18 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Camera, Play, MapPin, Eye, Pause } from 'lucide-react';
-import { galleryImages } from '@/lib/data';
 import { GalleryItem } from '@/lib/types';
 import { GalleryLightbox } from '@/components/GalleryLightbox';
+import { getGalleryStore, fetchGalleryRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 
 export const GallerySection: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [galleryList, setGalleryList] = useState<GalleryItem[]>(getGalleryStore());
+
+  const refreshGallery = () => {
+    setGalleryList(getGalleryStore());
+  };
+
+  useEffect(() => {
+    refreshGallery();
+    fetchGalleryRemoteAsync();
+    const unsubscribe = subscribeStore(refreshGallery);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // High-res optimized Cloudinary photography list
-  const optimizedGallery = galleryImages.map((img) => ({
+  const optimizedGallery = galleryList.map((img) => ({
     ...img,
     imageUrl: img.imageUrl.replace('/image/upload/', '/image/upload/f_auto,q_auto:best,w_1200/'),
   }));

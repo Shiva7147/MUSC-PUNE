@@ -15,7 +15,15 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { EnquiryModal } from '@/components/EnquiryModal';
 import { oldTraffordTours } from '@/lib/data';
 import { Screening, Product, CartItem } from '@/lib/types';
-import { getScreeningsStore, getProductsStore, subscribeStore } from '@/lib/ticketStore';
+import {
+  getScreeningsStore,
+  getProductsStore,
+  fetchScreeningsRemoteAsync,
+  fetchProductsRemoteAsync,
+  fetchGalleryRemoteAsync,
+  fetchConfigRemoteAsync,
+  subscribeStore,
+} from '@/lib/ticketStore';
 
 export default function Home() {
   const [screenings, setScreenings] = useState<Screening[]>([]);
@@ -35,6 +43,10 @@ export default function Home() {
 
   useEffect(() => {
     refreshStoreData();
+    fetchScreeningsRemoteAsync();
+    fetchProductsRemoteAsync();
+    fetchGalleryRemoteAsync();
+    fetchConfigRemoteAsync();
     const unsubscribe = subscribeStore(refreshStoreData);
     return () => {
       unsubscribe();

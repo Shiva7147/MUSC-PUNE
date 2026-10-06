@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { officialLogoUrl, officialMembershipImageUrl } from '@/lib/data';
 import { Product, MembershipConfig } from '@/lib/types';
-import { getMembershipConfigStore, subscribeStore } from '@/lib/ticketStore';
+import { getMembershipConfigStore, fetchConfigRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 
 interface MembershipSectionProps {
   onAddToCart?: (product: Product, size: string, quantity: number) => void;
@@ -40,6 +40,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
   const whatsappNumberUrl = 'https://wa.me/917276735140';
 
   useEffect(() => {
+    fetchConfigRemoteAsync();
     const handleStoreChange = () => {
       setMembershipConfig(getMembershipConfigStore());
     };

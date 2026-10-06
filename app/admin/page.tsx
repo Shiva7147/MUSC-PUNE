@@ -22,6 +22,7 @@ import {
   Layers as LayersIcon,
   ShoppingBag as ShoppingIcon,
   DollarSign as PriceIcon,
+  Trash2 as TrashIcon,
 } from 'lucide-react';
 import {
   getTicketStore,
@@ -30,11 +31,15 @@ import {
   fetchRemoteTicketsAsync,
   getScreeningsStore,
   addScreeningToStore,
+  updateScreeningInStore,
+  deleteScreeningFromStore,
   updateScreeningPrice,
   getGalleryStore,
   addGalleryItemToStore,
+  deleteGalleryItemFromStore,
   getProductsStore,
   addProductToStore,
+  deleteProductFromStore,
   getMembershipConfigStore,
   updateMembershipConfigStore,
   getTourConfigStore,
@@ -873,15 +878,27 @@ export default function AdminDashboardPage() {
                               📍 {sc.venueName} • 📅 {sc.date}
                             </div>
                           </div>
-                          <div className="text-right space-y-1">
+                          <div className="text-right space-y-2">
                             <div className="text-xs font-display text-white/60 uppercase">MANUAL TICKET PRICE</div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-end gap-2">
                               <input
                                 type="number"
                                 value={sc.price}
                                 onChange={(e) => updateScreeningPrice(sc.id, Number(e.target.value))}
                                 className="w-24 bg-[#050505] border border-[#E60012] rounded-lg px-2 py-1 text-right font-display text-xl font-bold text-[#E60012]"
                               />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Are you sure you want to delete screening "${sc.matchTitle}"?`)) {
+                                    deleteScreeningFromStore(sc.id);
+                                  }
+                                }}
+                                className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                              >
+                                <TrashIcon className="w-3.5 h-3.5" />
+                                <span>DELETE</span>
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -967,15 +984,29 @@ export default function AdminDashboardPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {products.map((p) => (
-                      <div key={p.id} className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex gap-4 items-center">
-                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
-                          <Image src={p.image} alt={p.name} fill className="object-cover" />
+                      <div key={p.id} className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex justify-between gap-4 items-center">
+                        <div className="flex items-center gap-4">
+                          <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
+                            <Image src={p.image} alt={p.name} fill className="object-cover" />
+                          </div>
+                          <div>
+                            <h4 className="font-display text-xl font-bold text-white uppercase">{p.name}</h4>
+                            <div className="font-display text-lg font-bold text-[#E60012]">₹{p.price}</div>
+                            <span className="text-[10px] font-sans text-white/60">{p.category}</span>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-display text-xl font-bold text-white uppercase">{p.name}</h4>
-                          <div className="font-display text-lg font-bold text-[#E60012]">₹{p.price}</div>
-                          <span className="text-[10px] font-sans text-white/60">{p.category}</span>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete product "${p.name}"?`)) {
+                              deleteProductFromStore(p.id);
+                            }
+                          }}
+                          className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold p-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                          title="Delete Product"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -1032,11 +1063,23 @@ export default function AdminDashboardPage() {
                   </h3>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {galleryList.slice(0, 9).map((g) => (
+                    {galleryList.map((g) => (
                       <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden bg-black border border-white/10 group">
                         <Image src={g.imageUrl} alt={g.title} fill className="object-cover group-hover:scale-105 transition-transform" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 flex items-end">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 flex items-end justify-between gap-1">
                           <span className="text-[10px] font-display text-white truncate font-bold">{g.title}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete photo "${g.title}" from gallery archive?`)) {
+                                deleteGalleryItemFromStore(g.id);
+                              }
+                            }}
+                            className="bg-red-600 hover:bg-red-700 text-white p-1 rounded transition-colors shrink-0"
+                            title="Delete Photo"
+                          >
+                            <TrashIcon className="w-3 h-3" />
+                          </button>
                         </div>
                       </div>
                     ))}

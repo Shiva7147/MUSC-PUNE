@@ -401,57 +401,131 @@ export const verifyTicketScan = (
 };
 
 // -------------------------------------------------------------
-// DYNAMIC SCREENINGS ADMIN MANAGEMENT
+// DYNAMIC SCREENINGS ADMIN MANAGEMENT (FULL CRUD)
 // -------------------------------------------------------------
 
 export const getScreeningsStore = (): Screening[] => {
   return loadStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
 };
 
+export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
+  try {
+    const res = await fetch('/api/screenings');
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.screenings && Array.isArray(json.screenings)) {
+        screeningsMemory = json.screenings;
+        saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+        notifyListeners();
+        return screeningsMemory;
+      }
+    }
+  } catch (err) {
+    console.error('Fetch remote screenings error:', err);
+  }
+  return screeningsMemory;
+};
+
 export const addScreeningToStore = (newScreening: Screening) => {
-  screeningsMemory = [newScreening, ...screeningsMemory];
+  screeningsMemory = [newScreening, ...screeningsMemory.filter((s) => s.id !== newScreening.id)];
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
+  fetch('/api/screenings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newScreening),
+  }).catch(() => {});
+};
+
+export const updateScreeningInStore = (updatedScreening: Screening) => {
+  screeningsMemory = screeningsMemory.map((s) => (s.id === updatedScreening.id ? { ...s, ...updatedScreening } : s));
+  saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+  notifyListeners();
+  fetch('/api/screenings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedScreening),
+  }).catch(() => {});
+};
+
+export const deleteScreeningFromStore = (screeningId: string) => {
+  screeningsMemory = screeningsMemory.filter((s) => s.id !== screeningId);
+  saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+  notifyListeners();
+  fetch(`/api/screenings?id=${screeningId}`, {
+    method: 'DELETE',
+  }).catch(() => {});
 };
 
 export const updateScreeningPrice = (screeningId: string, price: number, taxRate?: number, platformFee?: number) => {
   const current = getScreeningsStore();
-  const updated = current.map((sc) => {
-    if (sc.id === screeningId) {
-      return {
-        ...sc,
-        price,
-        taxRate: taxRate !== undefined ? taxRate : sc.taxRate,
-        platformFee: platformFee !== undefined ? platformFee : sc.platformFee,
-      };
-    }
-    return sc;
-  });
-  screeningsMemory = updated;
-  saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
-  notifyListeners();
+  const found = current.find((sc) => sc.id === screeningId);
+  if (found) {
+    const updated = {
+      ...found,
+      price,
+      taxRate: taxRate !== undefined ? taxRate : found.taxRate,
+      platformFee: platformFee !== undefined ? platformFee : found.platformFee,
+    };
+    updateScreeningInStore(updated);
+  }
 };
 
 // -------------------------------------------------------------
-// DYNAMIC PRODUCTS ADMIN MANAGEMENT
+// DYNAMIC PRODUCTS ADMIN MANAGEMENT (FULL CRUD)
 // -------------------------------------------------------------
 
 export const getProductsStore = (): Product[] => {
   return loadStorage(PRODUCTS_STORAGE_KEY, productsMemory);
 };
 
+export const fetchProductsRemoteAsync = async (): Promise<Product[]> => {
+  try {
+    const res = await fetch('/api/products');
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.products && Array.isArray(json.products)) {
+        productsMemory = json.products;
+        saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+        notifyListeners();
+        return productsMemory;
+      }
+    }
+  } catch (err) {
+    console.error('Fetch remote products error:', err);
+  }
+  return productsMemory;
+};
+
 export const addProductToStore = (newProduct: Product) => {
-  productsMemory = [newProduct, ...productsMemory];
+  productsMemory = [newProduct, ...productsMemory.filter((p) => p.id !== newProduct.id)];
   saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
   notifyListeners();
+  fetch('/api/products', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newProduct),
+  }).catch(() => {});
 };
 
 export const updateProductInStore = (updatedProduct: Product) => {
-  const current = getProductsStore();
-  const updated = current.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
-  productsMemory = updated;
+  productsMemory = productsMemory.map((p) => (p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p));
   saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
   notifyListeners();
+  fetch('/api/products', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedProduct),
+  }).catch(() => {});
+};
+
+export const deleteProductFromStore = (productId: string) => {
+  productsMemory = productsMemory.filter((p) => p.id !== productId);
+  saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+  notifyListeners();
+  fetch(`/api/products?id=${productId}`, {
+    method: 'DELETE',
+  }).catch(() => {});
 };
 
 // -------------------------------------------------------------
@@ -466,9 +540,17 @@ export const updateMembershipConfigStore = (newConfig: MembershipConfig) => {
   membershipConfigMemory = newConfig;
   saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
   notifyListeners();
+  fetch('/api/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: 'membership', value: newConfig }),
+  }).catch(() => {});
 };
 
 // -------------------------------------------------------------
+// DYNAMIC GALLERY ADMIN MANAGEMENT (FULL CRUD)
+// -------------------------------------------------------------
+
 export const getGalleryStore = (): GalleryItem[] => {
   const stored = loadStorage(GALLERY_STORAGE_KEY, galleryMemory);
   const cleanStored = stored.filter((g) => !g.id.startsWith('gal-pune-2026-'));
@@ -483,10 +565,42 @@ export const getGalleryStore = (): GalleryItem[] => {
   return stored;
 };
 
+export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
+  try {
+    const res = await fetch('/api/gallery');
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.gallery && Array.isArray(json.gallery)) {
+        galleryMemory = json.gallery;
+        saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
+        notifyListeners();
+        return galleryMemory;
+      }
+    }
+  } catch (err) {
+    console.error('Fetch remote gallery error:', err);
+  }
+  return galleryMemory;
+};
+
 export const addGalleryItemToStore = (newItem: GalleryItem) => {
-  galleryMemory = [newItem, ...galleryMemory];
+  galleryMemory = [newItem, ...galleryMemory.filter((g) => g.id !== newItem.id)];
   saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
   notifyListeners();
+  fetch('/api/gallery', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newItem),
+  }).catch(() => {});
+};
+
+export const deleteGalleryItemFromStore = (galleryId: string) => {
+  galleryMemory = galleryMemory.filter((g) => g.id !== galleryId);
+  saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
+  notifyListeners();
+  fetch(`/api/gallery?id=${galleryId}`, {
+    method: 'DELETE',
+  }).catch(() => {});
 };
 
 // -------------------------------------------------------------
@@ -501,4 +615,31 @@ export const updateTourConfigStore = (newConfig: TourConfig) => {
   tourConfigMemory = newConfig;
   saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
   notifyListeners();
+  fetch('/api/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: 'tour', value: newConfig }),
+  }).catch(() => {});
+};
+
+export const fetchConfigRemoteAsync = async (): Promise<{ membership?: MembershipConfig; tour?: TourConfig }> => {
+  try {
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.membership) {
+        membershipConfigMemory = json.membership;
+        saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+      }
+      if (json && json.tour) {
+        tourConfigMemory = json.tour;
+        saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
+      }
+      notifyListeners();
+      return { membership: membershipConfigMemory, tour: tourConfigMemory };
+    }
+  } catch (err) {
+    console.error('Fetch remote config error:', err);
+  }
+  return { membership: membershipConfigMemory, tour: tourConfigMemory };
 };

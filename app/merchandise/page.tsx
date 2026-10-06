@@ -1,16 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { MerchandiseSection } from '@/sections/MerchandiseSection';
 import { CartDrawer } from '@/components/CartDrawer';
-import { merchandiseProducts } from '@/lib/data';
 import { Product, CartItem } from '@/lib/types';
+import { getProductsStore, fetchProductsRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 
 export default function MerchandisePage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const refreshProducts = () => {
+    setProducts(getProductsStore());
+  };
+
+  useEffect(() => {
+    refreshProducts();
+    fetchProductsRemoteAsync();
+    const unsubscribe = subscribeStore(refreshProducts);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleAddToCart = (product: Product, size: string, quantity: number) => {
     setCartItems((prev) => {
@@ -34,7 +48,7 @@ export default function MerchandisePage() {
 
       <div className="pt-28 sm:pt-32">
         <MerchandiseSection
-          products={merchandiseProducts}
+          products={products}
           onAddToCart={handleAddToCart}
         />
       </div>

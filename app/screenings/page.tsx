@@ -7,7 +7,7 @@ import { ScreeningsSection } from '@/sections/ScreeningsSection';
 import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Screening, CartItem } from '@/lib/types';
-import { getScreeningsStore, subscribeStore } from '@/lib/ticketStore';
+import { getScreeningsStore, fetchScreeningsRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 
 export default function ScreeningsPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -21,6 +21,7 @@ export default function ScreeningsPage() {
 
   useEffect(() => {
     refreshScreenings();
+    fetchScreeningsRemoteAsync();
     const unsubscribe = subscribeStore(refreshScreenings);
     return () => {
       unsubscribe();

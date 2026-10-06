@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Plane, Calendar, CheckCircle, ShieldCheck, ExternalLink } from 'lucide-react';
 import { TourPackage, TourConfig } from '@/lib/types';
-import { getTourConfigStore, subscribeStore } from '@/lib/ticketStore';
+import { getTourConfigStore, fetchConfigRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 
 interface OldTraffordToursSectionProps {
   tours?: TourPackage[];
@@ -14,6 +14,7 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
   const [tourConfig, setTourConfig] = useState<TourConfig>(getTourConfigStore());
 
   useEffect(() => {
+    fetchConfigRemoteAsync();
     const handleStoreChange = () => {
       setTourConfig(getTourConfigStore());
     };
