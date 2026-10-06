@@ -77,26 +77,35 @@ export const subscribeStore = (listener: Listener) => {
 
 // Helper to sync ticket record to Supabase if configured
 const syncTicketToSupabase = async (record: AdminTicketRecord) => {
-  if (!supabase) return;
   try {
-    await supabase.from('tickets').upsert({
-      ticket_id: record.ticketId,
-      screening_id: record.screeningId,
-      match_title: record.matchTitle,
-      venue: record.venue,
-      date: record.date,
-      time: record.time,
-      quantity: record.quantity,
-      total_amount: record.totalAmount,
-      user_name: record.userName,
-      user_email: record.userEmail,
-      user_phone: record.userPhone,
-      qr_data_url: record.qrDataUrl,
-      payment_status: record.paymentStatus || 'SUCCESS',
-      checked_in: record.checkedIn,
-      checked_in_at: record.checkedInAt,
-      checked_in_by: record.checkedInBy,
-    });
+    // 1. Dual Backup: Post to Next.js API endpoint
+    fetch('/api/tickets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record),
+    }).catch(() => {});
+
+    // 2. Direct Supabase client upsert
+    if (supabase) {
+      await supabase.from('tickets').upsert({
+        ticket_id: record.ticketId,
+        screening_id: record.screeningId,
+        match_title: record.matchTitle,
+        venue: record.venue,
+        date: record.date,
+        time: record.time,
+        quantity: record.quantity,
+        total_amount: record.totalAmount,
+        user_name: record.userName,
+        user_email: record.userEmail,
+        user_phone: record.userPhone,
+        qr_data_url: record.qrDataUrl,
+        payment_status: record.paymentStatus || 'SUCCESS',
+        checked_in: record.checkedIn,
+        checked_in_at: record.checkedInAt,
+        checked_in_by: record.checkedInBy,
+      });
+    }
   } catch (err) {
     console.error('Supabase Sync Notice:', err);
   }
