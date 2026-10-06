@@ -37,6 +37,7 @@ import {
   updateMembershipConfigStore,
   getTourConfigStore,
   updateTourConfigStore,
+  approveDebitedPayment,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
@@ -1011,18 +1012,47 @@ export default function AdminDashboardPage() {
                           <th className="py-3 px-3">MATCH</th>
                           <th className="py-3 px-3">QTY</th>
                           <th className="py-3 px-3">TOTAL</th>
+                          <th className="py-3 px-3">PAYMENT / DEBIT STATUS</th>
                           <th className="py-3 px-3">GATE STATUS</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/10 text-white/80 font-mono">
                         {tickets.map((t) => (
                           <tr key={t.ticketId} className="hover:bg-white/5 transition-colors">
-                            <td className="py-3 px-3 font-bold text-white">{t.ticketId}</td>
+                            <td className="py-3 px-3 font-bold text-white">
+                              {t.ticketId}
+                              {t.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED' && (
+                                <span className="block text-[9px] text-amber-400 font-sans font-semibold">DEBIT VERIFICATION</span>
+                              )}
+                            </td>
                             <td className="py-3 px-3 font-sans text-white font-semibold">{t.userName}</td>
                             <td className="py-3 px-3">{t.userPhone}</td>
                             <td className="py-3 px-3 font-sans truncate max-w-[150px]">{t.matchTitle}</td>
                             <td className="py-3 px-3">{t.quantity}</td>
                             <td className="py-3 px-3 text-[#E60012] font-bold">₹{t.totalAmount}</td>
+                            <td className="py-3 px-3">
+                              {t.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED' ? (
+                                <div className="space-y-1">
+                                  <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase block">
+                                    ⚠️ DEBIT VERIFICATION
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      approveDebitedPayment(t.ticketId);
+                                      alert(`Payment approved & ticket activated for ${t.userName}!`);
+                                    }}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-display font-bold px-2 py-1 rounded cursor-pointer uppercase block"
+                                  >
+                                    ✓ APPROVE DEBIT
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                  ✓ PAID (SUCCESS)
+                                </span>
+                              )}
+                            </td>
                             <td className="py-3 px-3">
                               {t.checkedIn ? (
                                 <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">

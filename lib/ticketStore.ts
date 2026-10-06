@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from './types';
 import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig, defaultTourConfig } from './data';
+import { supabase } from './supabaseClient';
 
 export interface AdminTicketRecord {
   ticketId: string;
@@ -19,6 +20,7 @@ export interface AdminTicketRecord {
   checkedIn: boolean;
   checkedInAt?: string;
   checkedInBy?: string;
+  paymentStatus?: 'SUCCESS' | 'FAILED' | 'DEBIT_VERIFICATION_REQUIRED';
 }
 
 // LocalStorage Persistence Keys
@@ -73,6 +75,33 @@ export const subscribeStore = (listener: Listener) => {
   };
 };
 
+// Helper to sync ticket record to Supabase if configured
+const syncTicketToSupabase = async (record: AdminTicketRecord) => {
+  if (!supabase) return;
+  try {
+    await supabase.from('tickets').upsert({
+      ticket_id: record.ticketId,
+      screening_id: record.screeningId,
+      match_title: record.matchTitle,
+      venue: record.venue,
+      date: record.date,
+      time: record.time,
+      quantity: record.quantity,
+      total_amount: record.totalAmount,
+      user_name: record.userName,
+      user_email: record.userEmail,
+      user_phone: record.userPhone,
+      qr_data_url: record.qrDataUrl,
+      payment_status: record.paymentStatus || 'SUCCESS',
+      checked_in: record.checkedIn,
+      checked_in_at: record.checkedInAt,
+      checked_in_by: record.checkedInBy,
+    });
+  } catch (err) {
+    console.error('Supabase Sync Notice:', err);
+  }
+};
+
 // -------------------------------------------------------------
 // TICKET ENGINE FUNCTIONS
 // -------------------------------------------------------------
@@ -113,14 +142,84 @@ export const generateTicketPass = async (
     userPhone,
     bookingDate: new Date().toLocaleString('en-IN'),
     qrDataUrl,
+    paymentStatus: 'SUCCESS',
     checkedIn: false,
   };
 
   ticketsMemory = [record, ...ticketsMemory];
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  syncTicketToSupabase(record);
   notifyListeners();
 
   return record;
+};
+
+// Record a failed / interrupted payment attempt with unique reference ID
+export const recordFailedPaymentAttempt = async (
+  screening: Screening,
+  userName: string,
+  userEmail: string,
+  userPhone: string,
+  quantity: number
+): Promise<AdminTicketRecord> => {
+  const randomNum = Math.floor(100000 + Math.random() * 900000);
+  const ticketId = `MUSCPUN-FAIL-${randomNum}`;
+  const qrPayload = ticketId;
+
+  const qrDataUrl = await QRCode.toDataURL(qrPayload, {
+    width: 450,
+    margin: 2,
+    errorCorrectionLevel: 'H',
+    color: {
+      dark: '#990000',
+      light: '#FFFFFF',
+    },
+  });
+
+  const record: AdminTicketRecord = {
+    ticketId,
+    screeningId: screening.id,
+    matchTitle: screening.matchTitle,
+    venue: screening.venueName,
+    date: screening.date,
+    time: screening.time,
+    quantity,
+    totalAmount: screening.price * quantity,
+    userName,
+    userEmail,
+    userPhone,
+    bookingDate: new Date().toLocaleString('en-IN'),
+    qrDataUrl,
+    paymentStatus: 'DEBIT_VERIFICATION_REQUIRED',
+    checkedIn: false,
+  };
+
+  ticketsMemory = [record, ...ticketsMemory];
+  saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  syncTicketToSupabase(record);
+  notifyListeners();
+
+  return record;
+};
+
+// Admin Manual Approval for Debited Payments
+export const approveDebitedPayment = async (ticketId: string) => {
+  const allTickets = getTicketStore();
+  const foundIndex = allTickets.findIndex((t) => t.ticketId === ticketId);
+  if (foundIndex === -1) return;
+
+  const target = allTickets[foundIndex];
+  target.paymentStatus = 'SUCCESS';
+  // Upgrade ID from FAIL to valid pass if needed
+  if (target.ticketId.includes('-FAIL-')) {
+    target.ticketId = target.ticketId.replace('-FAIL-', '-APPROVED-');
+  }
+
+  allTickets[foundIndex] = target;
+  ticketsMemory = allTickets;
+  saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  syncTicketToSupabase(target);
+  notifyListeners();
 };
 
 export const getTicketStore = (): AdminTicketRecord[] => {

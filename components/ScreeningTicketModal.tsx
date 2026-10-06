@@ -296,6 +296,16 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 </p>
               </div>
 
+              {/* Zero-Cost Screenshot Notice Banner */}
+              <div className="bg-[#171717] border-2 border-[#FFC400] p-4 rounded-2xl text-left space-y-1.5 shadow-xl">
+                <div className="flex items-center gap-2 text-[#FFC400] font-display text-xs font-bold uppercase">
+                  <span>📸 TAKE A SCREENSHOT OR DOWNLOAD TICKET NOW</span>
+                </div>
+                <p className="text-xs font-sans text-white/90 leading-relaxed">
+                  Please take a screenshot of this card or click <strong>DOWNLOAD PDF PASS</strong> below! Your unique Ticket ID is <code className="text-[#E60012] font-mono font-bold bg-black px-1.5 py-0.5 rounded">{bookingData?.ticketId}</code>. No WhatsApp or SMS dispatch required — simply show this screenshot or Ticket ID at the gate.
+                </p>
+              </div>
+
               {/* Ticket Card Visual */}
               <div className="bg-[#050505] border-2 border-[#E60012]/60 rounded-3xl p-6 text-left space-y-4 relative overflow-hidden shadow-2xl">
                 <div className="flex justify-between items-start border-b border-white/10 pb-3">
@@ -341,33 +351,24 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 )}
               </div>
 
-              {/* Action Buttons: Download Image, Download PDF & WhatsApp Dispatch */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Action Buttons: Download Image & Download PDF Pass */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a
                   href={bookingData?.qrDataUrl}
                   download={`${bookingData?.ticketId}-QR.png`}
                   className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all min-h-[44px]"
                 >
-                  <Download className="w-3.5 h-3.5 text-white" />
-                  <span>PNG QR</span>
+                  <Download className="w-4 h-4 text-white" />
+                  <span>DOWNLOAD PNG QR CODE</span>
                 </a>
 
                 <button
                   type="button"
                   onClick={() => bookingData && generatePDFTicketPass(bookingData)}
-                  className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
+                  className="bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px] shadow-lg"
                 >
-                  <FileText className="w-3.5 h-3.5 text-[#E60012]" />
-                  <span>PDF PASS</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => bookingData && dispatchWhatsAppTicketMessage(bookingData)}
-                  className="bg-[#171717] hover:bg-black border border-emerald-500/50 text-emerald-400 font-display text-xs font-bold py-3 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>WHATSAPP</span>
+                  <FileText className="w-4 h-4 text-white" />
+                  <span>DOWNLOAD PDF TICKET PASS</span>
                 </button>
               </div>
 
