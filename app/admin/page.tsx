@@ -58,6 +58,7 @@ export default function AdminDashboardPage() {
     checkedInAt?: string;
   }>({ status: 'IDLE' });
   const [cameraActive, setCameraActive] = useState(false);
+  const [scanPaused, setScanPaused] = useState(false);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
   // Store data states
@@ -132,8 +133,9 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Start Camera Scanner
+  // Start Camera Scanner with expanded viewport and auto-stop
   const startCameraScanner = async () => {
+    setScanPaused(false);
     try {
       if (html5QrCodeRef.current) {
         try {
@@ -149,10 +151,10 @@ export default function AdminDashboardPage() {
       await scanner.start(
         { facingMode: 'environment' },
         {
-          fps: 10,
+          fps: 12,
           qrbox: (w, h) => ({
-            width: Math.floor(Math.min(w * 0.8, 260)),
-            height: Math.floor(Math.min(h * 0.8, 260)),
+            width: Math.floor(Math.min(w * 0.85, 340)),
+            height: Math.floor(Math.min(h * 0.85, 340)),
           }),
         },
         (decodedText) => {
@@ -189,9 +191,15 @@ export default function AdminDashboardPage() {
     };
   }, [cameraActive]);
 
-  // Execute Ticket Verification Logic (Async with real-time Supabase fallback)
+  // Execute Ticket Verification Logic (Auto-pauses camera after detection to prevent duplicate scans)
   const handleVerifyCode = async (codeToTest: string) => {
     if (!codeToTest.trim()) return;
+
+    if (cameraActive) {
+      await stopCameraScanner();
+      setScanPaused(true);
+    }
+
     const res = await verifyTicketScanAsync(codeToTest, 'Gate Admin 1');
     setScanResult(res);
   };
@@ -211,31 +219,60 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Export Tickets to CSV
-  const exportTicketsToCSV = () => {
-    if (tickets.length === 0) {
-      alert('No tickets generated yet to export!');
+  // Export Tickets to CSV (overall or filtered by match title)
+  const exportTicketsToCSV = (matchFilter?: string) => {
+    let list = tickets;
+    if (matchFilter && matchFilter !== 'ALL') {
+      list = tickets.filter((t) => t.matchTitle.toLowerCase().includes(matchFilter.toLowerCase()));
+    }
+
+    if (list.length === 0) {
+      alert('No tickets generated for this selection to export!');
       return;
     }
 
-    const headers = ['Ticket ID', 'Match Title', 'Holder Name', 'Email', 'Phone', 'Quantity', 'Amount', 'Checked In', 'Checked In At'];
-    const rows = tickets.map((t) => [
+    const headers = [
+      'Ticket ID',
+      'Match Title',
+      'Venue',
+      'Match Date',
+      'Kickoff Time',
+      'Holder Name',
+      'Email',
+      'Phone',
+      'Quantity',
+      'Total Amount (INR)',
+      'Payment Status',
+      'Gate Checked In',
+      'Checked In Time',
+      'Booking Date',
+    ];
+
+    const rows = list.map((t) => [
       t.ticketId,
-      `"${t.matchTitle}"`,
-      `"${t.userName}"`,
+      `"${t.matchTitle.replace(/"/g, '""')}"`,
+      `"${t.venue.replace(/"/g, '""')}"`,
+      `"${t.date}"`,
+      `"${t.time}"`,
+      `"${t.userName.replace(/"/g, '""')}"`,
       t.userEmail,
       t.userPhone,
       t.quantity,
       t.totalAmount,
+      t.paymentStatus || 'SUCCESS',
       t.checkedIn ? 'YES' : 'NO',
       t.checkedInAt || 'N/A',
+      `"${t.bookingDate}"`,
     ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `MUSC-Pune-Tickets-${new Date().toISOString().slice(0, 10)}.csv`);
+    const fileName = matchFilter && matchFilter !== 'ALL'
+      ? `MUSC-Pune-${matchFilter.replace(/[^a-zA-Z0-9]/g, '-')}-Report.csv`
+      : `MUSC-Pune-All-Tickets-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -535,15 +572,35 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* HTML5 Camera Viewport Box */}
-                  <div className="relative aspect-video w-full bg-[#050505] rounded-2xl overflow-hidden border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-2">
-                    <div id="qr-reader-viewport" className="w-full h-full" />
+                  {/* HTML5 Camera Viewport Box — Enlarged High-Visibility Container */}
+                  <div className="relative min-h-[380px] sm:min-h-[460px] w-full bg-[#050505] rounded-2xl overflow-hidden border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-2 shadow-2xl">
+                    <div id="qr-reader-viewport" className="w-full h-full min-h-[380px] sm:min-h-[460px]" />
                     {!cameraActive && (
-                      <div className="text-center space-y-2 p-6">
-                        <QrIcon className="w-16 h-16 text-[#E60012] mx-auto animate-pulse" />
-                        <p className="text-xs font-sans text-white/70">
-                          Click &quot;START CAMERA&quot; to scan passes live, or &quot;SCAN IMAGE&quot; to upload a saved ticket QR pass!
-                        </p>
+                      <div className="text-center space-y-4 p-6 my-auto z-10">
+                        <QrIcon className="w-20 h-20 text-[#E60012] mx-auto animate-pulse" />
+                        <div className="space-y-2">
+                          {scanPaused ? (
+                            <div className="space-y-2">
+                              <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 text-xs font-display px-3 py-1 rounded-full font-bold uppercase inline-block">
+                                ✓ TICKET SCANNED — CAMERA AUTO-PAUSED
+                              </span>
+                              <p className="text-xs font-sans text-white/80">
+                                Camera stopped automatically to prevent duplicate scans. Click below to scan the next attendee!
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-xs font-sans text-white/70">
+                              Click &quot;START CAMERA&quot; to scan passes live, or &quot;SCAN IMAGE&quot; to upload a saved ticket QR pass!
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={startCameraScanner}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-sm font-bold py-3.5 px-8 rounded-xl shadow-lg uppercase transition-all hover:scale-105 cursor-pointer min-h-[44px]"
+                        >
+                          {scanPaused ? '📷 SCAN NEXT TICKET PASS' : '📷 START LIVE CAMERA SCANNER'}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -999,13 +1056,33 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={exportTicketsToCSV}
-                    className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-2 shadow"
-                  >
-                    <DownIcon className="w-4 h-4" />
-                    <span>EXPORT TICKETS (CSV)</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => exportTicketsToCSV('ALL')}
+                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer uppercase"
+                    >
+                      <DownIcon className="w-4 h-4" />
+                      <span>EXPORT ALL TICKETS (CSV)</span>
+                    </button>
+
+                    {screenings.length > 0 && (
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) exportTicketsToCSV(e.target.value);
+                        }}
+                        defaultValue=""
+                        className="bg-[#050505] border border-white/20 text-white font-display text-xs font-bold px-3 py-2.5 rounded-xl cursor-pointer"
+                      >
+                        <option value="" disabled>EXPORT SCREENING SPECIFIC CSV ▾</option>
+                        {screenings.map((sc) => (
+                          <option key={sc.id} value={sc.matchTitle}>
+                            {sc.matchTitle}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                 </div>
 
                 {tickets.length === 0 ? (
