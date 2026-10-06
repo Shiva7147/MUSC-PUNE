@@ -433,20 +433,108 @@ export const verifyTicketScan = (
 // DYNAMIC SCREENINGS ADMIN MANAGEMENT (FULL CRUD)
 // -------------------------------------------------------------
 
+// Helper to sync screening record to Supabase
+const syncScreeningToSupabase = async (item: Screening) => {
+  try {
+    fetch('/api/screenings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    }).catch(() => {});
+
+    if (supabase) {
+      await supabase.from('screenings').upsert({
+        id: item.id,
+        match_title: item.matchTitle,
+        competition: item.competition || 'Premier League',
+        home_team: item.homeTeam || 'Manchester United',
+        away_team: item.awayTeam || 'Opponent',
+        home_logo: item.homeLogo || '🔴',
+        away_logo: item.awayLogo || '🔴',
+        date: item.date,
+        time: item.time,
+        venue_name: item.venueName,
+        venue_address: item.venueAddress || item.venueName,
+        venue_area: item.venueArea || 'Central Pune',
+        price: item.price,
+        active_phase_name: item.activePhaseName || 'PHASE 1',
+        phases: item.phases || [],
+        tax_rate: item.taxRate ?? 0.18,
+        platform_fee_rate: item.platformFeeRate ?? 0.03,
+        featured: Boolean(item.featured),
+        status: item.status || 'UPCOMING',
+        description: item.description || '',
+        gate_opening: item.gateOpening || '07:30 PM IST',
+        inclusions: item.inclusions || [],
+        rules: item.rules || [],
+        capacity: item.capacity || 250,
+        remaining_seats: item.remainingSeats || 250,
+      });
+    }
+  } catch (err) {
+    console.error('Supabase screening sync error:', err);
+  }
+};
+
 export const getScreeningsStore = (): Screening[] => {
   return loadStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
 };
 
 export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
   try {
-    const res = await fetch('/api/screenings');
-    if (res.ok) {
-      const json = await res.json();
-      if (json && json.screenings && Array.isArray(json.screenings)) {
-        screeningsMemory = json.screenings;
+    if (supabase) {
+      const { data, error } = await supabase.from('screenings').select('*');
+      if (!error && data && data.length > 0) {
+        const remoteScreenings: Screening[] = data.map((row: any) => ({
+          id: row.id,
+          matchTitle: row.match_title,
+          competition: row.competition || 'Premier League',
+          homeTeam: row.home_team || 'Manchester United',
+          awayTeam: row.away_team || 'Opponent',
+          homeLogo: row.home_logo || '🔴',
+          awayLogo: row.away_logo || '🔴',
+          date: row.date,
+          time: row.time,
+          venueName: row.venue_name,
+          venueAddress: row.venue_address || row.venue_name,
+          venueArea: row.venue_area || 'Central Pune',
+          price: Number(row.price),
+          activePhaseName: row.active_phase_name || 'PHASE 1',
+          phases: row.phases || [],
+          taxRate: row.tax_rate ? Number(row.tax_rate) : 0.18,
+          platformFeeRate: row.platform_fee_rate ? Number(row.platform_fee_rate) : 0.03,
+          featured: Boolean(row.featured),
+          status: row.status || 'UPCOMING',
+          description: row.description || '',
+          gateOpening: row.gate_opening || '07:30 PM IST',
+          inclusions: row.inclusions || [],
+          rules: row.rules || [],
+          capacity: row.capacity || 250,
+          remainingSeats: row.remaining_seats || 250,
+        }));
+
+        screeningsMemory = remoteScreenings;
         saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
         notifyListeners();
         return screeningsMemory;
+      }
+    }
+
+    const res = await fetch('/api/screenings');
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.screenings && Array.isArray(json.screenings) && json.screenings.length > 0) {
+        // Merge with local memory so local user edits are preserved even if server API returns initial fallback
+        const mergedMap = new Map<string, Screening>();
+        json.screenings.forEach((s: Screening) => mergedMap.set(s.id, s));
+        screeningsMemory.forEach((s: Screening) => {
+          mergedMap.set(s.id, s);
+        });
+        const merged = Array.from(mergedMap.values());
+        screeningsMemory = merged;
+        saveStorage(SCREENINGS_STORAGE_KEY, merged);
+        notifyListeners();
+        return merged;
       }
     }
   } catch (err) {
@@ -459,31 +547,24 @@ export const addScreeningToStore = (newScreening: Screening) => {
   screeningsMemory = [newScreening, ...screeningsMemory.filter((s) => s.id !== newScreening.id)];
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  fetch('/api/screenings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newScreening),
-  }).catch(() => {});
+  syncScreeningToSupabase(newScreening);
 };
 
 export const updateScreeningInStore = (updatedScreening: Screening) => {
   screeningsMemory = screeningsMemory.map((s) => (s.id === updatedScreening.id ? { ...s, ...updatedScreening } : s));
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  fetch('/api/screenings', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedScreening),
-  }).catch(() => {});
+  syncScreeningToSupabase(updatedScreening);
 };
 
 export const deleteScreeningFromStore = (screeningId: string) => {
   screeningsMemory = screeningsMemory.filter((s) => s.id !== screeningId);
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  fetch(`/api/screenings?id=${screeningId}`, {
-    method: 'DELETE',
-  }).catch(() => {});
+  fetch(`/api/screenings?id=${screeningId}`, { method: 'DELETE' }).catch(() => {});
+  if (supabase) {
+    Promise.resolve(supabase.from('screenings').delete().eq('id', screeningId)).catch(() => {});
+  }
 };
 
 export const updateScreeningPrice = (screeningId: string, price: number, taxRate?: number, platformFee?: number) => {
