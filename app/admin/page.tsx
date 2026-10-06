@@ -23,6 +23,9 @@ import {
   ShoppingBag as ShoppingIcon,
   DollarSign as PriceIcon,
   Trash2 as TrashIcon,
+  Pencil as EditIcon,
+  Clock as ClockIcon,
+  X as CloseIcon,
 } from 'lucide-react';
 import {
   getTicketStore,
@@ -73,6 +76,7 @@ export default function AdminDashboardPage() {
   const [membershipConfig, setMembershipConfig] = useState<MembershipConfig>(getMembershipConfigStore());
   const [tourConfig, setTourConfig] = useState<TourConfig>(getTourConfigStore());
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
+  const [editingScreening, setEditingScreening] = useState<Screening | null>(null);
 
   // New item form states
   const [newScreening, setNewScreening] = useState<Partial<Screening>>({
@@ -318,8 +322,37 @@ export default function AdminDashboardPage() {
       remainingSeats: Number(newScreening.capacity) || 250,
     };
     addScreeningToStore(item);
-    setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350 });
+    setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350, time: '09:00 PM IST', venueName: 'BIRA 91 Taproom, The Mills' });
     alert('New event / screening created successfully!');
+  };
+
+  const handleUpdateScreening = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingScreening || !editingScreening.matchTitle || !editingScreening.date) return;
+    updateScreeningInStore(editingScreening);
+    setEditingScreening(null);
+    alert(`Screening event "${editingScreening.matchTitle}" updated live across the entire website!`);
+  };
+
+  const formatDateFromPicker = (isoDate: string): string => {
+    if (!isoDate) return '';
+    try {
+      const parts = isoDate.split('-');
+      if (parts.length === 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          });
+        }
+      }
+      return isoDate;
+    } catch {
+      return isoDate;
+    }
   };
 
   const handleCreateProduct = (e: React.FormEvent) => {
@@ -798,8 +831,9 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Create Form */}
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
-                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
-                    ADD NEW SCREENING TICKET EVENT
+                  <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3 flex items-center gap-2">
+                    <PlusIcon className="w-5 h-5 text-[#E60012]" />
+                    <span>ADD NEW SCREENING TICKET EVENT</span>
                   </h3>
 
                   <form onSubmit={handleCreateScreening} className="space-y-4">
@@ -815,15 +849,85 @@ export default function AdminDashboardPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">DATE *</label>
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">COMPETITION</label>
+                      <select
+                        value={newScreening.competition || 'Premier League'}
+                        onChange={(e) => setNewScreening({ ...newScreening, competition: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      >
+                        <option value="Premier League">Premier League</option>
+                        <option value="FA Cup">FA Cup</option>
+                        <option value="UEFA Champions League">UEFA Champions League</option>
+                        <option value="EFL Cup">EFL Cup</option>
+                        <option value="Pre-Season Tour">Pre-Season Tour</option>
+                      </select>
+                    </div>
+
+                    {/* Date with Calendar Picker Button */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MATCH DATE *</label>
+                        <span className="text-[10px] text-white/50 font-sans">Pick via calendar ➔</span>
+                      </div>
+                      <div className="flex gap-2 items-center">
                         <input
                           type="text"
                           required
                           placeholder="e.g. Sunday, May 10, 2026"
-                          value={newScreening.date}
+                          value={newScreening.date || ''}
                           onChange={(e) => setNewScreening({ ...newScreening, date: e.target.value })}
+                          className="flex-1 bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                        <div className="relative shrink-0">
+                          <label className="bg-[#050505] hover:bg-black border border-white/20 text-[#E60012] p-3 rounded-xl flex items-center justify-center cursor-pointer shadow">
+                            <CalIcon className="w-5 h-5" />
+                            <input
+                              type="date"
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  setNewScreening({ ...newScreening, date: formatDateFromPicker(e.target.value) });
+                                }
+                              }}
+                              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Time Input & Quick Presets */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">KICKOFF TIME *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 09:00 PM IST"
+                        value={newScreening.time || '09:00 PM IST'}
+                        onChange={(e) => setNewScreening({ ...newScreening, time: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {['05:30 PM IST', '07:30 PM IST', '08:00 PM IST', '09:00 PM IST', '11:30 PM IST'].map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setNewScreening({ ...newScreening, time: t })}
+                            className="text-[10px] font-display bg-[#050505] hover:bg-[#E60012] border border-white/10 text-white/80 px-2 py-1 rounded"
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">VENUE NAME</label>
+                        <input
+                          type="text"
+                          value={newScreening.venueName || 'BIRA 91 Taproom, The Mills'}
+                          onChange={(e) => setNewScreening({ ...newScreening, venueName: e.target.value })}
                           className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
                         />
                       </div>
@@ -831,21 +935,11 @@ export default function AdminDashboardPage() {
                         <label className="text-xs font-display text-white/90 font-bold uppercase">PRICE (₹)</label>
                         <input
                           type="number"
-                          value={newScreening.price}
+                          value={newScreening.price || 350}
                           onChange={(e) => setNewScreening({ ...newScreening, price: Number(e.target.value) })}
                           className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
                         />
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">VENUE NAME</label>
-                      <input
-                        type="text"
-                        value={newScreening.venueName}
-                        onChange={(e) => setNewScreening({ ...newScreening, venueName: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
                     </div>
 
                     <button
@@ -858,7 +952,7 @@ export default function AdminDashboardPage() {
                   </form>
                 </div>
 
-                {/* List & Manual Price Controller */}
+                {/* List & Edit/Delete Controls */}
                 <div className="lg:col-span-7 space-y-6">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <h3 className="font-display text-xl font-bold text-white uppercase flex items-center gap-2">
@@ -869,24 +963,49 @@ export default function AdminDashboardPage() {
 
                   <div className="space-y-6">
                     {screenings.map((sc) => (
-                      <div key={sc.id} className="glass-card p-6 rounded-3xl bg-[#171717] border border-white/10 space-y-4">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-                          <div>
-                            <div className="text-xs font-display text-[#E60012] font-bold uppercase">{sc.competition}</div>
-                            <h4 className="font-display text-3xl font-bold text-white uppercase">{sc.matchTitle}</h4>
-                            <div className="text-xs font-sans text-white/70 mt-0.5">
-                              📍 {sc.venueName} • 📅 {sc.date}
+                      <div key={sc.id} className="glass-card p-6 rounded-3xl bg-[#171717] border border-white/10 space-y-4 shadow-xl">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-display text-[#E60012] font-bold uppercase bg-[#050505] px-2 py-0.5 rounded border border-[#E60012]/30">
+                                {sc.competition}
+                              </span>
+                              <span className="text-[10px] font-display text-emerald-400 font-bold uppercase bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
+                                {sc.status || 'UPCOMING'}
+                              </span>
+                            </div>
+                            <h4 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase">{sc.matchTitle}</h4>
+                            <div className="text-xs font-sans text-white/80 space-y-1 pt-1">
+                              <div className="flex items-center gap-2">
+                                <CalIcon className="w-3.5 h-3.5 text-[#E60012]" />
+                                <span>📅 {sc.date}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <ClockIcon className="w-3.5 h-3.5 text-[#E60012]" />
+                                <span>⏰ {sc.time}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span>📍 {sc.venueName}</span>
+                              </div>
                             </div>
                           </div>
-                          <div className="text-right space-y-2">
-                            <div className="text-xs font-display text-white/60 uppercase">MANUAL TICKET PRICE</div>
-                            <div className="flex items-center justify-end gap-2">
-                              <input
-                                type="number"
-                                value={sc.price}
-                                onChange={(e) => updateScreeningPrice(sc.id, Number(e.target.value))}
-                                className="w-24 bg-[#050505] border border-[#E60012] rounded-lg px-2 py-1 text-right font-display text-xl font-bold text-[#E60012]"
-                              />
+
+                          <div className="text-left sm:text-right space-y-3 shrink-0">
+                            <div>
+                              <span className="text-[10px] font-display text-white/60 uppercase block">TICKET PRICE</span>
+                              <span className="font-display text-2xl font-bold text-[#E60012]">₹{sc.price}</span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditingScreening(sc)}
+                                className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 font-display text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors shadow"
+                              >
+                                <EditIcon className="w-3.5 h-3.5" />
+                                <span>EDIT SCREENING</span>
+                              </button>
+
                               <button
                                 type="button"
                                 onClick={() => {
@@ -894,7 +1013,7 @@ export default function AdminDashboardPage() {
                                     deleteScreeningFromStore(sc.id);
                                   }
                                 }}
-                                className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                                className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors shadow"
                               >
                                 <TrashIcon className="w-3.5 h-3.5" />
                                 <span>DELETE</span>
@@ -906,6 +1025,163 @@ export default function AdminDashboardPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* EDIT SCREENING MODAL */}
+                {editingScreening && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="bg-[#171717] border border-white/20 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div>
+                          <div className="text-xs font-display text-[#E60012] font-bold uppercase">EDIT SCREENING EVENT</div>
+                          <h3 className="font-display text-2xl font-bold text-white uppercase">{editingScreening.matchTitle}</h3>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEditingScreening(null)}
+                          className="text-white/60 hover:text-white p-2 rounded-lg bg-[#050505]"
+                        >
+                          <CloseIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <form onSubmit={handleUpdateScreening} className="space-y-4">
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">MATCH TITLE *</label>
+                          <input
+                            type="text"
+                            required
+                            value={editingScreening.matchTitle}
+                            onChange={(e) => setEditingScreening({ ...editingScreening, matchTitle: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">COMPETITION</label>
+                            <select
+                              value={editingScreening.competition || 'Premier League'}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, competition: e.target.value })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            >
+                              <option value="Premier League">Premier League</option>
+                              <option value="FA Cup">FA Cup</option>
+                              <option value="UEFA Champions League">UEFA Champions League</option>
+                              <option value="EFL Cup">EFL Cup</option>
+                              <option value="Pre-Season Tour">Pre-Season Tour</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">STATUS</label>
+                            <select
+                              value={editingScreening.status || 'UPCOMING'}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, status: e.target.value as any })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            >
+                              <option value="UPCOMING">UPCOMING</option>
+                              <option value="LIVE NOW">LIVE NOW</option>
+                              <option value="SOLD OUT">SOLD OUT</option>
+                              <option value="COMPLETED">COMPLETED</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Edit Date with Calendar Picker */}
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">MATCH DATE *</label>
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="text"
+                              required
+                              value={editingScreening.date}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, date: e.target.value })}
+                              className="flex-1 bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                            />
+                            <div className="relative shrink-0">
+                              <label className="bg-[#050505] hover:bg-black border border-white/20 text-[#E60012] p-3 rounded-xl flex items-center justify-center cursor-pointer shadow">
+                                <CalIcon className="w-5 h-5" />
+                                <input
+                                  type="date"
+                                  onChange={(e) => {
+                                    if (e.target.value) {
+                                      setEditingScreening({ ...editingScreening, date: formatDateFromPicker(e.target.value) });
+                                    }
+                                  }}
+                                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Edit Time */}
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">KICKOFF TIME *</label>
+                          <input
+                            type="text"
+                            required
+                            value={editingScreening.time}
+                            onChange={(e) => setEditingScreening({ ...editingScreening, time: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                          />
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {['05:30 PM IST', '07:30 PM IST', '08:00 PM IST', '09:00 PM IST', '11:30 PM IST'].map((t) => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => setEditingScreening({ ...editingScreening, time: t })}
+                                className="text-[10px] font-display bg-[#050505] hover:bg-[#E60012] border border-white/10 text-white/80 px-2 py-1 rounded"
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">VENUE NAME *</label>
+                            <input
+                              type="text"
+                              required
+                              value={editingScreening.venueName}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, venueName: e.target.value })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">PRICE (₹) *</label>
+                            <input
+                              type="number"
+                              required
+                              value={editingScreening.price}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, price: Number(e.target.value) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => setEditingScreening(null)}
+                            className="flex-1 bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3.5 rounded-xl uppercase"
+                          >
+                            CANCEL
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 rounded-xl uppercase shadow"
+                          >
+                            SAVE & UPDATE SCREENING
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -75,6 +75,35 @@ export const subscribeStore = (listener: Listener) => {
   };
 };
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (
+      e.key === TICKETS_STORAGE_KEY ||
+      e.key === SCREENINGS_STORAGE_KEY ||
+      e.key === GALLERY_STORAGE_KEY ||
+      e.key === PRODUCTS_STORAGE_KEY ||
+      e.key === MEMBERSHIP_CONFIG_KEY ||
+      e.key === TOUR_CONFIG_KEY
+    ) {
+      ticketsMemory = loadStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+      screeningsMemory = loadStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+      galleryMemory = loadStorage(GALLERY_STORAGE_KEY, galleryMemory);
+      productsMemory = loadStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+      membershipConfigMemory = loadStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+      tourConfigMemory = loadStorage(TOUR_CONFIG_KEY, tourConfigMemory);
+      notifyListeners();
+    }
+  });
+
+  // Periodic polling every 4s to reflect admin edits across all devices live
+  setInterval(() => {
+    fetchScreeningsRemoteAsync();
+    fetchProductsRemoteAsync();
+    fetchGalleryRemoteAsync();
+    fetchConfigRemoteAsync();
+  }, 4000);
+}
+
 // Helper to sync ticket record to Supabase if configured
 const syncTicketToSupabase = async (record: AdminTicketRecord) => {
   try {
