@@ -226,7 +226,7 @@ export default function Home() {
                     <h3 className="font-display text-4xl sm:text-5xl font-bold text-white mt-1 uppercase">{featuredScreening.matchTitle}</h3>
                     <div className="mt-3 text-xs sm:text-sm font-sans text-white/80 space-y-1">
                       <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
-                      <div>📍 Matchday Screening Venue</div>
+                      <div>📍 {featuredScreening.venueName}</div>
                     </div>
                   </div>
 

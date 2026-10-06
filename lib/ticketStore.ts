@@ -26,6 +26,8 @@ export interface AdminTicketRecord {
 // LocalStorage Persistence Keys
 const TICKETS_STORAGE_KEY = 'musc_pune_tickets_v1';
 const SCREENINGS_STORAGE_KEY = 'musc_pune_screenings_v1';
+const SCREENINGS_EDITS_KEY = 'musc_pune_screenings_edits_v1';
+const SCREENINGS_DELETED_KEY = 'musc_pune_screenings_deleted_v1';
 const GALLERY_STORAGE_KEY = 'musc_pune_gallery_v1';
 const PRODUCTS_STORAGE_KEY = 'musc_pune_products_v1';
 const MEMBERSHIP_CONFIG_KEY = 'musc_pune_membership_config_v1';
@@ -54,11 +56,23 @@ const saveStorage = <T>(key: string, data: T) => {
 
 // INITIAL LOAD
 let ticketsMemory: AdminTicketRecord[] = loadStorage(TICKETS_STORAGE_KEY, []);
+let screeningEditsMemory: Record<string, Screening> = loadStorage(SCREENINGS_EDITS_KEY, {});
+let screeningDeletedMemory: string[] = loadStorage(SCREENINGS_DELETED_KEY, []);
 let screeningsMemory: Screening[] = loadStorage(SCREENINGS_STORAGE_KEY, upcomingScreenings);
 let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGallery);
 let productsMemory: Product[] = loadStorage(PRODUCTS_STORAGE_KEY, defaultProducts);
 let membershipConfigMemory: MembershipConfig = loadStorage(MEMBERSHIP_CONFIG_KEY, defaultMembershipConfig);
 let tourConfigMemory: TourConfig = loadStorage(TOUR_CONFIG_KEY, defaultTourConfig);
+
+// Helper to apply user edits & deletions on top of base screenings list so edits NEVER get reverted
+export const applyScreeningOverrides = (baseList: Screening[]): Screening[] => {
+  const deletedSet = new Set(screeningDeletedMemory);
+  let filtered = (baseList || []).filter((s) => !deletedSet.has(s.id));
+  filtered = filtered.map((s) => (screeningEditsMemory[s.id] ? { ...s, ...screeningEditsMemory[s.id] } : s));
+  const baseIds = new Set(filtered.map((s) => s.id));
+  const additions = Object.values(screeningEditsMemory).filter((s) => !baseIds.has(s.id) && !deletedSet.has(s.id));
+  return [...additions, ...filtered];
+};
 
 // LISTENERS FOR REACTIVE UPDATES ACROSS COMPONENTS
 type Listener = () => void;
@@ -477,7 +491,8 @@ const syncScreeningToSupabase = async (item: Screening) => {
 };
 
 export const getScreeningsStore = (): Screening[] => {
-  return loadStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+  const stored = loadStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+  return applyScreeningOverrides(stored);
 };
 
 export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
@@ -513,10 +528,11 @@ export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
           remainingSeats: row.remaining_seats || 250,
         }));
 
-        screeningsMemory = remoteScreenings;
-        saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
+        const merged = applyScreeningOverrides(remoteScreenings);
+        screeningsMemory = merged;
+        saveStorage(SCREENINGS_STORAGE_KEY, merged);
         notifyListeners();
-        return screeningsMemory;
+        return merged;
       }
     }
 
@@ -524,13 +540,7 @@ export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
     if (res.ok) {
       const json = await res.json();
       if (json && json.screenings && Array.isArray(json.screenings) && json.screenings.length > 0) {
-        // Merge with local memory so local user edits are preserved even if server API returns initial fallback
-        const mergedMap = new Map<string, Screening>();
-        json.screenings.forEach((s: Screening) => mergedMap.set(s.id, s));
-        screeningsMemory.forEach((s: Screening) => {
-          mergedMap.set(s.id, s);
-        });
-        const merged = Array.from(mergedMap.values());
+        const merged = applyScreeningOverrides(json.screenings);
         screeningsMemory = merged;
         saveStorage(SCREENINGS_STORAGE_KEY, merged);
         notifyListeners();
@@ -540,25 +550,41 @@ export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
   } catch (err) {
     console.error('Fetch remote screenings error:', err);
   }
-  return screeningsMemory;
+  return applyScreeningOverrides(screeningsMemory);
 };
 
 export const addScreeningToStore = (newScreening: Screening) => {
-  screeningsMemory = [newScreening, ...screeningsMemory.filter((s) => s.id !== newScreening.id)];
+  screeningEditsMemory[newScreening.id] = newScreening;
+  saveStorage(SCREENINGS_EDITS_KEY, screeningEditsMemory);
+  // Ensure it's un-deleted if re-added
+  screeningDeletedMemory = screeningDeletedMemory.filter((id) => id !== newScreening.id);
+  saveStorage(SCREENINGS_DELETED_KEY, screeningDeletedMemory);
+
+  screeningsMemory = applyScreeningOverrides([newScreening, ...screeningsMemory]);
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
   syncScreeningToSupabase(newScreening);
 };
 
 export const updateScreeningInStore = (updatedScreening: Screening) => {
-  screeningsMemory = screeningsMemory.map((s) => (s.id === updatedScreening.id ? { ...s, ...updatedScreening } : s));
+  screeningEditsMemory[updatedScreening.id] = updatedScreening;
+  saveStorage(SCREENINGS_EDITS_KEY, screeningEditsMemory);
+
+  screeningsMemory = applyScreeningOverrides(screeningsMemory.map((s) => (s.id === updatedScreening.id ? { ...s, ...updatedScreening } : s)));
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
   syncScreeningToSupabase(updatedScreening);
 };
 
 export const deleteScreeningFromStore = (screeningId: string) => {
-  screeningsMemory = screeningsMemory.filter((s) => s.id !== screeningId);
+  if (!screeningDeletedMemory.includes(screeningId)) {
+    screeningDeletedMemory = [...screeningDeletedMemory, screeningId];
+    saveStorage(SCREENINGS_DELETED_KEY, screeningDeletedMemory);
+  }
+  delete screeningEditsMemory[screeningId];
+  saveStorage(SCREENINGS_EDITS_KEY, screeningEditsMemory);
+
+  screeningsMemory = applyScreeningOverrides(screeningsMemory.filter((s) => s.id !== screeningId));
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
   fetch(`/api/screenings?id=${screeningId}`, { method: 'DELETE' }).catch(() => {});
