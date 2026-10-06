@@ -1,4 +1,4 @@
-import { Screening, Product, TourPackage, GalleryItem, FanChant, TeamMember, MembershipConfig } from './types';
+import { Screening, Product, TourPackage, TourConfig, GalleryItem, FanChant, TeamMember, MembershipConfig } from './types';
 
 export const officialClubDetails = {
   name: 'MUSC Pune',
@@ -36,7 +36,9 @@ export const defaultMembershipConfig: MembershipConfig = {
     'L': 999,
     'XL': 999,
     'XXL': 1099,
-    'XXXL': 1199,
+    '3XL': 1199,
+    '4XL': 1299,
+    '5XL': 1399,
   },
   taxRate: 0.18,
   platformFeeRate: 0.03,
@@ -190,6 +192,36 @@ export const merchandiseProducts: Product[] = [
     ]
   }
 ];
+
+export const defaultTourConfig: TourConfig = {
+  id: 'tour-autumn-2026',
+  title: 'Trip to Old Trafford',
+  subtitle: 'Experience the Theatre of Dreams with MUSC Pune',
+  duration: '7 Days / 6 Nights',
+  nextBatch: 'October 18 – 24, 2026',
+  matchHighlights: ['Match Tickets', 'Stadium and Museum Tour', 'Accommodation'],
+  includedFeatures: [
+    'Guaranteed Home Match Ticket for Premier League Fixture at Old Trafford',
+    'Group Flight Assistance (PNQ ➔ MAN)',
+    'Hotel Accommodation near Old Trafford',
+    'Exclusive Manchester Supporters Meetup',
+    'Guided Stadium and Museum Tour'
+  ],
+  image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
+  galleryImages: [
+    'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best/v1789886661/IMG_7514.JPG_zpz4qt.jpg',
+    'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best/v1789886661/IMG_7541.JPG_ekrih0.jpg',
+    'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best/v1789886640/IMG_7540.JPG_p9wuqu.jpg',
+    'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best/v1789886594/IMG_7495.JPG_ay4gmh.jpg'
+  ],
+  description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from PNQ to Manchester to witness United live at the Theatre of Dreams with home match tickets, stadium and museum tour, and accommodation included.',
+  longDescription: [
+    'For every Manchester United fan, visiting Old Trafford is the ultimate pilgrimage. MUSC Pune organises official group trips to Manchester, giving supporters from Pune the opportunity to experience the iconic Theatre of Dreams in person.',
+    'Our group trips cover Premier League home fixtures, complete with stadium and museum tours, matchday atmosphere in Manchester, and shared experiences with fellow Reds.',
+    'Contact the committee to register your interest for the upcoming batch and turn your dream of watching Manchester United live at Old Trafford into a reality.'
+  ],
+  bookingUrl: 'mailto:manutdpune@gmail.com?subject=Inquiry%20-%20Trip%20to%20Old%20Trafford'
+};
 
 export const oldTraffordTours: TourPackage[] = [
   {

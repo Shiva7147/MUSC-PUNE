@@ -35,9 +35,11 @@ export const HeroSection: React.FC = () => {
           <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
-        {/* HINDI TAGLINE HEADLINE: SOLID UNIFORM WHITE TEXT */}
-        <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] max-w-3xl mx-auto px-2">
-          एक शहर, एक क्लब, एक प्रेम - मैनचेस्टर यूनाइटेड
+        {/* HINDI TAGLINE HEADLINE: STYLED WITH ULTRA LUXURY WHITE SHIMMER & AMBIENT RED GLOW */}
+        <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_0_35px_rgba(230,0,18,0.45)] max-w-3xl mx-auto px-2 relative transition-all">
+          <span className="bg-gradient-to-r from-white via-neutral-100 to-white bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,0,0,0.95)]">
+            एक शहर, एक क्लब, एक प्रेम - मैनचेस्टर यूनाइटेड
+          </span>
         </h1>
 
         {/* English Subtitle: Updated Official About Copy */}

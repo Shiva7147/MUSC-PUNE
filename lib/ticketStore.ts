@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
-import { Screening, GalleryItem, Product, MembershipConfig } from './types';
-import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig } from './data';
+import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from './types';
+import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig, defaultTourConfig } from './data';
 
 export interface AdminTicketRecord {
   ticketId: string;
@@ -27,6 +27,7 @@ const SCREENINGS_STORAGE_KEY = 'musc_pune_screenings_v1';
 const GALLERY_STORAGE_KEY = 'musc_pune_gallery_v1';
 const PRODUCTS_STORAGE_KEY = 'musc_pune_products_v1';
 const MEMBERSHIP_CONFIG_KEY = 'musc_pune_membership_config_v1';
+const TOUR_CONFIG_KEY = 'musc_pune_tour_config_v1';
 
 // Helper to safely load data from LocalStorage
 const loadStorage = <T>(key: string, fallback: T): T => {
@@ -55,6 +56,7 @@ let screeningsMemory: Screening[] = loadStorage(SCREENINGS_STORAGE_KEY, upcoming
 let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGallery);
 let productsMemory: Product[] = loadStorage(PRODUCTS_STORAGE_KEY, defaultProducts);
 let membershipConfigMemory: MembershipConfig = loadStorage(MEMBERSHIP_CONFIG_KEY, defaultMembershipConfig);
+let tourConfigMemory: TourConfig = loadStorage(TOUR_CONFIG_KEY, defaultTourConfig);
 
 // LISTENERS FOR REACTIVE UPDATES ACROSS COMPONENTS
 type Listener = () => void;
@@ -261,5 +263,19 @@ export const getGalleryStore = (): GalleryItem[] => {
 export const addGalleryItemToStore = (newItem: GalleryItem) => {
   galleryMemory = [newItem, ...galleryMemory];
   saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
+  notifyListeners();
+};
+
+// -------------------------------------------------------------
+// DYNAMIC TOUR CONFIG ADMIN MANAGEMENT
+// -------------------------------------------------------------
+
+export const getTourConfigStore = (): TourConfig => {
+  return loadStorage(TOUR_CONFIG_KEY, tourConfigMemory);
+};
+
+export const updateTourConfigStore = (newConfig: TourConfig) => {
+  tourConfigMemory = newConfig;
+  saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
   notifyListeners();
 };

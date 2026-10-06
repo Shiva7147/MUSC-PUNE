@@ -124,11 +124,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span className="font-mono">₹{baseTotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>GST ({Math.round(taxRate * 100)}%)</span>
+                  <span>Applicable Tax Rate ({Math.round(taxRate * 100)}% GST)</span>
                   <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>Platform Fee ({Math.round(platformFeeRate * 100)}%)</span>
+                  <span>Applicable Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
                   <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between font-display text-xl font-bold text-white pt-2 border-t border-white/10">

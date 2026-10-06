@@ -76,6 +76,21 @@ export interface TourPackage {
   description: string;
 }
 
+export interface TourConfig {
+  id: string;
+  title: string;
+  subtitle: string;
+  duration: string;
+  nextBatch: string;
+  matchHighlights: string[];
+  includedFeatures: string[];
+  image: string;
+  galleryImages: string[];
+  description: string;
+  longDescription: string[];
+  bookingUrl?: string;
+}
+
 export interface GalleryItem {
   id: string;
   title: string;

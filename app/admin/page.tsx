@@ -35,15 +35,17 @@ import {
   addProductToStore,
   getMembershipConfigStore,
   updateMembershipConfigStore,
+  getTourConfigStore,
+  updateTourConfigStore,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
-import { Screening, GalleryItem, Product, MembershipConfig } from '@/lib/types';
+import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from '@/lib/types';
 
 export default function AdminDashboardPage() {
   const [pinInput, setPinInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'SCANNER' | 'PRICING' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER'>('SCANNER');
+  const [activeTab, setActiveTab] = useState<'SCANNER' | 'PRICING' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER' | 'TOURS'>('SCANNER');
 
   // Scanner states
   const [manualCode, setManualCode] = useState('');
@@ -60,6 +62,7 @@ export default function AdminDashboardPage() {
   const [screenings, setScreenings] = useState<Screening[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [membershipConfig, setMembershipConfig] = useState<MembershipConfig>(getMembershipConfigStore());
+  const [tourConfig, setTourConfig] = useState<TourConfig>(getTourConfigStore());
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
 
   // New item form states
@@ -101,6 +104,7 @@ export default function AdminDashboardPage() {
     setScreenings(getScreeningsStore());
     setProducts(getProductsStore());
     setMembershipConfig(getMembershipConfigStore());
+    setTourConfig(getTourConfigStore());
     setGalleryList(getGalleryStore());
   };
 
@@ -291,6 +295,12 @@ export default function AdminDashboardPage() {
     alert('Membership pricing & size configuration updated live!');
   };
 
+  const handleSaveTourConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateTourConfigStore(tourConfig);
+    alert('Old Trafford Group Trip configuration updated live across the entire website!');
+  };
+
   const handleCreateGal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGal.title || !newGal.imageUrl) return;
@@ -455,6 +465,18 @@ export default function AdminDashboardPage() {
               >
                 <SparkIcon className="w-4 h-4" />
                 <span>📊 TICKET LEDGER ({tickets.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('TOURS')}
+                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                  activeTab === 'TOURS'
+                    ? 'bg-[#E60012] text-white shadow-lg'
+                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                }`}
+              >
+                <ShieldIcon className="w-4 h-4" />
+                <span>✈️ OLD TRAFFORD TRIP MANAGER</span>
               </button>
             </div>
 
@@ -629,10 +651,10 @@ export default function AdminDashboardPage() {
                   {/* Size-based pricing configuration */}
                   <div className="space-y-3">
                     <label className="text-xs font-display text-[#E60012] font-bold uppercase block">
-                      MEMBERSHIP SIZE-BASED PRICING (S THROUGH XXXL)
+                      MEMBERSHIP SIZE-BASED PRICING (S THROUGH 5XL)
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {(['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as const).map((size) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {(['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'] as const).map((size) => (
                         <div key={size} className="bg-[#050505] p-3 rounded-xl border border-white/10 space-y-1">
                           <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} PRICE (₹)</label>
                           <input
@@ -649,27 +671,41 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* Taxes & Fees */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/10">
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE GST TAX RATE (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={(membershipConfig.taxRate ?? 0.18) * 100}
-                        onChange={(e) => setMembershipConfig({ ...membershipConfig, taxRate: Number(e.target.value) / 100 })}
-                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
-                      />
+                  {/* Taxes & Fees Slabs */}
+                  <div className="space-y-3 pt-4 border-t border-white/10">
+                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-2">
+                      <div className="text-xs font-display text-[#FFC400] font-bold uppercase flex items-center gap-1.5">
+                        <SparkIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>FEE SLABS CONTROL NOTICE</span>
+                      </div>
+                      <p className="text-xs font-sans text-white/70 leading-relaxed">
+                        Note: <strong>Applicable Tax Rate (GST)</strong> and <strong>Applicable Platform Fees</strong> are the ONLY TWO fee slabs applied across match screenings, memberships, and shop checkouts. Admin can dynamically adjust both percentage slabs below.
+                      </p>
                     </div>
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">PLATFORM FEE RATE (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={(membershipConfig.platformFeeRate ?? 0.03) * 100}
-                        onChange={(e) => setMembershipConfig({ ...membershipConfig, platformFeeRate: Number(e.target.value) / 100 })}
-                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
-                      />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (GST %)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={Math.round((membershipConfig.taxRate ?? 0.18) * 100)}
+                          onChange={(e) => setMembershipConfig({ ...membershipConfig, taxRate: Number(e.target.value) / 100 })}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 18% GST</span>
+                      </div>
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE PLATFORM FEES (%)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={Math.round((membershipConfig.platformFeeRate ?? 0.03) * 100)}
+                          onChange={(e) => setMembershipConfig({ ...membershipConfig, platformFeeRate: Number(e.target.value) / 100 })}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 3% Platform Fee</span>
+                      </div>
                     </div>
                   </div>
 
@@ -1004,6 +1040,120 @@ export default function AdminDashboardPage() {
                     </table>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* TAB 7: OLD TRAFFORD TRIP MANAGER */}
+            {activeTab === 'TOURS' && (
+              <div className="max-w-4xl mx-auto glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-6">
+                <div className="border-b border-white/10 pb-4">
+                  <h2 className="font-display text-2xl font-bold text-white uppercase flex items-center gap-2">
+                    <ShieldIcon className="w-6 h-6 text-[#E60012]" />
+                    <span>OLD TRAFFORD GROUP TRIP MANAGER</span>
+                  </h2>
+                  <p className="text-xs text-white/60 font-sans mt-1">
+                    Edit text content, dates, banner photos, highlights, inclusions, and registration links for the Old Trafford Group Trip.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveTourConfig} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase block">TRIP TITLE *</label>
+                      <input
+                        type="text"
+                        required
+                        value={tourConfig.title}
+                        onChange={(e) => setTourConfig({ ...tourConfig, title: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase block">NEXT BATCH DATES *</label>
+                      <input
+                        type="text"
+                        required
+                        value={tourConfig.nextBatch}
+                        onChange={(e) => setTourConfig({ ...tourConfig, nextBatch: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase block">TRIP DURATION *</label>
+                      <input
+                        type="text"
+                        required
+                        value={tourConfig.duration}
+                        onChange={(e) => setTourConfig({ ...tourConfig, duration: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase block">BOOKING / INQUIRY LINK</label>
+                      <input
+                        type="text"
+                        value={tourConfig.bookingUrl || ''}
+                        onChange={(e) => setTourConfig({ ...tourConfig, bookingUrl: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-display text-white/90 font-bold uppercase block">FEATURED BANNER IMAGE URL *</label>
+                    <input
+                      type="text"
+                      required
+                      value={tourConfig.image}
+                      onChange={(e) => setTourConfig({ ...tourConfig, image: e.target.value })}
+                      className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-display text-white/90 font-bold uppercase block">SHORT SUBTITLE DESCRIPTION</label>
+                    <input
+                      type="text"
+                      value={tourConfig.subtitle}
+                      onChange={(e) => setTourConfig({ ...tourConfig, subtitle: e.target.value })}
+                      className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-display text-white/90 font-bold uppercase block">MAIN TRIP DESCRIPTION</label>
+                    <textarea
+                      rows={3}
+                      value={tourConfig.description}
+                      onChange={(e) => setTourConfig({ ...tourConfig, description: e.target.value })}
+                      className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-display text-white/90 font-bold uppercase block">
+                      INCLUDED PILGRIMAGE FEATURES (ONE PER LINE)
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={tourConfig.includedFeatures?.join('\n') || ''}
+                      onChange={(e) => setTourConfig({ ...tourConfig, includedFeatures: e.target.value.split('\n').filter(Boolean) })}
+                      className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 rounded-xl shadow-lg uppercase"
+                  >
+                    SAVE & PUBLISH OLD TRAFFORD TRIP CHANGES
+                  </button>
+                </form>
               </div>
             )}
           </div>

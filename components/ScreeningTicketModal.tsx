@@ -254,11 +254,11 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                       <span className="font-mono">₹{baseAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between text-white/70">
-                      <span>Applicable Tax ({Math.round(taxRate * 100)}% GST)</span>
+                      <span>Applicable Tax Rate ({Math.round(taxRate * 100)}% GST)</span>
                       <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
-                      <span>Platform & Booking Fee ({Math.round(platformFeeRate * 100)}%)</span>
+                      <span>Applicable Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
                       <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between font-display text-base font-bold text-white pt-1">

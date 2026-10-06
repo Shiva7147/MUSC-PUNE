@@ -49,17 +49,17 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
     };
   }, []);
 
-  const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
 
   const localTierFeatures = [
-    { title: 'Official MUFC Pune T-Shirt', detail: 'Official supporter kit (Select size S to XXL)', icon: Shirt },
+    { title: 'Official MUFC Pune T-Shirt', detail: 'Official supporter kit (Select size S to 5XL)', icon: Shirt },
     { title: '100% Complimentary Screening Ticket', detail: '1 Free entry pass to any 1 matchday screening', icon: Ticket },
     { title: 'Priority Seating', detail: 'Reserved front-row seating at all Pune screenings', icon: Armchair },
     { title: 'Exclusive Member Privileges', detail: 'Access to member meetups, raffles & WhatsApp group', icon: Gift },
   ];
 
   const globalOumBenefits = [
-    'Priority access to face-value home & away match tickets at Old Trafford',
+    'Priority access to face-value home match tickets at Old Trafford',
     'Official Manchester United Membership Pack & Digital Crest Pass',
     '10% discount at official Megastore (online & Old Trafford)',
     'Exclusive access to digital yearbook & United media streams',
@@ -68,7 +68,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
   const handleJoinClicked = () => {
     if (!selectedSize) {
       setSizeError(true);
-      alert('Please select your official T-Shirt size (S, M, L, XL, XXL) before joining Pune’s Red Army.');
+      alert('Please select your official T-Shirt size before joining Pune’s Red Army.');
       return;
     }
 
@@ -88,7 +88,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
       image: officialMembershipImageUrl,
       description:
         "Official local supporters club membership for Pune's Red Army including Official T-Shirt, 1 Free Match Screening Ticket, Priority Seating, and WhatsApp Community Access.",
-      availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      availableSizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'],
       inStock: true,
       badge: '🔴 Official Local Membership',
       details: [
@@ -125,11 +125,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base text-white/80 font-sans max-w-2xl mx-auto leading-relaxed">
-            {isHomepage ? (
-              <>Select your official T-Shirt size below to join Pune&apos;s Red Army and checkout directly.</>
-            ) : (
-              <>Explore our two official membership avenues: Official Local Supporters Club Membership and Global One United Membership (OUM).</>
-            )}
+            Explore our official local supporters club membership for Pune&apos;s Red Army and Global One United Membership (OUM).
           </p>
         </div>
 
