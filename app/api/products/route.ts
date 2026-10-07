@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseAdmin } from '@/lib/supabaseClient';
 import { merchandiseProducts } from '@/lib/data';
 import { Product } from '@/lib/types';
 
@@ -23,8 +23,8 @@ const formatProductRow = (row: any): Product => ({
 // GET /api/products
 export async function GET() {
   try {
-    if (supabase) {
-      const { data, error } = await supabase.from('products').select('*');
+    if (supabaseAdmin) {
+      const { data, error } = await supabaseAdmin.from('products').select('*');
       if (!error && data && data.length > 0) {
         inMemoryProducts = data.map(formatProductRow);
         return NextResponse.json({ products: inMemoryProducts }, { status: 200 });
@@ -42,8 +42,8 @@ export async function POST(request: Request) {
     const item: Product = await request.json();
     inMemoryProducts = [item, ...inMemoryProducts.filter((p) => p.id !== item.id)];
 
-    if (supabase) {
-      await supabase.from('products').upsert({
+    if (supabaseAdmin) {
+      await supabaseAdmin.from('products').upsert({
         id: item.id,
         name: item.name,
         category: item.category,
@@ -71,8 +71,8 @@ export async function PUT(request: Request) {
     const item: Product = await request.json();
     inMemoryProducts = inMemoryProducts.map((p) => (p.id === item.id ? { ...p, ...item } : p));
 
-    if (supabase) {
-      await supabase.from('products').upsert({
+    if (supabaseAdmin) {
+      await supabaseAdmin.from('products').upsert({
         id: item.id,
         name: item.name,
         category: item.category,
@@ -100,8 +100,8 @@ export async function DELETE(request: Request) {
 
     inMemoryProducts = inMemoryProducts.filter((p) => p.id !== id);
 
-    if (supabase) {
-      await supabase.from('products').delete().eq('id', id);
+    if (supabaseAdmin) {
+      await supabaseAdmin.from('products').delete().eq('id', id);
     }
 
     return NextResponse.json({ success: true, deletedId: id }, { status: 200 });

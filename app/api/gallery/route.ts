@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseAdmin } from '@/lib/supabaseClient';
 import { galleryImages } from '@/lib/data';
 import { GalleryItem } from '@/lib/types';
 
@@ -18,8 +18,8 @@ const formatGalleryRow = (row: any): GalleryItem => ({
 // GET /api/gallery
 export async function GET() {
   try {
-    if (supabase) {
-      const { data, error } = await supabase.from('gallery').select('*');
+    if (supabaseAdmin) {
+      const { data, error } = await supabaseAdmin.from('gallery').select('*');
       if (!error && data && data.length > 0) {
         inMemoryGallery = data.map(formatGalleryRow);
         return NextResponse.json({ gallery: inMemoryGallery }, { status: 200 });
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
     const item: GalleryItem = await request.json();
     inMemoryGallery = [item, ...inMemoryGallery.filter((g) => g.id !== item.id)];
 
-    if (supabase) {
-      await supabase.from('gallery').upsert({
+    if (supabaseAdmin) {
+      await supabaseAdmin.from('gallery').upsert({
         id: item.id,
         title: item.title,
         category: item.category,
@@ -67,8 +67,8 @@ export async function DELETE(request: Request) {
 
     inMemoryGallery = inMemoryGallery.filter((g) => g.id !== id);
 
-    if (supabase) {
-      await supabase.from('gallery').delete().eq('id', id);
+    if (supabaseAdmin) {
+      await supabaseAdmin.from('gallery').delete().eq('id', id);
     }
 
     return NextResponse.json({ success: true, deletedId: id }, { status: 200 });

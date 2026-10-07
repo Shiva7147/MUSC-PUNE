@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseAdmin } from '@/lib/supabaseClient';
 import { defaultMembershipConfig, defaultTourConfig } from '@/lib/data';
 import { MembershipConfig, TourConfig } from '@/lib/types';
 
@@ -12,8 +12,8 @@ export async function GET(request: Request) {
   const key = searchParams.get('key');
 
   try {
-    if (supabase) {
-      const { data } = await supabase.from('site_config').select('*');
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin.from('site_config').select('*');
       if (data && data.length > 0) {
         const memRow = data.find((r: any) => r.key === 'membership_config');
         const tourRow = data.find((r: any) => r.key === 'tour_config');
@@ -50,9 +50,9 @@ export async function POST(request: Request) {
       inMemoryTour = value;
     }
 
-    if (supabase) {
+    if (supabaseAdmin) {
       const configKey = key === 'membership' ? 'membership_config' : 'tour_config';
-      await supabase.from('site_config').upsert({
+      await supabaseAdmin.from('site_config').upsert({
         key: configKey,
         value: value,
         updated_at: new Date().toISOString(),

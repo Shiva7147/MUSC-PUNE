@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseAdmin } from '@/lib/supabaseClient';
 
 // GET /api/tickets - Fetch all tickets from Supabase
 export async function GET() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('tickets')
       .select('*')
       .order('created_at', { ascending: false });
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       checked_in_by: body.checkedInBy || null,
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('tickets')
       .upsert(payload)
       .select();
