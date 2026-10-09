@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 import { upcomingScreenings } from '@/lib/data';
 import { Screening } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 let inMemoryScreenings: Screening[] = [...upcomingScreenings];
 
 // Helper to format Supabase DB row to Screening interface
@@ -34,12 +37,12 @@ const formatScreeningRow = (row: any): Screening => ({
   remainingSeats: row.remaining_seats || 250,
 });
 
-// GET /api/screenings - Fetch all screenings (Reads from Supabase using admin client, falls back to memory)
+// GET /api/screenings - Fetch all screenings (Reads from Supabase using admin client)
 export async function GET() {
   try {
     if (supabaseAdmin) {
       const { data, error } = await supabaseAdmin.from('screenings').select('*');
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         inMemoryScreenings = data.map(formatScreeningRow);
         return NextResponse.json({ screenings: inMemoryScreenings }, { status: 200 });
       }

@@ -1,7 +1,6 @@
 import QRCode from 'qrcode';
 import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from './types';
 import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig, defaultTourConfig } from './data';
-import { supabase } from './supabaseClient';
 
 export interface AdminTicketRecord {
   ticketId: string;
@@ -118,39 +117,16 @@ if (typeof window !== 'undefined') {
   }, 4000);
 }
 
-// Helper to sync ticket record to Supabase if configured
+// Helper to sync ticket record via API route (which uses supabaseAdmin - bypasses RLS)
 const syncTicketToSupabase = async (record: AdminTicketRecord) => {
   try {
-    // 1. Dual Backup: Post to Next.js API endpoint
     fetch('/api/tickets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(record),
     }).catch(() => {});
-
-    // 2. Direct Supabase client upsert
-    if (supabase) {
-      await supabase.from('tickets').upsert({
-        ticket_id: record.ticketId,
-        screening_id: record.screeningId,
-        match_title: record.matchTitle,
-        venue: record.venue,
-        date: record.date,
-        time: record.time,
-        quantity: record.quantity,
-        total_amount: record.totalAmount,
-        user_name: record.userName,
-        user_email: record.userEmail,
-        user_phone: record.userPhone,
-        qr_data_url: record.qrDataUrl,
-        payment_status: record.paymentStatus || 'SUCCESS',
-        checked_in: record.checkedIn,
-        checked_in_at: record.checkedInAt,
-        checked_in_by: record.checkedInBy,
-      });
-    }
   } catch (err) {
-    console.error('Supabase Sync Notice:', err);
+    console.error('Ticket sync error:', err);
   }
 };
 
@@ -280,7 +256,7 @@ export const getTicketStore = (): AdminTicketRecord[] => {
 
 export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> => {
   try {
-    const res = await fetch('/api/tickets');
+    const res = await fetch('/api/tickets', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
       if (json.tickets && Array.isArray(json.tickets)) {
@@ -319,44 +295,28 @@ export const verifyTicketScanAsync = async (
     (t) => t.ticketId.toUpperCase() === ticketId.toUpperCase() || (t.userPhone && t.userPhone.includes(ticketId))
   );
 
-  // 2. If not found in local memory, query Supabase database in real-time!
-  if (foundIndex === -1 && supabase) {
+  // 2. If not found in local memory, query via API route (uses supabaseAdmin - bypasses RLS)
+  if (foundIndex === -1) {
     try {
-      const { data } = await supabase
-        .from('tickets')
-        .select('*')
-        .or(`ticket_id.ilike.${ticketId},user_phone.ilike.%${ticketId}%`)
-        .limit(1);
-
-      if (data && data.length > 0) {
-        const row = data[0];
-        const remoteRecord: AdminTicketRecord = {
-          ticketId: row.ticket_id,
-          screeningId: row.screening_id,
-          matchTitle: row.match_title,
-          venue: row.venue,
-          date: row.date,
-          time: row.time,
-          quantity: row.quantity,
-          totalAmount: Number(row.total_amount),
-          userName: row.user_name,
-          userEmail: row.user_email,
-          userPhone: row.user_phone,
-          bookingDate: row.booking_date ? new Date(row.booking_date).toLocaleString('en-IN') : new Date().toLocaleString('en-IN'),
-          qrDataUrl: row.qr_data_url || '',
-          paymentStatus: row.payment_status || 'SUCCESS',
-          checkedIn: Boolean(row.checked_in),
-          checkedInAt: row.checked_in_at,
-          checkedInBy: row.checked_in_by,
-        };
-
-        ticketsMemory = [remoteRecord, ...ticketsMemory];
-        saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
-        allTickets = ticketsMemory;
-        foundIndex = 0;
+      const res = await fetch('/api/tickets', { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.tickets && Array.isArray(json.tickets)) {
+          const remoteMatch = json.tickets.find(
+            (t: AdminTicketRecord) =>
+              t.ticketId.toUpperCase() === ticketId.toUpperCase() ||
+              (t.userPhone && t.userPhone.includes(ticketId))
+          );
+          if (remoteMatch) {
+            ticketsMemory = [remoteMatch, ...ticketsMemory];
+            saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+            allTickets = ticketsMemory;
+            foundIndex = 0;
+          }
+        }
       }
     } catch (err) {
-      console.error('Supabase query error during scan:', err);
+      console.error('API query error during scan:', err);
     }
   }
 
@@ -447,46 +407,16 @@ export const verifyTicketScan = (
 // DYNAMIC SCREENINGS ADMIN MANAGEMENT (FULL CRUD)
 // -------------------------------------------------------------
 
-// Helper to sync screening record to Supabase
-const syncScreeningToSupabase = async (item: Screening) => {
+// Helper to sync screening via API route (which uses supabaseAdmin - bypasses RLS)
+const syncScreeningToSupabase = async (item: Screening, method: 'POST' | 'PUT' = 'PUT') => {
   try {
     fetch('/api/screenings', {
-      method: 'PUT',
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item),
     }).catch(() => {});
-
-    if (supabase) {
-      await supabase.from('screenings').upsert({
-        id: item.id,
-        match_title: item.matchTitle,
-        competition: item.competition || 'Premier League',
-        home_team: item.homeTeam || 'Manchester United',
-        away_team: item.awayTeam || 'Opponent',
-        home_logo: item.homeLogo || '🔴',
-        away_logo: item.awayLogo || '🔴',
-        date: item.date,
-        time: item.time,
-        venue_name: item.venueName,
-        venue_address: item.venueAddress || item.venueName,
-        venue_area: item.venueArea || 'Central Pune',
-        price: item.price,
-        active_phase_name: item.activePhaseName || 'PHASE 1',
-        phases: item.phases || [],
-        tax_rate: item.taxRate ?? 0.18,
-        platform_fee_rate: item.platformFeeRate ?? 0.03,
-        featured: Boolean(item.featured),
-        status: item.status || 'UPCOMING',
-        description: item.description || '',
-        gate_opening: item.gateOpening || '07:30 PM IST',
-        inclusions: item.inclusions || [],
-        rules: item.rules || [],
-        capacity: item.capacity || 250,
-        remaining_seats: item.remainingSeats || 250,
-      });
-    }
   } catch (err) {
-    console.error('Supabase screening sync error:', err);
+    console.error('Screening sync error:', err);
   }
 };
 
@@ -497,46 +427,8 @@ export const getScreeningsStore = (): Screening[] => {
 
 export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
   try {
-    if (supabase) {
-      const { data, error } = await supabase.from('screenings').select('*');
-      if (!error && data && data.length > 0) {
-        const remoteScreenings: Screening[] = data.map((row: any) => ({
-          id: row.id,
-          matchTitle: row.match_title,
-          competition: row.competition || 'Premier League',
-          homeTeam: row.home_team || 'Manchester United',
-          awayTeam: row.away_team || 'Opponent',
-          homeLogo: row.home_logo || '🔴',
-          awayLogo: row.away_logo || '🔴',
-          date: row.date,
-          time: row.time,
-          venueName: row.venue_name,
-          venueAddress: row.venue_address || row.venue_name,
-          venueArea: row.venue_area || 'Central Pune',
-          price: Number(row.price),
-          activePhaseName: row.active_phase_name || 'PHASE 1',
-          phases: row.phases || [],
-          taxRate: row.tax_rate ? Number(row.tax_rate) : 0.18,
-          platformFeeRate: row.platform_fee_rate ? Number(row.platform_fee_rate) : 0.03,
-          featured: Boolean(row.featured),
-          status: row.status || 'UPCOMING',
-          description: row.description || '',
-          gateOpening: row.gate_opening || '07:30 PM IST',
-          inclusions: row.inclusions || [],
-          rules: row.rules || [],
-          capacity: row.capacity || 250,
-          remainingSeats: row.remaining_seats || 250,
-        }));
-
-        const merged = applyScreeningOverrides(remoteScreenings);
-        screeningsMemory = merged;
-        saveStorage(SCREENINGS_STORAGE_KEY, merged);
-        notifyListeners();
-        return merged;
-      }
-    }
-
-    const res = await fetch('/api/screenings');
+    // Always use the API route - it uses supabaseAdmin which bypasses RLS
+    const res = await fetch('/api/screenings', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
       if (json && json.screenings && Array.isArray(json.screenings) && json.screenings.length > 0) {
@@ -563,7 +455,8 @@ export const addScreeningToStore = (newScreening: Screening) => {
   screeningsMemory = applyScreeningOverrides([newScreening, ...screeningsMemory]);
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  syncScreeningToSupabase(newScreening);
+  // Use POST for new screenings
+  syncScreeningToSupabase(newScreening, 'POST');
 };
 
 export const updateScreeningInStore = (updatedScreening: Screening) => {
@@ -573,7 +466,8 @@ export const updateScreeningInStore = (updatedScreening: Screening) => {
   screeningsMemory = applyScreeningOverrides(screeningsMemory.map((s) => (s.id === updatedScreening.id ? { ...s, ...updatedScreening } : s)));
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  syncScreeningToSupabase(updatedScreening);
+  // Use PUT for updates
+  syncScreeningToSupabase(updatedScreening, 'PUT');
 };
 
 export const deleteScreeningFromStore = (screeningId: string) => {
@@ -587,10 +481,8 @@ export const deleteScreeningFromStore = (screeningId: string) => {
   screeningsMemory = applyScreeningOverrides(screeningsMemory.filter((s) => s.id !== screeningId));
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
+  // API route DELETE uses supabaseAdmin - bypasses RLS
   fetch(`/api/screenings?id=${screeningId}`, { method: 'DELETE' }).catch(() => {});
-  if (supabase) {
-    Promise.resolve(supabase.from('screenings').delete().eq('id', screeningId)).catch(() => {});
-  }
 };
 
 export const updateScreeningPrice = (screeningId: string, price: number, taxRate?: number, platformFee?: number) => {
@@ -617,7 +509,7 @@ export const getProductsStore = (): Product[] => {
 
 export const fetchProductsRemoteAsync = async (): Promise<Product[]> => {
   try {
-    const res = await fetch('/api/products');
+    const res = await fetch('/api/products', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
       if (json && json.products && Array.isArray(json.products)) {
@@ -703,7 +595,7 @@ export const getGalleryStore = (): GalleryItem[] => {
 
 export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
   try {
-    const res = await fetch('/api/gallery');
+    const res = await fetch('/api/gallery', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
       if (json && json.gallery && Array.isArray(json.gallery)) {
@@ -760,7 +652,7 @@ export const updateTourConfigStore = (newConfig: TourConfig) => {
 
 export const fetchConfigRemoteAsync = async (): Promise<{ membership?: MembershipConfig; tour?: TourConfig }> => {
   try {
-    const res = await fetch('/api/config');
+    const res = await fetch('/api/config', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
       if (json && json.membership) {

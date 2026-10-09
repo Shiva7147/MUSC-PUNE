@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 import { merchandiseProducts } from '@/lib/data';
 import { Product } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 let inMemoryProducts: Product[] = [...merchandiseProducts];
 
 const formatProductRow = (row: any): Product => ({
@@ -25,7 +28,7 @@ export async function GET() {
   try {
     if (supabaseAdmin) {
       const { data, error } = await supabaseAdmin.from('products').select('*');
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         inMemoryProducts = data.map(formatProductRow);
         return NextResponse.json({ products: inMemoryProducts }, { status: 200 });
       }

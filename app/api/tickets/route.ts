@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseClient';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET /api/tickets - Fetch all tickets from Supabase
 export async function GET() {
   try {

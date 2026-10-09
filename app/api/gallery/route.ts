@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 import { galleryImages } from '@/lib/data';
 import { GalleryItem } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 let inMemoryGallery: GalleryItem[] = [...galleryImages];
 
 const formatGalleryRow = (row: any): GalleryItem => ({
@@ -20,7 +23,7 @@ export async function GET() {
   try {
     if (supabaseAdmin) {
       const { data, error } = await supabaseAdmin.from('gallery').select('*');
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         inMemoryGallery = data.map(formatGalleryRow);
         return NextResponse.json({ gallery: inMemoryGallery }, { status: 200 });
       }

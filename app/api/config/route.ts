@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 import { defaultMembershipConfig, defaultTourConfig } from '@/lib/data';
 import { MembershipConfig, TourConfig } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 let inMemoryMembership: MembershipConfig = { ...defaultMembershipConfig };
 let inMemoryTour: TourConfig = { ...defaultTourConfig };
 
