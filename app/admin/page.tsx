@@ -42,7 +42,12 @@ import {
   deleteGalleryItemFromStore,
   getProductsStore,
   addProductToStore,
+  updateProductInStore,
   deleteProductFromStore,
+  fetchScreeningsRemoteAsync,
+  fetchProductsRemoteAsync,
+  fetchGalleryRemoteAsync,
+  fetchConfigRemoteAsync,
   getMembershipConfigStore,
   updateMembershipConfigStore,
   getTourConfigStore,
@@ -77,6 +82,7 @@ export default function AdminDashboardPage() {
   const [tourConfig, setTourConfig] = useState<TourConfig>(getTourConfigStore());
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
   const [editingScreening, setEditingScreening] = useState<Screening | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // New item form states
   const [newScreening, setNewScreening] = useState<Partial<Screening>>({
@@ -119,13 +125,28 @@ export default function AdminDashboardPage() {
     setMembershipConfig(getMembershipConfigStore());
     setTourConfig(getTourConfigStore());
     setGalleryList(getGalleryStore());
-    fetchRemoteTicketsAsync().then((remote) => {
-      if (remote && remote.length > 0) setTickets(remote);
-    });
   };
 
   useEffect(() => {
     refreshStoreData();
+    // Fetch latest remote state from server & Supabase on mount
+    fetchConfigRemoteAsync().then((res) => {
+      if (res.membership) setMembershipConfig(res.membership);
+      if (res.tour) setTourConfig(res.tour);
+    });
+    fetchScreeningsRemoteAsync().then((sc) => {
+      if (sc && sc.length > 0) setScreenings(sc);
+    });
+    fetchProductsRemoteAsync().then((pr) => {
+      if (pr && pr.length > 0) setProducts(pr);
+    });
+    fetchGalleryRemoteAsync().then((gl) => {
+      if (gl && gl.length > 0) setGalleryList(gl);
+    });
+    fetchRemoteTicketsAsync().then((remote) => {
+      if (remote && remote.length > 0) setTickets(remote);
+    });
+
     const unsubscribe = subscribeStore(refreshStoreData);
     return () => {
       unsubscribe();
@@ -374,6 +395,14 @@ export default function AdminDashboardPage() {
     addProductToStore(item);
     setNewProduct({ name: '', image: '', price: 799, description: '' });
     alert('New product added to merchandise shop!');
+  };
+
+  const handleUpdateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct || !editingProduct.name) return;
+    updateProductInStore(editingProduct);
+    setEditingProduct(null);
+    alert(`Product "${editingProduct.name}" updated successfully!`);
   };
 
   const handleSaveMembershipConfig = (e: React.FormEvent) => {
@@ -751,7 +780,7 @@ export default function AdminDashboardPage() {
               <div className="max-w-3xl mx-auto glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-6">
                 <div className="border-b border-white/10 pb-4">
                   <h2 className="font-display text-2xl font-bold text-white uppercase">ADMIN PRICING & TAX MANAGER</h2>
-                  <p className="text-xs text-white/60 font-sans mt-1">Configure size-based membership prices, GST tax rates, and platform fees.</p>
+                  <p className="text-xs text-white/60 font-sans mt-1">Configure size-based membership prices, applicable tax rates, and platform fees.</p>
                 </div>
 
                 <form onSubmit={handleSaveMembershipConfig} className="space-y-6">
@@ -766,12 +795,13 @@ export default function AdminDashboardPage() {
                           <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} PRICE (₹)</label>
                           <input
                             type="number"
-                            value={membershipConfig.sizePrices?.[size] ?? 999}
+                            value={membershipConfig?.sizePrices?.[size] ?? 999}
                             onChange={(e) => {
-                              const updatedPrices = { ...(membershipConfig.sizePrices || {}), [size]: Number(e.target.value) };
+                              const val = e.target.value === '' ? 0 : Number(e.target.value);
+                              const updatedPrices = { ...(membershipConfig?.sizePrices || {}), [size]: val };
                               setMembershipConfig({ ...membershipConfig, sizePrices: updatedPrices });
                             }}
-                            className="w-full bg-[#171717] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono"
+                            className="w-full bg-[#171717] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#E60012]"
                           />
                         </div>
                       ))}
@@ -786,30 +816,36 @@ export default function AdminDashboardPage() {
                         <span>FEE SLABS CONTROL NOTICE</span>
                       </div>
                       <p className="text-xs font-sans text-white/70 leading-relaxed">
-                        Note: <strong>Applicable Tax Rate (GST)</strong> and <strong>Applicable Platform Fees</strong> are the ONLY TWO fee slabs applied across match screenings, memberships, and shop checkouts. Admin can dynamically adjust both percentage slabs below.
+                        Note: <strong>Applicable Tax Rate</strong> and <strong>Applicable Platform Fees</strong> are the ONLY TWO fee slabs applied across match screenings, memberships, and shop checkouts. Admin can dynamically adjust both percentage slabs below.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (GST %)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (%)</label>
                         <input
                           type="number"
-                          step="0.01"
-                          value={Math.round((membershipConfig.taxRate ?? 0.18) * 100)}
-                          onChange={(e) => setMembershipConfig({ ...membershipConfig, taxRate: Number(e.target.value) / 100 })}
-                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                          step="1"
+                          value={Math.round(((membershipConfig?.taxRate ?? 0.18) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setMembershipConfig({ ...membershipConfig, taxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
                         />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 18% GST</span>
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 18% Applicable Tax</span>
                       </div>
                       <div>
                         <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE PLATFORM FEES (%)</label>
                         <input
                           type="number"
-                          step="0.01"
-                          value={Math.round((membershipConfig.platformFeeRate ?? 0.03) * 100)}
-                          onChange={(e) => setMembershipConfig({ ...membershipConfig, platformFeeRate: Number(e.target.value) / 100 })}
-                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
+                          step="1"
+                          value={Math.round(((membershipConfig?.platformFeeRate ?? 0.03) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setMembershipConfig({ ...membershipConfig, platformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
                         />
                         <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 3% Platform Fee</span>
                       </div>
@@ -942,6 +978,20 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">TOTAL CAPACITY (SEATS)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 250"
+                        value={newScreening.capacity || 250}
+                        onChange={(e) => {
+                          const cap = Number(e.target.value);
+                          setNewScreening({ ...newScreening, capacity: cap, remainingSeats: cap });
+                        }}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
                     <button
                       type="submit"
                       className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold py-3.5 rounded-xl shadow flex items-center justify-center gap-2 uppercase"
@@ -986,6 +1036,17 @@ export default function AdminDashboardPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span>📍 {sc.venueName}</span>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs">
+                                <span className="bg-[#050505] border border-white/15 px-2.5 py-1 rounded-lg text-white font-bold">
+                                  🪑 Total Capacity: <strong className="text-white">{sc.capacity || 250}</strong>
+                                </span>
+                                <span className="bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-emerald-400 font-bold">
+                                  ✓ Remaining: {sc.remainingSeats !== undefined ? sc.remainingSeats : (sc.capacity || 250)}
+                                </span>
+                                <span className="bg-[#E60012]/20 border border-[#E60012]/40 px-2.5 py-1 rounded-lg text-[#E60012] font-bold">
+                                  🔥 Sold: {Math.max(0, (sc.capacity || 250) - (sc.remainingSeats !== undefined ? sc.remainingSeats : (sc.capacity || 250)))}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -1163,6 +1224,30 @@ export default function AdminDashboardPage() {
                           </div>
                         </div>
 
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">TOTAL CAPACITY *</label>
+                            <input
+                              type="number"
+                              required
+                              value={editingScreening.capacity ?? 250}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, capacity: Number(e.target.value) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">REMAINING SEATS *</label>
+                            <input
+                              type="number"
+                              required
+                              value={editingScreening.remainingSeats ?? 250}
+                              onChange={(e) => setEditingScreening({ ...editingScreening, remainingSeats: Number(e.target.value) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+                        </div>
+
                         <div className="flex gap-3 pt-4">
                           <button
                             type="button"
@@ -1271,22 +1356,120 @@ export default function AdminDashboardPage() {
                             <span className="text-[10px] font-sans text-white/60">{p.category}</span>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(`Are you sure you want to delete product "${p.name}"?`)) {
-                              deleteProductFromStore(p.id);
-                            }
-                          }}
-                          className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold p-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                          title="Delete Product"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEditingProduct(p)}
+                            className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 font-display text-xs font-bold p-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                            title="Edit Product"
+                          >
+                            <EditIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to delete product "${p.name}"?`)) {
+                                deleteProductFromStore(p.id);
+                              }
+                            }}
+                            className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold p-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                            title="Delete Product"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {/* EDIT PRODUCT MODAL */}
+                {editingProduct && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="bg-[#171717] border border-white/20 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div>
+                          <div className="text-xs font-display text-[#E60012] font-bold uppercase">EDIT PRODUCT</div>
+                          <h3 className="font-display text-2xl font-bold text-white uppercase">{editingProduct.name}</h3>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEditingProduct(null)}
+                          className="text-white/60 hover:text-white p-2 rounded-lg bg-[#050505]"
+                        >
+                          <CloseIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <form onSubmit={handleUpdateProduct} className="space-y-4">
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">PRODUCT NAME *</label>
+                          <input
+                            type="text"
+                            required
+                            value={editingProduct.name}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">PRICE (₹) *</label>
+                            <input
+                              type="number"
+                              required
+                              value={editingProduct.price}
+                              onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">CATEGORY</label>
+                            <select
+                              value={editingProduct.category}
+                              onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value as any })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            >
+                              <option value="Apparel">Apparel</option>
+                              <option value="Accessories">Accessories</option>
+                              <option value="Collectibles">Collectibles</option>
+                              <option value="Membership">Membership</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">IMAGE URL *</label>
+                          <input
+                            type="url"
+                            required
+                            value={editingProduct.image}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => setEditingProduct(null)}
+                            className="flex-1 bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3.5 rounded-xl uppercase"
+                          >
+                            CANCEL
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 rounded-xl uppercase shadow"
+                          >
+                            SAVE & UPDATE PRODUCT
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

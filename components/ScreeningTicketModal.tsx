@@ -62,7 +62,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   // Dynamic Taxes & Fees Calculation (Percentage Based)
   const membershipConfig = getMembershipConfigStore();
   const baseAmount = screening.price * quantity;
-  const taxRate = screening.taxRate ?? membershipConfig.taxRate ?? 0.18; // GST percentage
+  const taxRate = screening.taxRate ?? membershipConfig.taxRate ?? 0.18; // Applicable tax percentage
   const taxAmount = Math.round(baseAmount * taxRate);
   const platformFeeRate = screening.platformFeeRate ?? membershipConfig.platformFeeRate ?? 0.03; // Platform Fee percentage
   const platformFeeAmount = Math.round(baseAmount * platformFeeRate);
@@ -254,7 +254,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                       <span className="font-mono">₹{baseAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between text-white/70">
-                      <span>Applicable Tax Rate ({Math.round(taxRate * 100)}% GST)</span>
+                      <span>Applicable Taxes ({Math.round(taxRate * 100)}%)</span>
                       <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">

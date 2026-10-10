@@ -25,7 +25,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const membershipConfig = getMembershipConfigStore();
   const baseTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const taxRate = membershipConfig.taxRate ?? 0.18; // GST rate (e.g. 18%)
+  const taxRate = membershipConfig.taxRate ?? 0.18; // Applicable tax rate (e.g. 18%)
   const taxAmount = Math.round(baseTotal * taxRate);
   const platformFeeRate = membershipConfig.platformFeeRate ?? 0.03; // Platform Fee rate (e.g. 3%)
   const platformFeeAmount = Math.round(baseTotal * platformFeeRate);
@@ -37,7 +37,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       .map((item) => `${item.product.name} (Size: ${item.size}, Qty: ${item.quantity}) - ₹${item.product.price * item.quantity}`)
       .join('%0A');
 
-    const whatsappMessage = `Hi MUSC Pune, I want to order the following official merchandise:%0A%0A${itemsSummary}%0A%0ASubtotal: ₹${baseTotal}%0AGST (${Math.round(taxRate * 100)}%): ₹${taxAmount}%0APlatform Fee (${Math.round(platformFeeRate * 100)}%): ₹${platformFeeAmount}%0A%0ATotal Payable: ₹${finalTotal}%0A%0APlease assist with payment & shipping!`;
+    const whatsappMessage = `Hi MUSC Pune, I want to order the following official merchandise:%0A%0A${itemsSummary}%0A%0ASubtotal: ₹${baseTotal}%0ATaxes (${Math.round(taxRate * 100)}%): ₹${taxAmount}%0APlatform Fee (${Math.round(platformFeeRate * 100)}%): ₹${platformFeeAmount}%0A%0ATotal Payable: ₹${finalTotal}%0A%0APlease assist with payment & shipping!`;
     window.open(`https://wa.me/917276735140?text=${whatsappMessage}`, '_blank');
   };
 
@@ -124,7 +124,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span className="font-mono">₹{baseTotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>Applicable Tax Rate ({Math.round(taxRate * 100)}% GST)</span>
+                  <span>Applicable Taxes ({Math.round(taxRate * 100)}%)</span>
                   <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-white/70">

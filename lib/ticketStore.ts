@@ -177,6 +177,24 @@ export const generateTicketPass = async (
   ticketsMemory = [record, ...ticketsMemory];
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
   syncTicketToSupabase(record);
+
+  // Automatically update the counter for total number of seats filled/remaining
+  try {
+    const currentScreenings = getScreeningsStore();
+    const targetSc = currentScreenings.find((s) => s.id === screening.id || s.matchTitle.toLowerCase() === screening.matchTitle.toLowerCase());
+    if (targetSc) {
+      const currentRemaining = targetSc.remainingSeats !== undefined ? targetSc.remainingSeats : (targetSc.capacity || 250);
+      const updatedRemaining = Math.max(0, currentRemaining - quantity);
+      const updatedSc: Screening = {
+        ...targetSc,
+        remainingSeats: updatedRemaining,
+      };
+      updateScreeningInStore(updatedSc);
+    }
+  } catch (err) {
+    console.error('Failed to update screening seats remaining:', err);
+  }
+
   notifyListeners();
 
   return record;

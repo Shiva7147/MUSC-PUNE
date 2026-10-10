@@ -54,7 +54,7 @@ export interface Product {
 export interface MembershipConfig {
   basePrice: number;
   sizePrices: { [size: string]: number };
-  taxRate: number; // e.g. 0.18 for 18% GST
+  taxRate: number; // e.g. 0.18 for 18%
   platformFeeRate: number; // e.g. 0.03 for 3% platform fee
   platformFee?: number;
 }
