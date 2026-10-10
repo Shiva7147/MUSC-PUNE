@@ -5,9 +5,9 @@ export const officialClubDetails = {
   fullName: 'Official Manchester United Supporters Club - Pune',
   establishedYear: 2011,
   tagline: "Pune’s Red Army",
-  email: 'manutdpune@gmail.com',
-  grievanceEmail: 'ebrahimred@gmail.com',
-  founderEmail: 'ebrahimred@gmail.com',
+  email: 'manunitedpune@gmail.com',
+  grievanceEmail: 'manunitedpune@gmail.com',
+  founderEmail: 'manunitedpune@gmail.com',
   phone: '+91 7276735140',
   whatsapp: '+91 7276735140',
   socials: {
@@ -220,7 +220,7 @@ export const defaultTourConfig: TourConfig = {
     'Our group trips cover Premier League home fixtures, complete with stadium and museum tours, matchday atmosphere in Manchester, and shared experiences with fellow Reds.',
     'Contact the committee to register your interest for the upcoming batch and turn your dream of watching Manchester United live at Old Trafford into a reality.'
   ],
-  bookingUrl: 'mailto:manutdpune@gmail.com?subject=Inquiry%20-%20Trip%20to%20Old%20Trafford'
+  bookingUrl: 'mailto:manunitedpune@gmail.com?subject=Inquiry%20-%20Trip%20to%20Old%20Trafford'
 };
 
 export const oldTraffordTours: TourPackage[] = [

@@ -300,7 +300,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                 </div>
                 <h3 className="font-display text-lg font-bold text-white uppercase">Step 03: Share Confirmation</h3>
                 <p className="text-xs text-white/80 font-sans leading-relaxed">
-                  Forward your OUM receipt email to <a href="mailto:manutdpune@gmail.com" className="text-[#E60012] underline">manutdpune@gmail.com</a> to register for Old Trafford ticket allocations.
+                  Forward your OUM receipt email to <a href="mailto:manunitedpune@gmail.com" className="text-[#E60012] underline">manunitedpune@gmail.com</a> to register for Old Trafford ticket allocations.
                 </p>
               </div>
             </div>
