@@ -116,11 +116,6 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
         {/* ONE CLEAN HEADING ONLY AS REQUESTED */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#171717] border border-white/15 text-xs font-display text-[#E60012] font-bold uppercase shadow-lg">
-            <ShieldCheck className="w-4 h-4 text-[#E60012]" />
-            <span>OFFICIAL MANCHESTER UNITED SUPPORTERS CLUB</span>
-          </div>
-
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-white uppercase leading-none">
             PUNE&apos;S RED ARMY <span className="text-[#E60012]">MEMBERSHIP</span>
           </h1>
@@ -321,12 +316,12 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
             {/* External Link Action */}
             <div className="pt-4 border-t border-white/15 flex items-center justify-center sm:justify-start">
               <a
-                href="https://www.manutd.com/en/tickets-and-hospitality/membership"
+                href="https://tickets.manutdpune.com/memberships"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 px-8 rounded-xl flex items-center gap-2 shadow-lg transition-all border border-white/20 uppercase cursor-pointer"
               >
-                <span>Buy One United Membership on ManUtd.com</span>
+                <span>Buy One United Membership</span>
                 <ExternalLink className="w-5 h-5" />
               </a>
             </div>

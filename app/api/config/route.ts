@@ -29,14 +29,19 @@ export async function GET(request: Request) {
   }
 
   if (key === 'membership') {
-    return NextResponse.json({ membershipConfig: inMemoryMembership }, { status: 200 });
+    return NextResponse.json({ membership: inMemoryMembership, membershipConfig: inMemoryMembership }, { status: 200 });
   }
   if (key === 'tour') {
-    return NextResponse.json({ tourConfig: inMemoryTour }, { status: 200 });
+    return NextResponse.json({ tour: inMemoryTour, tourConfig: inMemoryTour }, { status: 200 });
   }
 
   return NextResponse.json(
-    { membershipConfig: inMemoryMembership, tourConfig: inMemoryTour },
+    {
+      membership: inMemoryMembership,
+      membershipConfig: inMemoryMembership,
+      tour: inMemoryTour,
+      tourConfig: inMemoryTour,
+    },
     { status: 200 }
   );
 }
@@ -47,14 +52,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { key, value } = body;
 
-    if (key === 'membership') {
+    const isMembership = key === 'membership' || key === 'membership_config';
+    const isTour = key === 'tour' || key === 'tour_config';
+
+    if (isMembership) {
       inMemoryMembership = value;
-    } else if (key === 'tour') {
+    } else if (isTour) {
       inMemoryTour = value;
     }
 
     if (supabaseAdmin) {
-      const configKey = key === 'membership' ? 'membership_config' : 'tour_config';
+      const configKey = isMembership ? 'membership_config' : 'tour_config';
       await supabaseAdmin.from('site_config').upsert({
         key: configKey,
         value: value,
@@ -62,7 +70,13 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, key, value }, { status: 200 });
+    return NextResponse.json({
+      success: true,
+      key,
+      value,
+      membership: inMemoryMembership,
+      tour: inMemoryTour,
+    }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

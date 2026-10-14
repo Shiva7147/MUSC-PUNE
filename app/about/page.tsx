@@ -41,7 +41,7 @@ export default function AboutPage() {
           {/* Welcome Heading & Intro */}
           <div className="bg-[#171717] border border-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
             <h2 className="font-display text-2xl sm:text-3xl font-bold text-[#FFC400] uppercase tracking-tight">
-              FULL ABOUT THE CLUB
+              MORE ABOUT THE CLUB
             </h2>
             <p className="text-lg sm:text-xl font-medium text-white leading-relaxed">
               Welcome to Manchester United Supporters Club Pune, home to one of Pune&apos;s most passionate communities of Manchester United fans.

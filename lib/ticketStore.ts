@@ -428,13 +428,15 @@ export const verifyTicketScan = (
 // Helper to sync screening via API route (which uses supabaseAdmin - bypasses RLS)
 const syncScreeningToSupabase = async (item: Screening, method: 'POST' | 'PUT' = 'PUT') => {
   try {
-    fetch('/api/screenings', {
+    const res = await fetch('/api/screenings', {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item),
-    }).catch(() => {});
+    });
+    return res.ok;
   } catch (err) {
     console.error('Screening sync error:', err);
+    return false;
   }
 };
 
@@ -463,7 +465,7 @@ export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
   return applyScreeningOverrides(screeningsMemory);
 };
 
-export const addScreeningToStore = (newScreening: Screening) => {
+export const addScreeningToStore = async (newScreening: Screening) => {
   screeningEditsMemory[newScreening.id] = newScreening;
   saveStorage(SCREENINGS_EDITS_KEY, screeningEditsMemory);
   // Ensure it's un-deleted if re-added
@@ -473,22 +475,24 @@ export const addScreeningToStore = (newScreening: Screening) => {
   screeningsMemory = applyScreeningOverrides([newScreening, ...screeningsMemory]);
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  // Use POST for new screenings
-  syncScreeningToSupabase(newScreening, 'POST');
+  // Await Supabase write
+  await syncScreeningToSupabase(newScreening, 'POST');
+  fetchScreeningsRemoteAsync().catch(() => {});
 };
 
-export const updateScreeningInStore = (updatedScreening: Screening) => {
+export const updateScreeningInStore = async (updatedScreening: Screening) => {
   screeningEditsMemory[updatedScreening.id] = updatedScreening;
   saveStorage(SCREENINGS_EDITS_KEY, screeningEditsMemory);
 
   screeningsMemory = applyScreeningOverrides(screeningsMemory.map((s) => (s.id === updatedScreening.id ? { ...s, ...updatedScreening } : s)));
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
-  // Use PUT for updates
-  syncScreeningToSupabase(updatedScreening, 'PUT');
+  // Await Supabase write
+  await syncScreeningToSupabase(updatedScreening, 'PUT');
+  fetchScreeningsRemoteAsync().catch(() => {});
 };
 
-export const deleteScreeningFromStore = (screeningId: string) => {
+export const deleteScreeningFromStore = async (screeningId: string) => {
   if (!screeningDeletedMemory.includes(screeningId)) {
     screeningDeletedMemory = [...screeningDeletedMemory, screeningId];
     saveStorage(SCREENINGS_DELETED_KEY, screeningDeletedMemory);
@@ -500,7 +504,11 @@ export const deleteScreeningFromStore = (screeningId: string) => {
   saveStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
   notifyListeners();
   // API route DELETE uses supabaseAdmin - bypasses RLS
-  fetch(`/api/screenings?id=${screeningId}`, { method: 'DELETE' }).catch(() => {});
+  try {
+    await fetch(`/api/screenings?id=${screeningId}`, { method: 'DELETE' });
+  } catch (err) {
+    console.error('Delete screening API error:', err);
+  }
 };
 
 export const updateScreeningPrice = (screeningId: string, price: number, taxRate?: number, platformFee?: number) => {
@@ -543,35 +551,49 @@ export const fetchProductsRemoteAsync = async (): Promise<Product[]> => {
   return productsMemory;
 };
 
-export const addProductToStore = (newProduct: Product) => {
+export const addProductToStore = async (newProduct: Product) => {
   productsMemory = [newProduct, ...productsMemory.filter((p) => p.id !== newProduct.id)];
   saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
   notifyListeners();
-  fetch('/api/products', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newProduct),
-  }).catch(() => {});
+  try {
+    await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProduct),
+    });
+    fetchProductsRemoteAsync().catch(() => {});
+  } catch (err) {
+    console.error('Add product API error:', err);
+  }
 };
 
-export const updateProductInStore = (updatedProduct: Product) => {
+export const updateProductInStore = async (updatedProduct: Product) => {
   productsMemory = productsMemory.map((p) => (p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p));
   saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
   notifyListeners();
-  fetch('/api/products', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedProduct),
-  }).catch(() => {});
+  try {
+    await fetch('/api/products', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedProduct),
+    });
+    fetchProductsRemoteAsync().catch(() => {});
+  } catch (err) {
+    console.error('Update product API error:', err);
+  }
 };
 
-export const deleteProductFromStore = (productId: string) => {
+export const deleteProductFromStore = async (productId: string) => {
   productsMemory = productsMemory.filter((p) => p.id !== productId);
   saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
   notifyListeners();
-  fetch(`/api/products?id=${productId}`, {
-    method: 'DELETE',
-  }).catch(() => {});
+  try {
+    await fetch(`/api/products?id=${productId}`, {
+      method: 'DELETE',
+    });
+  } catch (err) {
+    console.error('Delete product API error:', err);
+  }
 };
 
 // -------------------------------------------------------------
@@ -582,15 +604,19 @@ export const getMembershipConfigStore = (): MembershipConfig => {
   return loadStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
 };
 
-export const updateMembershipConfigStore = (newConfig: MembershipConfig) => {
+export const updateMembershipConfigStore = async (newConfig: MembershipConfig) => {
   membershipConfigMemory = newConfig;
   saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
   notifyListeners();
-  fetch('/api/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key: 'membership', value: newConfig }),
-  }).catch(() => {});
+  try {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'membership', value: newConfig }),
+    });
+  } catch (err) {
+    console.error('Update config API error:', err);
+  }
 };
 
 // -------------------------------------------------------------
@@ -629,24 +655,33 @@ export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
   return galleryMemory;
 };
 
-export const addGalleryItemToStore = (newItem: GalleryItem) => {
+export const addGalleryItemToStore = async (newItem: GalleryItem) => {
   galleryMemory = [newItem, ...galleryMemory.filter((g) => g.id !== newItem.id)];
   saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
   notifyListeners();
-  fetch('/api/gallery', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newItem),
-  }).catch(() => {});
+  try {
+    await fetch('/api/gallery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem),
+    });
+    fetchGalleryRemoteAsync().catch(() => {});
+  } catch (err) {
+    console.error('Add gallery API error:', err);
+  }
 };
 
-export const deleteGalleryItemFromStore = (galleryId: string) => {
+export const deleteGalleryItemFromStore = async (galleryId: string) => {
   galleryMemory = galleryMemory.filter((g) => g.id !== galleryId);
   saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
   notifyListeners();
-  fetch(`/api/gallery?id=${galleryId}`, {
-    method: 'DELETE',
-  }).catch(() => {});
+  try {
+    await fetch(`/api/gallery?id=${galleryId}`, {
+      method: 'DELETE',
+    });
+  } catch (err) {
+    console.error('Delete gallery API error:', err);
+  }
 };
 
 // -------------------------------------------------------------
@@ -657,15 +692,19 @@ export const getTourConfigStore = (): TourConfig => {
   return loadStorage(TOUR_CONFIG_KEY, tourConfigMemory);
 };
 
-export const updateTourConfigStore = (newConfig: TourConfig) => {
+export const updateTourConfigStore = async (newConfig: TourConfig) => {
   tourConfigMemory = newConfig;
   saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
   notifyListeners();
-  fetch('/api/config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key: 'tour', value: newConfig }),
-  }).catch(() => {});
+  try {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'tour', value: newConfig }),
+    });
+  } catch (err) {
+    console.error('Update tour config error:', err);
+  }
 };
 
 export const fetchConfigRemoteAsync = async (): Promise<{ membership?: MembershipConfig; tour?: TourConfig }> => {
@@ -673,12 +712,14 @@ export const fetchConfigRemoteAsync = async (): Promise<{ membership?: Membershi
     const res = await fetch('/api/config', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
-      if (json && json.membership) {
-        membershipConfigMemory = json.membership;
+      const mem = json?.membership || json?.membershipConfig;
+      if (mem) {
+        membershipConfigMemory = mem;
         saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
       }
-      if (json && json.tour) {
-        tourConfigMemory = json.tour;
+      const tour = json?.tour || json?.tourConfig;
+      if (tour) {
+        tourConfigMemory = tour;
         saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
       }
       notifyListeners();

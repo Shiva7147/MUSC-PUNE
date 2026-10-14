@@ -58,6 +58,134 @@ import {
 } from '@/lib/ticketStore';
 import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from '@/lib/types';
 
+interface ImageUploadOrUrlFieldProps {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  required?: boolean;
+  aspectRatio?: 'square' | 'video';
+}
+
+function ImageUploadOrUrlField({
+  label,
+  value,
+  onChange,
+  required = false,
+  aspectRatio = 'square',
+}: ImageUploadOrUrlFieldProps) {
+  const [mode, setMode] = useState<'upload' | 'url'>('upload');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size exceeds 5MB limit. Please select a smaller image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        onChange(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-display text-white/90 font-bold uppercase block">
+          {label} {required && '*'}
+        </label>
+        <div className="inline-flex rounded-lg bg-[#050505] p-0.5 border border-white/10 text-[10px] font-display">
+          <button
+            type="button"
+            onClick={() => setMode('upload')}
+            className={`px-2.5 py-1 rounded-md transition-colors ${
+              mode === 'upload' ? 'bg-[#E60012] text-white font-bold' : 'text-white/60 hover:text-white'
+            }`}
+          >
+            Direct Upload
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('url')}
+            className={`px-2.5 py-1 rounded-md transition-colors ${
+              mode === 'url' ? 'bg-[#E60012] text-white font-bold' : 'text-white/60 hover:text-white'
+            }`}
+          >
+            Image Link / URL
+          </button>
+        </div>
+      </div>
+
+      {mode === 'upload' ? (
+        <div className="space-y-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full bg-[#050505] hover:bg-black border-2 border-dashed border-white/20 hover:border-[#E60012] rounded-xl p-4 text-center cursor-pointer transition-colors space-y-1"
+          >
+            <UploadIcon className="w-6 h-6 text-[#E60012] mx-auto" />
+            <p className="text-xs font-display font-bold text-white uppercase">
+              Click to browse or upload image directly
+            </p>
+            <p className="text-[10px] text-white/50 font-sans">
+              Supports JPG, PNG, WEBP, SVG (Auto-converts and sets ratio)
+            </p>
+          </div>
+        </div>
+      ) : (
+        <input
+          type="url"
+          required={required && !value}
+          placeholder="https://res.cloudinary.com/... or direct image link"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+        />
+      )}
+
+      {/* Live Preview with established Aspect Ratio & Clear button */}
+      {value && (
+        <div className="relative rounded-xl overflow-hidden border border-white/20 bg-black mt-2 group p-1.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className={aspectRatio === 'square' ? 'relative w-16 h-16 rounded-lg overflow-hidden bg-black shrink-0 border border-white/15' : 'relative w-28 h-16 rounded-lg overflow-hidden bg-black shrink-0 border border-white/15'}>
+              <Image
+                src={value}
+                alt="Preview"
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
+            <div className="text-[11px] font-sans text-white/70 truncate max-w-[200px] sm:max-w-[280px]">
+              <span className="text-emerald-400 font-display font-bold block">✓ Image Ready & Ratio Set</span>
+              <span className="truncate block opacity-60">{value.startsWith('data:') ? 'Uploaded image file' : value}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="bg-red-950 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] font-display font-bold px-2.5 py-1.5 rounded-lg shadow cursor-pointer uppercase shrink-0"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const [pinInput, setPinInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -309,7 +437,7 @@ export default function AdminDashboardPage() {
   };
 
   // Handlers for dynamic admin additions
-  const handleCreateScreening = (e: React.FormEvent) => {
+  const handleCreateScreening = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newScreening.matchTitle || !newScreening.date) return;
     const initialPrice = Number(newScreening.price) || 350;
@@ -342,17 +470,19 @@ export default function AdminDashboardPage() {
       capacity: Number(newScreening.capacity) || 250,
       remainingSeats: Number(newScreening.capacity) || 250,
     };
-    addScreeningToStore(item);
+    await addScreeningToStore(item);
+    await fetchScreeningsRemoteAsync();
     setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350, time: '09:00 PM IST', venueName: 'BIRA 91 Taproom, The Mills' });
-    alert('New event / screening created successfully!');
+    alert('New event / screening created and saved to database successfully!');
   };
 
-  const handleUpdateScreening = (e: React.FormEvent) => {
+  const handleUpdateScreening = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingScreening || !editingScreening.matchTitle || !editingScreening.date) return;
-    updateScreeningInStore(editingScreening);
+    await updateScreeningInStore(editingScreening);
+    await fetchScreeningsRemoteAsync();
     setEditingScreening(null);
-    alert(`Screening event "${editingScreening.matchTitle}" updated live across the entire website!`);
+    alert(`Screening event "${editingScreening.matchTitle}" updated and synced live across the entire website!`);
   };
 
   const formatDateFromPicker = (isoDate: string): string => {
@@ -376,7 +506,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleCreateProduct = (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProduct.name || !newProduct.image) return;
     const item: Product = {
@@ -392,32 +522,36 @@ export default function AdminDashboardPage() {
       badge: newProduct.badge || 'NEW ARRIVAL',
       details: ['Official Supporter Merchandise', 'High-quality print & fabric'],
     };
-    addProductToStore(item);
+    await addProductToStore(item);
+    await fetchProductsRemoteAsync();
     setNewProduct({ name: '', image: '', price: 799, description: '' });
-    alert('New product added to merchandise shop!');
+    alert('New product added and saved to shop database!');
   };
 
-  const handleUpdateProduct = (e: React.FormEvent) => {
+  const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct || !editingProduct.name) return;
-    updateProductInStore(editingProduct);
+    await updateProductInStore(editingProduct);
+    await fetchProductsRemoteAsync();
     setEditingProduct(null);
-    alert(`Product "${editingProduct.name}" updated successfully!`);
+    alert(`Product "${editingProduct.name}" updated successfully across the website!`);
   };
 
-  const handleSaveMembershipConfig = (e: React.FormEvent) => {
+  const handleSaveMembershipConfig = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateMembershipConfigStore(membershipConfig);
-    alert('Membership pricing & size configuration updated live!');
+    await updateMembershipConfigStore(membershipConfig);
+    await fetchConfigRemoteAsync();
+    alert('Membership pricing & fee configuration saved to database and live across the site!');
   };
 
-  const handleSaveTourConfig = (e: React.FormEvent) => {
+  const handleSaveTourConfig = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateTourConfigStore(tourConfig);
-    alert('Old Trafford Group Trip configuration updated live across the entire website!');
+    await updateTourConfigStore(tourConfig);
+    await fetchConfigRemoteAsync();
+    alert('Old Trafford Group Trip configuration saved to database and live across the entire website!');
   };
 
-  const handleCreateGal = (e: React.FormEvent) => {
+  const handleCreateGal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGal.title || !newGal.imageUrl) return;
     const item: GalleryItem = {
@@ -429,9 +563,10 @@ export default function AdminDashboardPage() {
       date: new Date().toLocaleDateString(),
       caption: newGal.caption || newGal.title,
     };
-    addGalleryItemToStore(item);
+    await addGalleryItemToStore(item);
+    await fetchGalleryRemoteAsync();
     setNewGal({ title: '', imageUrl: '', caption: '' });
-    alert('New photo added to documentary gallery!');
+    alert('New photo added and saved to documentary gallery database!');
   };
 
   // Stats
@@ -1316,17 +1451,13 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">IMAGE URL *</label>
-                      <input
-                        type="url"
-                        required
-                        placeholder="https://res.cloudinary.com/..."
-                        value={newProduct.image}
-                        onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
-                    </div>
+                    <ImageUploadOrUrlField
+                      label="PRODUCT IMAGE"
+                      value={newProduct.image || ''}
+                      onChange={(img) => setNewProduct({ ...newProduct, image: img })}
+                      required
+                      aspectRatio="square"
+                    />
 
                     <button
                       type="submit"
@@ -1440,16 +1571,13 @@ export default function AdminDashboardPage() {
                           </div>
                         </div>
 
-                        <div>
-                          <label className="text-xs font-display text-white/90 font-bold uppercase block">IMAGE URL *</label>
-                          <input
-                            type="url"
-                            required
-                            value={editingProduct.image}
-                            onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
-                          />
-                        </div>
+                        <ImageUploadOrUrlField
+                          label="PRODUCT IMAGE"
+                          value={editingProduct.image || ''}
+                          onChange={(img) => setEditingProduct({ ...editingProduct, image: img })}
+                          required
+                          aspectRatio="square"
+                        />
 
                         <div className="flex gap-3 pt-4">
                           <button
@@ -1494,17 +1622,13 @@ export default function AdminDashboardPage() {
                       />
                     </div>
 
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">IMAGE URL (CLOUDINARY OR DIRECT LINK) *</label>
-                      <input
-                        type="url"
-                        required
-                        placeholder="https://res.cloudinary.com/..."
-                        value={newGal.imageUrl}
-                        onChange={(e) => setNewGal({ ...newGal, imageUrl: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
-                    </div>
+                    <ImageUploadOrUrlField
+                      label="GALLERY PHOTO"
+                      value={newGal.imageUrl || ''}
+                      onChange={(img) => setNewGal({ ...newGal, imageUrl: img })}
+                      required
+                      aspectRatio="square"
+                    />
 
                     <button
                       type="submit"

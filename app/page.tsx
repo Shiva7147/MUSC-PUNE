@@ -13,11 +13,12 @@ import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { ProductQuickViewModal } from '@/components/ProductQuickViewModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { EnquiryModal } from '@/components/EnquiryModal';
-import { oldTraffordTours } from '@/lib/data';
-import { Screening, Product, CartItem } from '@/lib/types';
+import { oldTraffordTours, galleryImages } from '@/lib/data';
+import { Screening, Product, CartItem, GalleryItem } from '@/lib/types';
 import {
   getScreeningsStore,
   getProductsStore,
+  getGalleryStore,
   fetchScreeningsRemoteAsync,
   fetchProductsRemoteAsync,
   fetchGalleryRemoteAsync,
@@ -28,6 +29,7 @@ import {
 export default function Home() {
   const [screenings, setScreenings] = useState<Screening[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -39,6 +41,7 @@ export default function Home() {
   const refreshStoreData = () => {
     setScreenings(getScreeningsStore());
     setProducts(getProductsStore());
+    setGalleryList(getGalleryStore());
   };
 
   useEffect(() => {
@@ -113,9 +116,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
           {/* Title & Exact Subtitle Text */}
           <div className="text-center max-w-3xl mx-auto space-y-3">
-            <span className="badge-pune text-xs font-display font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider">
-              ABOUT MUSC PUNE
-            </span>
             <h2 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-white uppercase leading-none">
               PUNE&apos;S <span className="text-[#E60012]">MANCHESTER UNITED HOME</span>
             </h2>
@@ -372,26 +372,56 @@ export default function Home() {
 
       {/* 9. GALLERY PREVIEW */}
       <section className="py-16 bg-[#050505] border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded">
-              INSIDE PUNE&apos;S RED ARMY
-            </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase">
-              DOCUMENTARY <span className="text-[#E60012]">ARCHIVE</span>
-            </h2>
-            <p className="text-xs sm:text-sm font-sans text-white/70 max-w-lg">
-              Raw documentary photography across Pune screening nights and Old Trafford pilgrimages.
-            </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center md:text-left">
+              <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded">
+                INSIDE PUNE&apos;S RED ARMY
+              </span>
+              <h2 className="font-display text-4xl sm:text-5xl font-bold text-white uppercase">
+                DOCUMENTARY <span className="text-[#E60012]">ARCHIVE</span>
+              </h2>
+              <p className="text-xs sm:text-sm font-sans text-white/70 max-w-lg">
+                Raw documentary photography across Pune screening nights and Old Trafford pilgrimages.
+              </p>
+            </div>
+
+            <Link
+              href="/gallery"
+              className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold tracking-tight py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase"
+            >
+              <Camera className="w-4 h-4 text-[#E60012]" />
+              <span>OPEN GALLERY ARCHIVE</span>
+            </Link>
           </div>
 
-          <Link
-            href="/gallery"
-            className="glass-panel border border-white/15 text-white hover:border-[#E60012] font-display text-base font-bold tracking-tight py-3.5 px-6 rounded-2xl flex items-center gap-2 transition-all shrink-0 uppercase"
-          >
-            <Camera className="w-4 h-4 text-[#E60012]" />
-            <span>OPEN GALLERY ARCHIVE</span>
-          </Link>
+          {/* Documentary Archive Photo Grid (4 Photos) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {(galleryList.length > 0 ? galleryList : galleryImages).slice(0, 4).map((img, idx) => (
+              <Link
+                key={img.id || idx}
+                href="/gallery"
+                className="group relative aspect-square rounded-2xl overflow-hidden border border-white/15 bg-[#171717] shadow-xl hover:border-[#E60012] transition-all"
+              >
+                <Image
+                  src={img.imageUrl}
+                  alt={img.title}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-3 left-3 right-3">
+                  <p className="text-xs font-display font-bold text-white uppercase truncate drop-shadow">
+                    {img.title}
+                  </p>
+                  <p className="text-[10px] font-sans text-white/60 truncate">
+                    {img.location || 'Pune, India'}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

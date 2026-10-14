@@ -1,12 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MessageCircle, Calendar } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
   const whatsappUrl = 'https://wa.me/917276735140';
+  const [isHindi, setIsHindi] = useState(true);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setIsHindi((prev) => !prev);
+        setFade(true);
+      }, 350);
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section className="relative min-h-[92vh] flex flex-col justify-center items-center overflow-hidden bg-[#050505] pt-32 sm:pt-36 pb-16">
@@ -35,12 +49,18 @@ export const HeroSection: React.FC = () => {
           <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
-        {/* HINDI TAGLINE HEADLINE: STYLED WITH ULTRA LUXURY WHITE SHIMMER & AMBIENT RED GLOW */}
-        <h1 className="font-devanagari text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_0_35px_rgba(230,0,18,0.45)] max-w-3xl mx-auto px-2 relative transition-all">
-          <span className="bg-gradient-to-r from-white via-neutral-100 to-white bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,0,0,0.95)]">
-            एक शहर, एक क्लब, एक प्रेम - मैनचेस्टर यूनाइटेड
-          </span>
-        </h1>
+        {/* ALTERNATING SLOGAN HEADLINE (HINDI & ENGLISH) WITH LUXURY WHITE SHIMMER & AMBIENT RED GLOW */}
+        <div className="min-h-[100px] sm:min-h-[140px] md:min-h-[170px] flex items-center justify-center">
+          <h1
+            className={`text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_0_35px_rgba(230,0,18,0.45)] max-w-3xl mx-auto px-2 relative transition-all duration-500 transform ${
+              fade ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            } ${isHindi ? 'font-devanagari' : 'font-display uppercase tracking-tight'}`}
+          >
+            <span className="bg-gradient-to-r from-white via-neutral-100 to-white bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,0,0,0.95)]">
+              {isHindi ? 'एक शहर, एक क्लब, एक प्यार - मैनचेस्टर यूनाइटेड' : 'One City, One Club, One Love, Manchester United'}
+            </span>
+          </h1>
+        </div>
 
         {/* English Subtitle: Updated Official About Copy */}
         <p className="text-sm sm:text-base md:text-lg text-white/90 font-sans max-w-2xl mx-auto leading-relaxed font-medium px-2 drop-shadow-md">
@@ -49,14 +69,14 @@ export const HeroSection: React.FC = () => {
 
         {/* 3 MUSCB BENGALURU PROPORTIONED CTA BUTTONS */}
         <div className="pt-4 flex flex-col items-center justify-center gap-3.5 max-w-md mx-auto w-full px-2">
-          {/* Button 1: Become Official Member -> Scrolls directly to #membership section */}
-          <a
-            href="#membership"
+          {/* Button 1: Become Official Member -> Navigates to /membership page */}
+          <Link
+            href="/membership"
             className="w-full bg-[#B3000C] hover:bg-[#E60012] text-white font-sans text-base sm:text-lg font-bold py-3.5 px-6 rounded-2xl shadow-[0_8px_30px_rgba(179,0,12,0.5)] flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 border border-white/20 uppercase"
           >
             <Star className="w-5 h-5 shrink-0 text-white fill-white" />
             <span>Become Official Member</span>
-          </a>
+          </Link>
 
           {/* Button 2: Join WhatsApp Community */}
           <a
