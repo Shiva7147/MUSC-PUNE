@@ -53,6 +53,7 @@ import {
   getTourConfigStore,
   updateTourConfigStore,
   approveDebitedPayment,
+  toggleCheckInTicket,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
@@ -194,12 +195,17 @@ export default function AdminDashboardPage() {
   // Scanner states
   const [manualCode, setManualCode] = useState('');
   const [scanResult, setScanResult] = useState<{
-    status: 'VALID' | 'ALREADY_USED' | 'INVALID' | 'IDLE';
+    status: 'VALID' | 'ALREADY_USED' | 'INVALID' | 'WRONG_MATCH' | 'IDLE';
     ticket?: AdminTicketRecord;
     checkedInAt?: string;
+    expectedMatchTitle?: string;
   }>({ status: 'IDLE' });
+  const [selectedScreeningId, setSelectedScreeningId] = useState<string>('');
+  const [gateSearchQuery, setGateSearchQuery] = useState('');
+  const [gateFilter, setGateFilter] = useState<'ALL' | 'CHECKED_IN' | 'AWAITING'>('ALL');
   const [cameraActive, setCameraActive] = useState(false);
   const [scanPaused, setScanPaused] = useState(false);
+  const isProcessingScanRef = useRef(false);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
   // Store data states
@@ -306,9 +312,10 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Start Camera Scanner with expanded viewport and auto-stop
+  // Start Camera Scanner with single-scan mutex and auto-pause
   const startCameraScanner = async () => {
     setScanPaused(false);
+    isProcessingScanRef.current = false;
     try {
       if (html5QrCodeRef.current) {
         try {
@@ -331,6 +338,8 @@ export default function AdminDashboardPage() {
           }),
         },
         (decodedText) => {
+          if (isProcessingScanRef.current) return;
+          isProcessingScanRef.current = true;
           handleVerifyCode(decodedText);
         },
         () => {
@@ -346,6 +355,7 @@ export default function AdminDashboardPage() {
 
   // Stop Camera Scanner
   const stopCameraScanner = async () => {
+    isProcessingScanRef.current = true;
     if (html5QrCodeRef.current && cameraActive) {
       try {
         await html5QrCodeRef.current.stop();
@@ -364,17 +374,61 @@ export default function AdminDashboardPage() {
     };
   }, [cameraActive]);
 
-  // Execute Ticket Verification Logic (Auto-pauses camera after detection to prevent duplicate scans)
+  // Execute Ticket Verification Logic (Auto-stops camera immediately to lock the single scan)
   const handleVerifyCode = async (codeToTest: string) => {
     if (!codeToTest.trim()) return;
+    isProcessingScanRef.current = true;
 
-    if (cameraActive) {
-      await stopCameraScanner();
+    // Immediately stop camera scanner to avoid duplicate frame triggers
+    if (html5QrCodeRef.current) {
+      try {
+        await html5QrCodeRef.current.stop();
+      } catch {
+        // ignore
+      }
+      setCameraActive(false);
       setScanPaused(true);
     }
 
     const res = await verifyTicketScanAsync(codeToTest, 'Gate Admin 1');
+
+    // Cross-check if ticket is for the selected gate screening
+    const activeSc = screenings.find((s) => s.id === selectedScreeningId) || screenings[0];
+    if (res.ticket && selectedScreeningId && selectedScreeningId !== 'ALL' && activeSc) {
+      const ticketMatch = (res.ticket.matchTitle || '').toLowerCase();
+      const currentMatch = (activeSc.matchTitle || '').toLowerCase();
+      const isMatch =
+        res.ticket.screeningId === activeSc.id ||
+        ticketMatch.includes(currentMatch) ||
+        currentMatch.includes(ticketMatch);
+
+      if (!isMatch) {
+        setScanResult({
+          status: 'WRONG_MATCH',
+          ticket: res.ticket,
+          checkedInAt: res.checkedInAt,
+          expectedMatchTitle: activeSc.matchTitle,
+        });
+        return;
+      }
+    }
+
     setScanResult(res);
+  };
+
+  // Reset and resume scanning for next supporter
+  const handleApproveAndScanNext = async () => {
+    setScanResult({ status: 'IDLE' });
+    setManualCode('');
+    isProcessingScanRef.current = false;
+    await startCameraScanner();
+  };
+
+  // Manual Check-In toggle from inline gate ledger
+  const handleToggleGateCheckIn = async (ticketId: string) => {
+    await toggleCheckInTicket(ticketId, 'Gate Admin 1');
+    const updated = await fetchRemoteTicketsAsync();
+    if (updated) setTickets(updated);
   };
 
   // Handle File Upload QR Scanning
@@ -584,8 +638,48 @@ export default function AdminDashboardPage() {
     alert('New photo added and saved to documentary gallery database!');
   };
 
-  // Stats
+  // Overall Stats
   const checkedInCount = tickets.filter((t) => t.checkedIn).length;
+
+  // Active screening selection & live gate computations
+  const activeGateScreening = screenings.find((s) => s.id === selectedScreeningId) || screenings[0];
+  const activeGateScreeningId = selectedScreeningId || activeGateScreening?.id || 'ALL';
+
+  const gateTickets = tickets.filter((t) => {
+    if (activeGateScreeningId === 'ALL') return true;
+    if (t.screeningId && t.screeningId === activeGateScreeningId) return true;
+    if (activeGateScreening?.matchTitle && t.matchTitle) {
+      const tm = t.matchTitle.toLowerCase();
+      const sm = activeGateScreening.matchTitle.toLowerCase();
+      return tm.includes(sm) || sm.includes(tm);
+    }
+    return false;
+  });
+
+  const gateCapacity = activeGateScreening?.capacity || 250;
+  const gateTicketsSold = gateTickets.reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
+  const gateCheckedInCount = gateTickets.filter((t) => t.checkedIn).reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
+  const gateTurnstilePercent = gateTicketsSold > 0 ? Math.round((gateCheckedInCount / gateTicketsSold) * 100) : 0;
+
+  const filteredGateAttendees = gateTickets.filter((t) => {
+    const matchesFilter =
+      gateFilter === 'ALL'
+        ? true
+        : gateFilter === 'CHECKED_IN'
+        ? t.checkedIn
+        : !t.checkedIn;
+
+    if (!matchesFilter) return false;
+
+    if (!gateSearchQuery.trim()) return true;
+    const q = gateSearchQuery.toLowerCase();
+    return (
+      t.ticketId.toLowerCase().includes(q) ||
+      t.userName.toLowerCase().includes(q) ||
+      (t.userPhone && t.userPhone.toLowerCase().includes(q)) ||
+      (t.userEmail && t.userEmail.toLowerCase().includes(q))
+    );
+  });
 
   return (
     <main className="min-h-screen bg-[#050505] text-[#F5F5F5]">
@@ -748,178 +842,489 @@ export default function AdminDashboardPage() {
 
             {/* TAB 1: LIVE QR SCANNER */}
             {activeTab === 'SCANNER' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Camera Viewport & Verification */}
-                <div className="lg:col-span-7 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-6">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="space-y-8">
+                {/* 1. MATCHDAY SCREENING GATE PICKER & LIVE METRICS BAR */}
+                <div className="glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-6 shadow-2xl">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
-                      <h2 className="font-display text-2xl font-bold text-white uppercase">MATCHDAY GATE SCANNER</h2>
-                      <p className="text-xs text-white/60 font-sans">Point camera at QR pass or upload a ticket image file</p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {!cameraActive ? (
-                        <button
-                          onClick={startCameraScanner}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow"
-                        >
-                          <CamIcon className="w-4 h-4" />
-                          <span>START CAMERA</span>
-                        </button>
-                      ) : (
-                        <button
-                          onClick={stopCameraScanner}
-                          className="bg-red-600 hover:bg-red-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow"
-                        >
-                          <XIcon className="w-4 h-4" />
-                          <span>STOP CAMERA</span>
-                        </button>
-                      )}
-
-                      <label className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow">
-                        <UploadIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>SCAN IMAGE</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileUploadScan}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* HTML5 Camera Viewport Box — Enlarged High-Visibility Container */}
-                  <div className="relative min-h-[380px] sm:min-h-[460px] w-full bg-[#050505] rounded-2xl overflow-hidden border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-2 shadow-2xl">
-                    <div id="qr-reader-viewport" className="w-full h-full min-h-[380px] sm:min-h-[460px]" />
-                    {!cameraActive && (
-                      <div className="text-center space-y-4 p-6 my-auto z-10">
-                        <QrIcon className="w-20 h-20 text-[#E60012] mx-auto animate-pulse" />
-                        <div className="space-y-2">
-                          {scanPaused ? (
-                            <div className="space-y-2">
-                              <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 text-xs font-display px-3 py-1 rounded-full font-bold uppercase inline-block">
-                                ✓ TICKET SCANNED — CAMERA AUTO-PAUSED
-                              </span>
-                              <p className="text-xs font-sans text-white/80">
-                                Camera stopped automatically to prevent duplicate scans. Click below to scan the next attendee!
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-xs font-sans text-white/70">
-                              Click &quot;START CAMERA&quot; to scan passes live, or &quot;SCAN IMAGE&quot; to upload a saved ticket QR pass!
-                            </p>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={startCameraScanner}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-sm font-bold py-3.5 px-8 rounded-xl shadow-lg uppercase transition-all hover:scale-105 cursor-pointer min-h-[44px]"
-                        >
-                          {scanPaused ? '📷 SCAN NEXT TICKET PASS' : '📷 START LIVE CAMERA SCANNER'}
-                        </button>
+                      <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold tracking-wider uppercase mb-1">
+                        <CalIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>SELECT ACTIVE GATE SCREENING</span>
                       </div>
-                    )}
+                      <h2 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase tracking-tight">
+                        {activeGateScreening?.matchTitle || 'ALL SCREENINGS'}
+                      </h2>
+                      <p className="text-xs text-white/60 font-sans mt-0.5">
+                        {activeGateScreening?.venueName || 'Pune Venue'} • {activeGateScreening?.date || 'Matchday'}
+                      </p>
+                    </div>
+
+                    {/* Quick Screening Dropdown */}
+                    <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      <label htmlFor="screening-picker" className="text-xs font-display text-white/70 uppercase font-bold shrink-0 self-center">
+                        Active Screening:
+                      </label>
+                      <select
+                        id="screening-picker"
+                        value={activeGateScreeningId}
+                        onChange={(e) => {
+                          setSelectedScreeningId(e.target.value);
+                          setScanResult({ status: 'IDLE' });
+                        }}
+                        className="bg-[#050505] border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white font-display font-bold uppercase focus:outline-none focus:border-[#E60012] cursor-pointer"
+                      >
+                        {screenings.map((sc) => (
+                          <option key={sc.id} value={sc.id}>
+                            {sc.matchTitle} ({sc.competition || 'Match'})
+                          </option>
+                        ))}
+                        <option value="ALL">All Screenings (Global Gate)</option>
+                      </select>
+                    </div>
                   </div>
 
-                  {/* Manual Entry Fallback */}
-                  <div className="space-y-2 pt-2 border-t border-white/10">
-                    <label className="text-xs font-display text-white/90 font-bold uppercase">
-                      MANUAL ENTRY (TICKET ID OR PHONE NUMBER)
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="e.g. MUSCPUN-849201 or 7276735140"
-                        value={manualCode}
-                        onChange={(e) => setManualCode(e.target.value)}
-                        className="flex-1 bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono placeholder:text-neutral-400 focus:outline-none focus:border-[#E60012]"
-                      />
-                      <button
-                        onClick={() => handleVerifyCode(manualCode)}
-                        className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-1.5 shadow"
-                      >
-                        <SearchIcon className="w-4 h-4" />
-                        <span>VERIFY</span>
-                      </button>
+                  {/* 4 Real-Time Gate Counters for Selected Screening */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">🏟️ SCREENING CAPACITY</span>
+                      <div className="text-2xl sm:text-3xl font-display font-bold text-white">{gateCapacity}</div>
+                      <span className="text-[10px] text-white/40 font-mono block">Total Venue Seats</span>
+                    </div>
+
+                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">🎟️ TICKETS SOLD (LIVE)</span>
+                      <div className="text-2xl sm:text-3xl font-display font-bold text-[#FFC400]">{gateTicketsSold}</div>
+                      <span className="text-[10px] text-white/40 font-mono block">Real-time Booked Passes</span>
+                    </div>
+
+                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">👥 ADMITTED AT GATE</span>
+                      <div className="text-2xl sm:text-3xl font-display font-bold text-emerald-400">
+                        {gateCheckedInCount} <span className="text-xs text-white/50 font-normal">/ {gateTicketsSold}</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-400/70 font-mono block">
+                        {gateTicketsSold - gateCheckedInCount} Remaining to enter
+                      </span>
+                    </div>
+
+                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">📊 TURNSTILE ATTENDANCE</span>
+                      <div className="text-2xl sm:text-3xl font-display font-bold text-[#E60012]">{gateTurnstilePercent}%</div>
+                      <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
+                        <div
+                          className="bg-[#E60012] h-full transition-all duration-500 rounded-full"
+                          style={{ width: `${Math.min(100, gateTurnstilePercent)}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Scan Result Visual Display */}
-                <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 flex flex-col justify-between space-y-6">
-                  <div>
-                    <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
-                      GATE VERIFICATION RESULT
-                    </h3>
-
-                    {scanResult.status === 'IDLE' && (
-                      <div className="py-16 text-center space-y-3">
-                        <QrIcon className="w-12 h-12 text-white/20 mx-auto" />
-                        <p className="text-xs text-white/50 font-sans">Awaiting QR scan or manual search...</p>
+                {/* 2. CAMERA SCANNER & REAL-TIME VERIFICATION RESULTS */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  {/* Camera Viewport & Verification */}
+                  <div className="lg:col-span-7 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-display text-xl font-bold text-white uppercase">LIVE CAMERA SCANNER</h3>
+                        <p className="text-xs text-white/60 font-sans">Point camera at attendee QR pass or upload a ticket image</p>
                       </div>
-                    )}
 
-                    {scanResult.status === 'VALID' && (
-                      <div className="py-8 text-center space-y-4 animate-in fade-in duration-200 bg-emerald-950/40 p-6 rounded-2xl border border-emerald-500/50">
-                        <CheckIcon className="w-20 h-20 text-emerald-400 mx-auto animate-bounce" />
-                        <div>
-                          <span className="bg-emerald-500 text-black text-xs font-display font-bold px-3 py-1 rounded uppercase tracking-wider">
-                            🟢 ENTRY APPROVED (1ST TIME)
-                          </span>
-                          <h4 className="font-display text-3xl font-bold text-white mt-3">{scanResult.ticket?.userName}</h4>
-                          <p className="text-xs text-emerald-300 font-mono mt-1">
-                            {scanResult.ticket?.quantity} Pass(es) • {scanResult.ticket?.matchTitle}
-                          </p>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        {!cameraActive ? (
+                          <button
+                            onClick={startCameraScanner}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-all hover:scale-105"
+                          >
+                            <CamIcon className="w-4 h-4" />
+                            <span>START CAMERA</span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={stopCameraScanner}
+                            className="bg-red-600 hover:bg-red-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer"
+                          >
+                            <XIcon className="w-4 h-4" />
+                            <span>STOP CAMERA</span>
+                          </button>
+                        )}
 
-                        <div className="text-left text-xs font-mono bg-[#050505] p-4 rounded-xl border border-white/10 space-y-1.5">
-                          <div><strong>Ticket ID:</strong> {scanResult.ticket?.ticketId}</div>
-                          <div><strong>Phone:</strong> {scanResult.ticket?.userPhone}</div>
-                          <div><strong>Venue:</strong> {scanResult.ticket?.venue}</div>
-                          <div><strong>Checked In At:</strong> {scanResult.checkedInAt}</div>
-                        </div>
+                        <label className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow">
+                          <UploadIcon className="w-4 h-4 text-[#E60012]" />
+                          <span>SCAN IMAGE</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUploadScan}
+                            className="hidden"
+                          />
+                        </label>
                       </div>
-                    )}
+                    </div>
 
-                    {scanResult.status === 'ALREADY_USED' && (
-                      <div className="py-8 text-center space-y-4 animate-in fade-in duration-200 bg-red-950/40 p-6 rounded-2xl border border-red-500/50">
-                        <AlertIcon className="w-20 h-20 text-red-500 mx-auto animate-pulse" />
-                        <div>
-                          <span className="bg-red-600 text-white text-xs font-display font-bold px-3 py-1 rounded uppercase tracking-wider">
-                            🔴 ALREADY CHECKED IN (INVALID RE-ENTRY)
-                          </span>
-                          <h4 className="font-display text-3xl font-bold text-white mt-3">{scanResult.ticket?.userName}</h4>
-                          <p className="text-xs text-red-300 font-mono mt-1">
-                            This QR code was already scanned at {scanResult.checkedInAt}
-                          </p>
+                    {/* HTML5 Camera Viewport Box */}
+                    <div className="relative min-h-[380px] sm:min-h-[460px] w-full bg-[#050505] rounded-2xl overflow-hidden border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-2 shadow-2xl">
+                      <div id="qr-reader-viewport" className="w-full h-full min-h-[380px] sm:min-h-[460px]" />
+                      {!cameraActive && (
+                        <div className="text-center space-y-4 p-6 my-auto z-10">
+                          <QrIcon className="w-20 h-20 text-[#E60012] mx-auto animate-pulse" />
+                          <div className="space-y-2">
+                            {scanPaused ? (
+                              <div className="space-y-2">
+                                <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/50 text-xs font-display px-3 py-1 rounded-full font-bold uppercase inline-block">
+                                  ✓ TICKET SCANNED — CAMERA AUTO-PAUSED
+                                </span>
+                                <p className="text-xs font-sans text-white/80">
+                                  Camera auto-stopped to prevent accidental duplicate scans. Admit supporter and click below!
+                                </p>
+                              </div>
+                            ) : (
+                              <p className="text-xs font-sans text-white/70">
+                                Click &quot;START CAMERA&quot; to scan tickets live at the gate!
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleApproveAndScanNext}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-display text-sm font-bold py-3.5 px-8 rounded-xl shadow-lg uppercase transition-all hover:scale-105 cursor-pointer min-h-[44px]"
+                          >
+                            {scanPaused ? '📷 APPROVE & SCAN NEXT SUPPORTER' : '📷 START LIVE CAMERA SCANNER'}
+                          </button>
                         </div>
+                      )}
+                    </div>
 
-                        <div className="text-left text-xs font-mono bg-[#050505] p-4 rounded-xl border border-white/10 space-y-1.5 text-white/80">
-                          <div><strong>Ticket ID:</strong> {scanResult.ticket?.ticketId}</div>
-                          <div><strong>Phone:</strong> {scanResult.ticket?.userPhone}</div>
-                          <div><strong>Scanned Previously At:</strong> {scanResult.checkedInAt}</div>
-                        </div>
+                    {/* Manual Entry Fallback */}
+                    <div className="space-y-2 pt-2 border-t border-white/10">
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">
+                        MANUAL VERIFICATION (TICKET ID OR PHONE NUMBER)
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="e.g. MUSCPUN-849201 or 7276735140"
+                          value={manualCode}
+                          onChange={(e) => setManualCode(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleVerifyCode(manualCode);
+                            }
+                          }}
+                          className="flex-1 bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono placeholder:text-neutral-400 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <button
+                          onClick={() => handleVerifyCode(manualCode)}
+                          className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-1.5 shadow cursor-pointer"
+                        >
+                          <SearchIcon className="w-4 h-4" />
+                          <span>VERIFY</span>
+                        </button>
                       </div>
-                    )}
-
-                    {scanResult.status === 'INVALID' && (
-                      <div className="py-12 text-center space-y-4 bg-amber-950/40 p-6 rounded-2xl border border-amber-500/50">
-                        <XIcon className="w-20 h-20 text-amber-500 mx-auto" />
-                        <div>
-                          <span className="bg-amber-500 text-black text-xs font-display font-bold px-3 py-1 rounded uppercase tracking-wider">
-                            ⚠️ TICKET NOT FOUND
-                          </span>
-                          <p className="text-xs text-amber-200 font-sans mt-3">
-                            No matchday ticket found matching &quot;{manualCode}&quot;. Please verify the Ticket ID or phone number.
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </div>
 
-                  <div className="pt-4 border-t border-white/10 flex justify-between text-xs font-mono text-white/60">
-                    <div>Live Gate Total: <strong>{checkedInCount} / {tickets.length} Checked In</strong></div>
+                  {/* Scan Result Visual Card */}
+                  <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 flex flex-col justify-between space-y-6">
+                    <div>
+                      <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
+                        GATE VERIFICATION RESULT
+                      </h3>
+
+                      {scanResult.status === 'IDLE' && (
+                        <div className="py-20 text-center space-y-3">
+                          <QrIcon className="w-16 h-16 text-white/20 mx-auto" />
+                          <p className="text-sm font-display font-bold uppercase text-white/60">AWAITING QR PASS SCAN</p>
+                          <p className="text-xs text-white/40 font-sans max-w-xs mx-auto">
+                            Hold attendee QR code in front of the camera, or enter their Ticket ID / Phone above.
+                          </p>
+                        </div>
+                      )}
+
+                      {scanResult.status === 'VALID' && (
+                        <div className="py-6 text-center space-y-4 animate-in fade-in duration-200 bg-emerald-950/50 p-6 rounded-2xl border-2 border-emerald-500 shadow-2xl">
+                          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 mx-auto flex items-center justify-center animate-bounce">
+                            <CheckIcon className="w-10 h-10" />
+                          </div>
+                          <div>
+                            <span className="bg-emerald-500 text-black text-xs font-display font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider inline-block shadow">
+                              🟢 ENTRY APPROVED • 1ST TIME ENTRY
+                            </span>
+                            <h4 className="font-display text-3xl sm:text-4xl font-bold text-white mt-2 leading-tight">
+                              {scanResult.ticket?.userName}
+                            </h4>
+                            <p className="text-sm text-emerald-300 font-display font-bold mt-1 uppercase">
+                              {scanResult.ticket?.quantity} Pass(es) Confirmed • {scanResult.ticket?.matchTitle}
+                            </p>
+                          </div>
+
+                          <div className="text-left text-xs font-mono bg-[#050505] p-4 rounded-xl border border-white/10 space-y-1.5">
+                            <div><strong>Ticket ID:</strong> <span className="text-[#E60012] font-bold">{scanResult.ticket?.ticketId}</span></div>
+                            <div><strong>Phone / WhatsApp:</strong> {scanResult.ticket?.userPhone}</div>
+                            <div><strong>Venue:</strong> {scanResult.ticket?.venue}</div>
+                            <div><strong>Admitted Timestamp:</strong> {scanResult.checkedInAt}</div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleApproveAndScanNext}
+                            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-display text-base font-bold py-4 px-6 rounded-xl shadow-xl uppercase transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <CamIcon className="w-5 h-5" />
+                            <span>APPROVE & SCAN NEXT SUPPORTER</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {scanResult.status === 'ALREADY_USED' && (
+                        <div className="py-6 text-center space-y-4 animate-in fade-in duration-200 bg-red-950/60 p-6 rounded-2xl border-2 border-red-500 shadow-2xl">
+                          <div className="w-16 h-16 rounded-full bg-red-500/20 border-2 border-red-500 text-red-500 mx-auto flex items-center justify-center animate-pulse">
+                            <AlertIcon className="w-10 h-10" />
+                          </div>
+                          <div>
+                            <span className="bg-red-600 text-white text-xs font-display font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider inline-block shadow">
+                              🔴 ALREADY CHECKED IN (INVALID RE-ENTRY)
+                            </span>
+                            <h4 className="font-display text-3xl font-bold text-white mt-2">
+                              {scanResult.ticket?.userName}
+                            </h4>
+                            <p className="text-xs text-red-300 font-sans mt-1">
+                              This QR pass was already admitted at <strong>{scanResult.checkedInAt}</strong>
+                            </p>
+                          </div>
+
+                          <div className="text-left text-xs font-mono bg-[#050505] p-4 rounded-xl border border-white/10 space-y-1.5 text-white/80">
+                            <div><strong>Ticket ID:</strong> {scanResult.ticket?.ticketId}</div>
+                            <div><strong>Phone:</strong> {scanResult.ticket?.userPhone}</div>
+                            <div><strong>First Admitted At:</strong> {scanResult.checkedInAt}</div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleApproveAndScanNext}
+                            className="w-full bg-red-600 hover:bg-red-500 text-white font-display text-sm font-bold py-3.5 px-6 rounded-xl shadow-xl uppercase transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <CamIcon className="w-4 h-4" />
+                            <span>SCAN NEXT SUPPORTER</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {scanResult.status === 'WRONG_MATCH' && (
+                        <div className="py-6 text-center space-y-4 animate-in fade-in duration-200 bg-amber-950/60 p-6 rounded-2xl border-2 border-amber-500 shadow-2xl">
+                          <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 text-amber-400 mx-auto flex items-center justify-center animate-pulse">
+                            <AlertIcon className="w-10 h-10" />
+                          </div>
+                          <div>
+                            <span className="bg-amber-500 text-black text-xs font-display font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider inline-block shadow">
+                              ⚠️ TICKET IS FOR A DIFFERENT MATCH
+                            </span>
+                            <h4 className="font-display text-2xl font-bold text-white mt-2">
+                              {scanResult.ticket?.userName}
+                            </h4>
+                            <p className="text-xs text-amber-200 font-sans mt-1">
+                              Ticket belongs to: <strong>{scanResult.ticket?.matchTitle}</strong>
+                            </p>
+                            <p className="text-xs text-white/70 font-sans mt-0.5">
+                              Gate is currently admitting for: <strong>{scanResult.expectedMatchTitle}</strong>
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                            <button
+                              type="button"
+                              onClick={handleApproveAndScanNext}
+                              className="flex-1 bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3 rounded-xl uppercase cursor-pointer"
+                            >
+                              REJECT & SCAN NEXT
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (scanResult.ticket) {
+                                  await handleToggleGateCheckIn(scanResult.ticket.ticketId);
+                                }
+                                await handleApproveAndScanNext();
+                              }}
+                              className="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-display text-xs font-bold py-3 rounded-xl uppercase shadow cursor-pointer"
+                            >
+                              OVERRIDE & ADMIT
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {scanResult.status === 'INVALID' && (
+                        <div className="py-8 text-center space-y-4 bg-neutral-900 p-6 rounded-2xl border border-white/20">
+                          <XIcon className="w-16 h-16 text-red-500 mx-auto" />
+                          <div>
+                            <span className="bg-red-500 text-white text-xs font-display font-bold px-3 py-1 rounded uppercase tracking-wider">
+                              ⚠️ TICKET NOT FOUND
+                            </span>
+                            <p className="text-xs text-white/70 font-sans mt-2">
+                              No matchday ticket found matching &quot;{manualCode}&quot;. Please verify the Ticket ID or phone number.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleApproveAndScanNext}
+                            className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3 px-6 rounded-xl uppercase cursor-pointer"
+                          >
+                            TRY AGAIN / SCAN NEXT
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-white/10 flex justify-between text-xs font-mono text-white/60">
+                      <div>Screening Gate Attendance: <strong>{gateCheckedInCount} / {gateTicketsSold} Admitted</strong></div>
+                      <div>Total All Events: {checkedInCount} / {tickets.length}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. DEDICATED INLINE ATTENDEE LEDGER FOR THIS SCREENING */}
+                <div className="glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-6 shadow-2xl">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/10 pb-5 gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-display text-[#E60012] font-bold tracking-wider uppercase mb-1">
+                        <SparkIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>MATCHDAY TURNSTILE ATTENDEE LIST</span>
+                      </div>
+                      <h3 className="font-display text-2xl font-bold text-white uppercase tracking-tight">
+                        LIVE ATTENDEE LEDGER — {activeGateScreening?.matchTitle}
+                      </h3>
+                      <p className="text-xs text-white/60 font-sans mt-0.5">
+                        Verify attendees, manually admit fans without QR codes, and export gate manifests
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => exportTicketsToCSV(activeGateScreening?.matchTitle)}
+                      className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow cursor-pointer shrink-0 uppercase"
+                    >
+                      <DownIcon className="w-4 h-4 text-[#E60012]" />
+                      <span>EXPORT SCREENING CSV</span>
+                    </button>
+                  </div>
+
+                  {/* Filter & Search Bar */}
+                  <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                    {/* Search Field */}
+                    <div className="relative flex-1">
+                      <SearchIcon className="w-4 h-4 text-white/40 absolute left-3.5 top-3.5" />
+                      <input
+                        type="text"
+                        placeholder="Search by attendee name, ticket ID, phone, or email..."
+                        value={gateSearchQuery}
+                        onChange={(e) => setGateSearchQuery(e.target.value)}
+                        className="w-full bg-[#050505] border border-white/20 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-[#E60012] font-mono"
+                      />
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setGateFilter('ALL')}
+                        className={`text-xs font-display font-bold px-3.5 py-2 rounded-xl transition-all uppercase cursor-pointer ${
+                          gateFilter === 'ALL'
+                            ? 'bg-[#E60012] text-white shadow'
+                            : 'bg-[#050505] text-white/60 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        ALL ({gateTickets.length})
+                      </button>
+                      <button
+                        onClick={() => setGateFilter('CHECKED_IN')}
+                        className={`text-xs font-display font-bold px-3.5 py-2 rounded-xl transition-all uppercase cursor-pointer ${
+                          gateFilter === 'CHECKED_IN'
+                            ? 'bg-emerald-600 text-white shadow'
+                            : 'bg-[#050505] text-white/60 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        ADMITTED ({gateTickets.filter((t) => t.checkedIn).length})
+                      </button>
+                      <button
+                        onClick={() => setGateFilter('AWAITING')}
+                        className={`text-xs font-display font-bold px-3.5 py-2 rounded-xl transition-all uppercase cursor-pointer ${
+                          gateFilter === 'AWAITING'
+                            ? 'bg-amber-600 text-white shadow'
+                            : 'bg-[#050505] text-white/60 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        AWAITING ({gateTickets.filter((t) => !t.checkedIn).length})
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Attendees Table */}
+                  <div className="overflow-x-auto rounded-2xl border border-white/10">
+                    <table className="w-full text-left text-xs font-sans">
+                      <thead className="bg-[#050505] text-white/60 uppercase font-display border-b border-white/10">
+                        <tr>
+                          <th className="p-4">Ticket ID</th>
+                          <th className="p-4">Supporter</th>
+                          <th className="p-4">Phone</th>
+                          <th className="p-4">Passes</th>
+                          <th className="p-4">Gate Status</th>
+                          <th className="p-4 text-right">Quick Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {filteredGateAttendees.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="p-10 text-center text-white/50 font-sans">
+                              No attendees matching your search for this screening.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredGateAttendees.map((t) => (
+                            <tr key={t.ticketId} className="hover:bg-white/[0.02] transition-colors">
+                              <td className="p-4 font-mono font-bold text-[#E60012] whitespace-nowrap">
+                                {t.ticketId}
+                              </td>
+                              <td className="p-4">
+                                <div className="font-bold text-white text-sm">{t.userName}</div>
+                                <div className="text-[11px] text-white/50">{t.userEmail}</div>
+                              </td>
+                              <td className="p-4 font-mono text-white/80 whitespace-nowrap">
+                                {t.userPhone || 'N/A'}
+                              </td>
+                              <td className="p-4 font-display font-bold text-white whitespace-nowrap">
+                                {t.quantity} Pass{t.quantity > 1 ? 'es' : ''}
+                              </td>
+                              <td className="p-4 whitespace-nowrap">
+                                {t.checkedIn ? (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40 text-[11px] font-display font-bold uppercase">
+                                    <CheckIcon className="w-3.5 h-3.5" />
+                                    <span>Admitted @ {t.checkedInAt || 'Gate'}</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/60 text-amber-300 border border-amber-500/40 text-[11px] font-display font-bold uppercase">
+                                    <ClockIcon className="w-3.5 h-3.5" />
+                                    <span>Awaiting Entry</span>
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-4 text-right whitespace-nowrap">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleGateCheckIn(t.ticketId)}
+                                  className={`text-xs font-display font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer uppercase ${
+                                    t.checkedIn
+                                      ? 'bg-neutral-800 hover:bg-neutral-700 text-white/70 hover:text-white border border-white/10'
+                                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow'
+                                  }`}
+                                >
+                                  {t.checkedIn ? 'Undo Check-In' : 'Admit Supporter'}
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>

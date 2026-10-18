@@ -370,6 +370,27 @@ export const verifyTicketScanAsync = async (
   };
 };
 
+// Toggle Check-In status manually from gate ledger
+export const toggleCheckInTicket = async (ticketId: string, adminName: string = 'Gate Admin 1') => {
+  let allTickets = getTicketStore();
+  const index = allTickets.findIndex((t) => t.ticketId === ticketId);
+  if (index === -1) return null;
+
+  const target = allTickets[index];
+  const newCheckedIn = !target.checkedIn;
+  const nowStr = newCheckedIn ? new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : undefined;
+  target.checkedIn = newCheckedIn;
+  target.checkedInAt = nowStr;
+  target.checkedInBy = newCheckedIn ? adminName : undefined;
+
+  allTickets[index] = target;
+  ticketsMemory = allTickets;
+  saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  syncTicketToSupabase(target);
+  notifyListeners();
+  return target;
+};
+
 export const verifyTicketScan = (
   scannedCode: string,
   adminName: string = 'Gate Admin 1'
