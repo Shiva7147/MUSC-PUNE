@@ -125,18 +125,19 @@ export default function Home() {
           </div>
 
           {/* Photo */}
-          <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
+          <div className="relative w-full max-w-4xl mx-auto aspect-[1280/1210] rounded-3xl overflow-hidden border-2 border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] bg-[#0C0C0C] group">
             <Image
               src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg"
               alt="MUSC Pune Supporters Group"
               fill
-              quality={95}
+              unoptimized
+              quality={100}
               priority
-              className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              className="object-contain object-center group-hover:scale-[1.01] transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2">
-              <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-md">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 flex items-center gap-2 z-10">
+              <span className="bg-[#E60012] text-white text-[11px] sm:text-xs font-display font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-lg border border-white/15">
                 📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
               </span>
             </div>

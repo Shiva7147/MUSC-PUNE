@@ -50,18 +50,21 @@ export const AboutSection: React.FC = () => {
         </div>
 
         {/* Large High-Quality Photograph */}
-        <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
+        <div className="relative w-full max-w-4xl mx-auto aspect-[1280/1210] rounded-3xl overflow-hidden border-2 border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] bg-[#0C0C0C] group">
           <Image
             src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg"
             alt="MUSC Pune Supporters Group Photo"
             fill
             priority
-            quality={95}
-            className="object-cover object-center group-hover:scale-[1.02] transition-transform duration-700"
+            quality={100}
+            unoptimized
+            className="object-contain object-center group-hover:scale-[1.01] transition-transform duration-700"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
-          <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs sm:text-sm font-sans text-white font-semibold uppercase">
-            <span>📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS</span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 right-3 sm:right-5 flex items-center justify-between text-xs sm:text-sm font-sans text-white font-semibold uppercase z-10">
+            <span className="bg-[#E60012] text-white text-[11px] sm:text-xs font-display font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-lg border border-white/15">
+              📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
+            </span>
             <span className="hidden sm:inline-block bg-black/80 px-3 py-1 rounded-full border border-white/20">EST. 2011</span>
           </div>
         </div>
