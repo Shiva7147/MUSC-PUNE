@@ -68,36 +68,109 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   const platformFeeAmount = Math.round(baseAmount * platformFeeRate);
   const totalAmount = baseAmount + taxAmount + platformFeeAmount;
 
+  const loadRazorpayScript = () => {
+    return new Promise<boolean>((resolve) => {
+      if (typeof window === 'undefined') return resolve(false);
+      if ((window as any).Razorpay) return resolve(true);
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const completeTicketGeneration = async (paymentRefId?: string) => {
+    const record = await generateTicketPass(
+      screening,
+      name || 'Pune Red Supporter',
+      email || 'supporter@muscpune.in',
+      phone || '+91 7276735140',
+      quantity
+    );
+
+    setBookingData(record);
+    setStep('CONFIRMATION');
+
+    try {
+      confetti({
+        particleCount: 90,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#E60012', '#FFFFFF', '#171717'],
+      });
+    } catch {
+      // fallback
+    }
+  };
+
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Generate real QR code and ticket stub in local store
-      const record = await generateTicketPass(
-        screening,
-        name || 'Pune Red Supporter',
-        email || 'supporter@muscpune.in',
-        phone || '+91 7276735140',
-        quantity
-      );
+      // 1. Initialize order via Razorpay API route
+      const res = await fetch('/api/razorpay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: totalAmount,
+          currency: 'INR',
+          receipt: `rcpt_${screening.id}_${Date.now()}`,
+          notes: {
+            screeningId: screening.id,
+            matchTitle: screening.matchTitle,
+            quantity,
+            userName: name,
+            userEmail: email,
+            userPhone: phone,
+          },
+        }),
+      });
 
-      setBookingData(record);
-      setStep('CONFIRMATION');
+      const orderData = await res.json().catch(() => ({}));
+      const hasLiveRazorpay = !orderData.simulated && orderData.key && !orderData.key.includes('rzp_test_musc_pune');
 
-      // Trigger celebration confetti
-      try {
-        confetti({
-          particleCount: 90,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ['#E60012', '#FFFFFF', '#171717'],
-        });
-      } catch {
-        // fallback
+      if (hasLiveRazorpay) {
+        const loaded = await loadRazorpayScript();
+        if (loaded && (window as any).Razorpay) {
+          const options = {
+            key: orderData.key,
+            amount: orderData.amount,
+            currency: orderData.currency || 'INR',
+            name: 'MUSC Pune',
+            description: `${screening.matchTitle} (${quantity} Pass${quantity > 1 ? 'es' : ''})`,
+            order_id: orderData.orderId,
+            prefill: {
+              name: name || 'Pune Red Supporter',
+              email: email || 'supporter@muscpune.in',
+              contact: phone || '+91 7276735140',
+            },
+            theme: {
+              color: '#E60012',
+            },
+            handler: async (response: any) => {
+              await completeTicketGeneration(response.razorpay_payment_id || response.razorpay_order_id);
+              setLoading(false);
+            },
+            modal: {
+              ondismiss: () => {
+                setLoading(false);
+              },
+            },
+          };
+          const rzp = new (window as any).Razorpay(options);
+          rzp.open();
+          return;
+        }
       }
+
+      // 2. Direct simulation / Instant confirmation mode
+      await completeTicketGeneration(orderData.orderId || `pay_direct_${Date.now()}`);
     } catch (err) {
-      console.error('Failed to generate ticket:', err);
+      console.error('Failed to initialize or process payment:', err);
+      await completeTicketGeneration(`pay_direct_${Date.now()}`);
     } finally {
       setLoading(false);
     }
@@ -273,7 +346,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                     disabled={loading}
                     className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase cursor-pointer min-h-[44px]"
                   >
-                    <span>{loading ? 'GENERATING TICKETS...' : 'GET SCREENING TICKETS'}</span>
+                    <span>{loading ? 'PROCESSING PAYMENT...' : `PAY & CONFIRM PASS (₹${totalAmount.toLocaleString('en-IN')})`}</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </form>

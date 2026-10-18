@@ -601,18 +601,34 @@ export const deleteProductFromStore = async (productId: string) => {
 // -------------------------------------------------------------
 
 export const getMembershipConfigStore = (): MembershipConfig => {
-  return loadStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+  const stored = loadStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+  return {
+    ...defaultMembershipConfig,
+    ...(stored || {}),
+    sizePrices: {
+      ...defaultMembershipConfig.sizePrices,
+      ...((stored && stored.sizePrices) || {}),
+    },
+  };
 };
 
 export const updateMembershipConfigStore = async (newConfig: MembershipConfig) => {
-  membershipConfigMemory = newConfig;
+  const merged: MembershipConfig = {
+    ...defaultMembershipConfig,
+    ...newConfig,
+    sizePrices: {
+      ...defaultMembershipConfig.sizePrices,
+      ...(newConfig?.sizePrices || {}),
+    },
+  };
+  membershipConfigMemory = merged;
   saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
   notifyListeners();
   try {
     await fetch('/api/config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: 'membership', value: newConfig }),
+      body: JSON.stringify({ key: 'membership', value: merged }),
     });
   } catch (err) {
     console.error('Update config API error:', err);
@@ -713,13 +729,24 @@ export const fetchConfigRemoteAsync = async (): Promise<{ membership?: Membershi
     if (res.ok) {
       const json = await res.json();
       const mem = json?.membership || json?.membershipConfig;
-      if (mem) {
-        membershipConfigMemory = mem;
+      if (mem && typeof mem === 'object') {
+        const mergedMem: MembershipConfig = {
+          ...defaultMembershipConfig,
+          ...mem,
+          sizePrices: {
+            ...defaultMembershipConfig.sizePrices,
+            ...(mem.sizePrices || {}),
+          },
+        };
+        membershipConfigMemory = mergedMem;
         saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
       }
       const tour = json?.tour || json?.tourConfig;
-      if (tour) {
-        tourConfigMemory = tour;
+      if (tour && typeof tour === 'object') {
+        tourConfigMemory = {
+          ...defaultTourConfig,
+          ...tour,
+        };
         saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
       }
       notifyListeners();

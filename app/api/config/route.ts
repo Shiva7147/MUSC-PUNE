@@ -20,8 +20,22 @@ export async function GET(request: Request) {
       if (data && data.length > 0) {
         const memRow = data.find((r: any) => r.key === 'membership_config');
         const tourRow = data.find((r: any) => r.key === 'tour_config');
-        if (memRow) inMemoryMembership = memRow.value;
-        if (tourRow) inMemoryTour = tourRow.value;
+        if (memRow && memRow.value && typeof memRow.value === 'object') {
+          inMemoryMembership = {
+            ...defaultMembershipConfig,
+            ...memRow.value,
+            sizePrices: {
+              ...defaultMembershipConfig.sizePrices,
+              ...(memRow.value.sizePrices || {}),
+            },
+          };
+        }
+        if (tourRow && tourRow.value && typeof tourRow.value === 'object') {
+          inMemoryTour = {
+            ...defaultTourConfig,
+            ...tourRow.value,
+          };
+        }
       }
     }
   } catch (err) {
@@ -56,24 +70,41 @@ export async function POST(request: Request) {
     const isTour = key === 'tour' || key === 'tour_config';
 
     if (isMembership) {
-      inMemoryMembership = value;
-    } else if (isTour) {
-      inMemoryTour = value;
-    }
+      inMemoryMembership = {
+        ...defaultMembershipConfig,
+        ...value,
+        sizePrices: {
+          ...defaultMembershipConfig.sizePrices,
+          ...(value?.sizePrices || {}),
+        },
+      };
 
-    if (supabaseAdmin) {
-      const configKey = isMembership ? 'membership_config' : 'tour_config';
-      await supabaseAdmin.from('site_config').upsert({
-        key: configKey,
-        value: value,
-        updated_at: new Date().toISOString(),
-      });
+      if (supabaseAdmin) {
+        await supabaseAdmin.from('site_config').upsert({
+          key: 'membership_config',
+          value: inMemoryMembership,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    } else if (isTour) {
+      inMemoryTour = {
+        ...defaultTourConfig,
+        ...value,
+      };
+
+      if (supabaseAdmin) {
+        await supabaseAdmin.from('site_config').upsert({
+          key: 'tour_config',
+          value: inMemoryTour,
+          updated_at: new Date().toISOString(),
+        });
+      }
     }
 
     return NextResponse.json({
       success: true,
       key,
-      value,
+      value: isMembership ? inMemoryMembership : inMemoryTour,
       membership: inMemoryMembership,
       tour: inMemoryTour,
     }, { status: 200 });

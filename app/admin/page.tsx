@@ -245,13 +245,28 @@ export default function AdminDashboardPage() {
     caption: '',
   });
 
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
+  const editingProductRef = useRef(editingProduct);
+  editingProductRef.current = editingProduct;
+  const editingScreeningRef = useRef(editingScreening);
+  editingScreeningRef.current = editingScreening;
+
   // Sync state on load and on store changes
   const refreshStoreData = () => {
     setTickets(getTicketStore());
-    setScreenings(getScreeningsStore());
-    setProducts(getProductsStore());
-    setMembershipConfig(getMembershipConfigStore());
-    setTourConfig(getTourConfigStore());
+    if (!editingScreeningRef.current) {
+      setScreenings(getScreeningsStore());
+    }
+    if (!editingProductRef.current) {
+      setProducts(getProductsStore());
+    }
+    if (activeTabRef.current !== 'PRICING') {
+      setMembershipConfig(getMembershipConfigStore());
+    }
+    if (activeTabRef.current !== 'TOURS') {
+      setTourConfig(getTourConfigStore());
+    }
     setGalleryList(getGalleryStore());
   };
 
@@ -259,14 +274,14 @@ export default function AdminDashboardPage() {
     refreshStoreData();
     // Fetch latest remote state from server & Supabase on mount
     fetchConfigRemoteAsync().then((res) => {
-      if (res.membership) setMembershipConfig(res.membership);
-      if (res.tour) setTourConfig(res.tour);
+      if (activeTabRef.current !== 'PRICING' && res.membership) setMembershipConfig(res.membership);
+      if (activeTabRef.current !== 'TOURS' && res.tour) setTourConfig(res.tour);
     });
     fetchScreeningsRemoteAsync().then((sc) => {
-      if (sc && sc.length > 0) setScreenings(sc);
+      if (sc && sc.length > 0 && !editingScreeningRef.current) setScreenings(sc);
     });
     fetchProductsRemoteAsync().then((pr) => {
-      if (pr && pr.length > 0) setProducts(pr);
+      if (pr && pr.length > 0 && !editingProductRef.current) setProducts(pr);
     });
     fetchGalleryRemoteAsync().then((gl) => {
       if (gl && gl.length > 0) setGalleryList(gl);

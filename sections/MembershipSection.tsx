@@ -121,7 +121,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
           </h1>
 
           <p className="text-sm sm:text-base text-white/80 font-sans max-w-2xl mx-auto leading-relaxed">
-            Explore our official local supporters club membership for Pune&apos;s Red Army and Global One United Membership (OUM).
+            Explore our official local supporters club membership for Pune&apos;s Red Army.
           </p>
         </div>
 

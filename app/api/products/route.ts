@@ -46,20 +46,22 @@ export async function POST(request: Request) {
     inMemoryProducts = [item, ...inMemoryProducts.filter((p) => p.id !== item.id)];
 
     if (supabaseAdmin) {
-      await supabaseAdmin.from('products').upsert({
+      const { error } = await supabaseAdmin.from('products').upsert({
         id: item.id,
         name: item.name,
         category: item.category,
-        price: item.price,
-        original_price: item.originalPrice,
+        price: Number(item.price),
+        original_price: item.originalPrice ? Number(item.originalPrice) : null,
         image: item.image,
-        description: item.description,
-        available_sizes: item.availableSizes,
-        size_prices: item.sizePrices,
-        in_stock: item.inStock,
-        badge: item.badge,
-        details: item.details,
+        description: item.description || '',
+        available_sizes: item.availableSizes || ['S', 'M', 'L', 'XL', 'XXL'],
+        in_stock: Boolean(item.inStock),
+        badge: item.badge || 'NEW ARRIVAL',
+        details: item.details || ['Official Supporter Merchandise'],
       });
+      if (error) {
+        console.error('Supabase product insert error:', error);
+      }
     }
 
     return NextResponse.json({ success: true, product: item }, { status: 201 });
@@ -75,14 +77,22 @@ export async function PUT(request: Request) {
     inMemoryProducts = inMemoryProducts.map((p) => (p.id === item.id ? { ...p, ...item } : p));
 
     if (supabaseAdmin) {
-      await supabaseAdmin.from('products').upsert({
+      const { error } = await supabaseAdmin.from('products').upsert({
         id: item.id,
         name: item.name,
         category: item.category,
-        price: item.price,
+        price: Number(item.price),
+        original_price: item.originalPrice ? Number(item.originalPrice) : null,
         image: item.image,
-        in_stock: item.inStock,
+        description: item.description || '',
+        available_sizes: item.availableSizes || ['S', 'M', 'L', 'XL', 'XXL'],
+        in_stock: Boolean(item.inStock),
+        badge: item.badge || '',
+        details: item.details || [],
       });
+      if (error) {
+        console.error('Supabase product update error:', error);
+      }
     }
 
     return NextResponse.json({ success: true, product: item }, { status: 200 });
