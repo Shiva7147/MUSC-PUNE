@@ -60,9 +60,14 @@ export const generatePDFTicketPass = (ticket: AdminTicketRecord) => {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(255, 255, 255);
-  doc.text(`Pass Holder: ${ticket.userName}`, 8, 71);
-  doc.text(`Quantity: ${ticket.quantity} Ticket(s)`, 8, 76);
-  doc.text(`Total Amount: INR ${ticket.totalAmount}`, 8, 81);
+  doc.text(`Pass Holder: ${ticket.userName}`, 8, 70);
+  doc.text(`Quantity: ${ticket.quantity} Ticket(s)`, 8, 74.5);
+  doc.text(`Total Amount: INR ${ticket.totalAmount}`, 8, 79);
+  if (ticket.paymentId) {
+    doc.setFontSize(6.5);
+    doc.setTextColor(200, 200, 200);
+    doc.text(`Payment Ref: ${ticket.paymentId}`, 8, 83.5);
+  }
 
   // QR Code Image Embedding
   if (ticket.qrDataUrl) {

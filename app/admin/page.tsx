@@ -470,6 +470,7 @@ export default function AdminDashboardPage() {
       'Quantity',
       'Total Amount (INR)',
       'Payment Status',
+      'Razorpay Payment ID',
       'Gate Checked In',
       'Checked In Time',
       'Booking Date',
@@ -487,6 +488,7 @@ export default function AdminDashboardPage() {
       t.quantity,
       t.totalAmount,
       t.paymentStatus || 'SUCCESS',
+      t.paymentId || 'N/A',
       t.checkedIn ? 'YES' : 'NO',
       t.checkedInAt || 'N/A',
       `"${t.bookingDate}"`,
@@ -677,7 +679,8 @@ export default function AdminDashboardPage() {
       t.ticketId.toLowerCase().includes(q) ||
       t.userName.toLowerCase().includes(q) ||
       (t.userPhone && t.userPhone.toLowerCase().includes(q)) ||
-      (t.userEmail && t.userEmail.toLowerCase().includes(q))
+      (t.userEmail && t.userEmail.toLowerCase().includes(q)) ||
+      (t.paymentId && t.paymentId.toLowerCase().includes(q))
     );
   });
 
@@ -2182,9 +2185,16 @@ export default function AdminDashboardPage() {
                                   </button>
                                 </div>
                               ) : (
-                                <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
-                                  ✓ PAID (SUCCESS)
-                                </span>
+                                <div className="space-y-0.5">
+                                  <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase inline-block">
+                                    ✓ PAID (SUCCESS)
+                                  </span>
+                                  {t.paymentId && (
+                                    <span className="block text-[9px] font-mono text-emerald-400 truncate max-w-[140px]" title={t.paymentId}>
+                                      REF: {t.paymentId}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </td>
                             <td className="py-3 px-3">

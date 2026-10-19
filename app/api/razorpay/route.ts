@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     if (keyId && keySecret) {
       try {
         const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+        const safeReceipt = (receipt || `rcpt_${Date.now()}`).slice(0, 40);
         const response = await fetch('https://api.razorpay.com/v1/orders', {
           method: 'POST',
           headers: {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             amount: amountInPaise,
             currency,
-            receipt: receipt || `rcpt_${Date.now()}`,
+            receipt: safeReceipt,
             notes: notes || {},
           }),
         });

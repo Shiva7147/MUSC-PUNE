@@ -148,7 +148,6 @@ export default function ScreeningDetailPage() {
               </div>
 
               {/* Booking Trigger CTA */}
-              {/* TODO: CONNECT RAZORPAY PAYMENT FLOW */}
               <button
                 onClick={() => setBookingModalOpen(true)}
                 className="w-full bg-[#C8102E] hover:bg-[#870019] text-white font-display text-lg tracking-wider font-bold py-4 rounded-xl shadow-xl shadow-[#C8102E]/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"

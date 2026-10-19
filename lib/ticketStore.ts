@@ -20,6 +20,8 @@ export interface AdminTicketRecord {
   checkedInAt?: string;
   checkedInBy?: string;
   paymentStatus?: 'SUCCESS' | 'FAILED' | 'DEBIT_VERIFICATION_REQUIRED';
+  paymentId?: string;
+  orderId?: string;
 }
 
 // LocalStorage Persistence Keys
@@ -139,7 +141,10 @@ export const generateTicketPass = async (
   userName: string,
   userEmail: string,
   userPhone: string,
-  quantity: number
+  quantity: number,
+  totalAmountPaid?: number,
+  paymentId?: string,
+  orderId?: string
 ): Promise<AdminTicketRecord> => {
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const ticketId = `MUSCPUN-${randomNum}`;
@@ -164,13 +169,15 @@ export const generateTicketPass = async (
     date: screening.date,
     time: screening.time,
     quantity,
-    totalAmount: screening.price * quantity,
+    totalAmount: totalAmountPaid !== undefined ? totalAmountPaid : (screening.price * quantity),
     userName,
     userEmail,
     userPhone,
     bookingDate: new Date().toLocaleString('en-IN'),
     qrDataUrl,
     paymentStatus: 'SUCCESS',
+    paymentId: paymentId || undefined,
+    orderId: orderId || undefined,
     checkedIn: false,
   };
 

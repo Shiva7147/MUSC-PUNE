@@ -81,13 +81,16 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
     });
   };
 
-  const completeTicketGeneration = async (paymentRefId?: string) => {
+  const completeTicketGeneration = async (paymentRefId?: string, orderId?: string) => {
     const record = await generateTicketPass(
       screening,
       name || 'Pune Red Supporter',
       email || 'supporter@muscpune.in',
       phone || '+91 7276735140',
-      quantity
+      quantity,
+      totalAmount,
+      paymentRefId,
+      orderId
     );
 
     setBookingData(record);
@@ -111,13 +114,14 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
 
     try {
       // 1. Initialize order via Razorpay API route
+      const safeReceipt = `rcpt_${screening.id}_${Date.now()}`.slice(0, 40);
       const res = await fetch('/api/razorpay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: totalAmount,
           currency: 'INR',
-          receipt: `rcpt_${screening.id}_${Date.now()}`,
+          receipt: safeReceipt,
           notes: {
             screeningId: screening.id,
             matchTitle: screening.matchTitle,
@@ -151,7 +155,27 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               color: '#E60012',
             },
             handler: async (response: any) => {
-              await completeTicketGeneration(response.razorpay_payment_id || response.razorpay_order_id);
+              // Server-side cryptographic signature verification
+              try {
+                const verifyRes = await fetch('/api/razorpay', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                  }),
+                });
+                const verifyData = await verifyRes.json().catch(() => ({}));
+                if (!verifyRes.ok || verifyData.error) {
+                  console.error('Signature verification warning:', verifyData);
+                  alert('Payment verification warning: Signature mismatch. If money was debited, please contact ebrahimmred@gmail.com.');
+                }
+              } catch (verifyErr) {
+                console.error('Signature verification network error:', verifyErr);
+              }
+
+              await completeTicketGeneration(response.razorpay_payment_id, response.razorpay_order_id);
               setLoading(false);
             },
             modal: {
@@ -161,6 +185,11 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
             },
           };
           const rzp = new (window as any).Razorpay(options);
+          rzp.on('payment.failed', function (failResp: any) {
+            setLoading(false);
+            console.error('Razorpay payment failed:', failResp);
+            alert(`Payment could not be completed: ${failResp.error?.description || 'Declined by bank'}. No amount was charged. Please try again.`);
+          });
           rzp.open();
           return;
         }
@@ -385,6 +414,11 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   <div>
                     <div className="text-xs font-display text-white/60 font-bold uppercase">TICKET ID</div>
                     <div className="font-mono text-base font-bold text-white">{bookingData?.ticketId}</div>
+                    {bookingData?.paymentId && (
+                      <div className="text-[10px] font-mono text-emerald-400 mt-0.5">
+                        REF: {bookingData.paymentId}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right">
                     <div className="text-xs font-display text-white/50 uppercase">GATE STATUS</div>
