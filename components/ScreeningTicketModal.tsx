@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText } from 'lucide-react';
+import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText, AlertTriangle } from 'lucide-react';
 import { Screening } from '@/lib/types';
-import { generateTicketPass, AdminTicketRecord, getMembershipConfigStore } from '@/lib/ticketStore';
+import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore } from '@/lib/ticketStore';
 import { generatePDFTicketPass } from '@/lib/pdfTicketGenerator';
 import { dispatchWhatsAppTicketMessage } from '@/lib/whatsappService';
 
@@ -19,13 +19,32 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   onClose,
   screening,
 }) => {
-  const [step, setStep] = useState<'DETAILS' | 'CONFIRMATION'>('DETAILS');
+  const [step, setStep] = useState<'DETAILS' | 'CONFIRMATION' | 'INTERRUPTED'>('DETAILS');
   const [quantity, setQuantity] = useState(1);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<AdminTicketRecord | null>(null);
+
+  // Safely record pending debit attempt if payment is interrupted or fails
+  const handlePaymentInterrupted = async (reason?: string) => {
+    setLoading(false);
+    try {
+      const pendingRecord = await recordFailedPaymentAttempt(
+        screening,
+        name || 'Pune Red Supporter',
+        email || 'supporter@muscpune.in',
+        phone || '+91 7276735140',
+        quantity,
+        totalAmount
+      );
+      setBookingData(pendingRecord);
+      setStep('INTERRUPTED');
+    } catch (err) {
+      console.error('Failed to log interrupted payment attempt:', err);
+    }
+  };
 
   // Close modal safely & reset state
   const handleResetAndClose = () => {
@@ -185,10 +204,9 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
             },
           };
           const rzp = new (window as any).Razorpay(options);
-          rzp.on('payment.failed', function (failResp: any) {
-            setLoading(false);
+          rzp.on('payment.failed', async function (failResp: any) {
             console.error('Razorpay payment failed:', failResp);
-            alert(`Payment could not be completed: ${failResp.error?.description || 'Declined by bank'}. No amount was charged. Please try again.`);
+            await handlePaymentInterrupted(failResp.error?.description);
           });
           rzp.open();
           return;
@@ -199,7 +217,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
       await completeTicketGeneration(orderData.orderId || `pay_direct_${Date.now()}`);
     } catch (err) {
       console.error('Failed to initialize or process payment:', err);
-      await completeTicketGeneration(`pay_direct_${Date.now()}`);
+      await handlePaymentInterrupted('Payment process interrupted');
     } finally {
       setLoading(false);
     }
@@ -381,7 +399,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 </form>
               </div>
             </div>
-          ) : (
+          ) : step === 'CONFIRMATION' ? (
             /* Confirmation Screen with QR Code */
             <div className="p-6 text-center space-y-6">
               <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center animate-bounce">
@@ -487,7 +505,68 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 DONE & CLOSE
               </button>
             </div>
-          )}
+          ) : step === 'INTERRUPTED' ? (
+            /* Reassuring Payment Interruption / Pending Gate Verification Screen */
+            <div className="p-6 text-center space-y-6">
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 text-amber-400 mx-auto flex items-center justify-center animate-pulse">
+                <AlertTriangle className="w-10 h-10 text-amber-400" />
+              </div>
+
+              <div>
+                <span className="px-3.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-display font-bold uppercase tracking-tight inline-block">
+                  ⚠️ PAYMENT INTERRUPTED / STATUS PENDING
+                </span>
+                <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mt-2 uppercase">
+                  DO NOT WORRY! WE HAVE YOUR DETAILS.
+                </h3>
+                <p className="text-xs sm:text-sm text-white/80 font-sans mt-2 max-w-md mx-auto leading-relaxed">
+                  If money was debited from your bank or UPI, <strong>do not pay again</strong>.
+                  We have safely saved your booking details under your mobile number.
+                </p>
+              </div>
+
+              <div className="bg-[#050505] border-2 border-amber-500/50 rounded-2xl p-5 text-left space-y-3 shadow-xl">
+                <div className="flex items-center gap-2 text-amber-400 font-display text-xs font-bold uppercase border-b border-white/10 pb-2">
+                  <span>MATCHDAY GATE VERIFICATION INSTRUCTIONS</span>
+                </div>
+                <div className="space-y-2 text-xs font-sans text-white/90">
+                  <p>
+                    1. <strong>At the Screening Gate:</strong> Simply tell the gate marshal your registered phone number (<strong className="text-amber-300 font-mono">{bookingData?.userPhone || phone}</strong>) or booking reference (<strong className="text-amber-300 font-mono">{bookingData?.ticketId}</strong>).
+                  </p>
+                  <p>
+                    2. <strong>Bank Verification:</strong> Show your UPI / NetBanking debit SMS or app confirmation. The gate admin will verify it on their live scanner and grant you instant entry.
+                  </p>
+                  <p>
+                    3. <strong>If No Money was Debited:</strong> You can safely click <strong>TRY BOOKING AGAIN</strong> below to re-attempt checkout.
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px] font-mono text-white/70">
+                  <div>Ref ID: <span className="text-white font-bold">{bookingData?.ticketId}</span></div>
+                  <div>Quantity: <span className="text-white font-bold">{quantity} Pass(es)</span></div>
+                  <div>Amount: <span className="text-white font-bold">₹{totalAmount}</span></div>
+                  <div>Match: <span className="text-white font-bold truncate block">{screening.matchTitle}</span></div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setStep('DETAILS')}
+                  className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl uppercase transition-all min-h-[44px] cursor-pointer"
+                >
+                  TRY BOOKING AGAIN
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetAndClose}
+                  className="bg-amber-600 hover:bg-amber-500 text-white font-display text-xs font-bold py-3.5 px-4 rounded-xl uppercase transition-all shadow-lg min-h-[44px] cursor-pointer"
+                >
+                  GOT IT, I&apos;LL VERIFY AT GATE
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

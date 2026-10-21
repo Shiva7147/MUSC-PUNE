@@ -213,7 +213,8 @@ export const recordFailedPaymentAttempt = async (
   userName: string,
   userEmail: string,
   userPhone: string,
-  quantity: number
+  quantity: number,
+  totalAmountPaid?: number
 ): Promise<AdminTicketRecord> => {
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const ticketId = `MUSCPUN-FAIL-${randomNum}`;
@@ -237,7 +238,7 @@ export const recordFailedPaymentAttempt = async (
     date: screening.date,
     time: screening.time,
     quantity,
-    totalAmount: screening.price * quantity,
+    totalAmount: totalAmountPaid !== undefined ? totalAmountPaid : (screening.price * quantity),
     userName,
     userEmail,
     userPhone,
@@ -303,22 +304,43 @@ export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> =>
 export const verifyTicketScanAsync = async (
   scannedCode: string,
   adminName: string = 'Gate Admin 1'
-): Promise<{ status: 'VALID' | 'ALREADY_USED' | 'INVALID'; ticket?: AdminTicketRecord; checkedInAt?: string }> => {
+): Promise<{
+  status: 'VALID' | 'ALREADY_USED' | 'INVALID' | 'DEBIT_VERIFICATION_REQUIRED';
+  ticket?: AdminTicketRecord;
+  checkedInAt?: string;
+}> => {
   if (!scannedCode) return { status: 'INVALID' };
 
   const rawText = scannedCode.trim();
-  let ticketId = rawText;
+  const upperText = rawText.toUpperCase();
+  const digitsOnly = rawText.replace(/\D/g, '');
 
-  const match = rawText.match(/MUSCPUN-(?:FAIL-|APPROVED-)?\d+/i);
-  if (match) {
-    ticketId = match[0].toUpperCase();
-  }
+  const isMatchingRecord = (t: AdminTicketRecord) => {
+    // 1. Exact Ticket ID Match
+    if (t.ticketId.toUpperCase() === upperText) return true;
+
+    // Check if rawText contains standard Ticket ID format
+    const extractedMatch = rawText.match(/MUSCPUN-(?:FAIL-|APPROVED-)?\d+/i);
+    if (extractedMatch && t.ticketId.toUpperCase() === extractedMatch[0].toUpperCase()) return true;
+
+    // If user entered only digits of ticket ID (e.g. 849201)
+    if (digitsOnly.length >= 5 && t.ticketId.includes(digitsOnly)) return true;
+
+    // 2. Supporter Phone Number Match (normalizing digits for Indian mobile numbers)
+    if (digitsOnly.length >= 7 && t.userPhone) {
+      const dbPhoneDigits = t.userPhone.replace(/\D/g, '');
+      if (dbPhoneDigits.length >= 10 && digitsOnly.length >= 10) {
+        if (dbPhoneDigits.slice(-10) === digitsOnly.slice(-10)) return true;
+      }
+      if (dbPhoneDigits.includes(digitsOnly) || digitsOnly.includes(dbPhoneDigits)) return true;
+    }
+
+    return false;
+  };
 
   // 1. Check local memory first
   let allTickets = getTicketStore();
-  let foundIndex = allTickets.findIndex(
-    (t) => t.ticketId.toUpperCase() === ticketId.toUpperCase() || (t.userPhone && t.userPhone.includes(ticketId))
-  );
+  let foundIndex = allTickets.findIndex(isMatchingRecord);
 
   // 2. If not found in local memory, query via API route (uses supabaseAdmin - bypasses RLS)
   if (foundIndex === -1) {
@@ -327,11 +349,7 @@ export const verifyTicketScanAsync = async (
       if (res.ok) {
         const json = await res.json();
         if (json.tickets && Array.isArray(json.tickets)) {
-          const remoteMatch = json.tickets.find(
-            (t: AdminTicketRecord) =>
-              t.ticketId.toUpperCase() === ticketId.toUpperCase() ||
-              (t.userPhone && t.userPhone.includes(ticketId))
-          );
+          const remoteMatch = json.tickets.find(isMatchingRecord);
           if (remoteMatch) {
             ticketsMemory = [remoteMatch, ...ticketsMemory];
             saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
@@ -351,6 +369,15 @@ export const verifyTicketScanAsync = async (
 
   const target = allTickets[foundIndex];
 
+  // 3. Handle interrupted or pending debit verification bookings
+  if (target.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED') {
+    return {
+      status: 'DEBIT_VERIFICATION_REQUIRED',
+      ticket: target,
+    };
+  }
+
+  // 4. Handle already admitted tickets
   if (target.checkedIn) {
     return {
       status: 'ALREADY_USED',
@@ -359,6 +386,7 @@ export const verifyTicketScanAsync = async (
     };
   }
 
+  // 5. Admit supporter and stamp turnstile timestamp
   const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   target.checkedIn = true;
   target.checkedInAt = nowStr;
