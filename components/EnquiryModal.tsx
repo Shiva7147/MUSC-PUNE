@@ -22,8 +22,27 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await fetch('https://formspree.io/f/xrppgvbv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: `New Trip Enquiry from ${name} - ${defaultSubject}`,
+          name,
+          email,
+          phone,
+          message,
+          tourPackage: defaultSubject,
+        }),
+      });
+    } catch (err) {
+      console.warn('Formspree enquiry error:', err);
+    }
     setSubmitted(true);
   };
 

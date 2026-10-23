@@ -5,6 +5,7 @@ import { Mail, Phone, Send, MessageSquare, CheckCircle2, MessageCircle } from 'l
 import { officialClubDetails } from '@/lib/data';
 
 export const ContactSection: React.FC = () => {
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -16,13 +17,30 @@ export const ContactSection: React.FC = () => {
 
   const whatsappUrl = 'https://wa.me/917276735140';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    try {
+      await fetch('https://formspree.io/f/xrppgvbv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: `New Contact Inquiry from ${formData.name} - MUFC Pune`,
+          ...formData,
+        }),
+      });
+    } catch (err) {
+      console.warn('Formspree dispatch error:', err);
+    }
+    setSubmitting(false);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
       setFormData({ name: '', email: '', phone: '', subject: 'General Enquiry', message: '' });
-    }, 4000);
+    }, 5000);
   };
 
   return (
@@ -177,10 +195,11 @@ export const ContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20 cursor-pointer min-h-[44px]"
+                  disabled={submitting}
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.25)] flex items-center justify-center gap-2 transition-all hover:scale-[1.01] uppercase border border-white/20 cursor-pointer min-h-[44px] disabled:opacity-50"
                 >
                   <Send className="w-5 h-5" />
-                  <span>Send Inquiry to MUFC Pune</span>
+                  <span>{submitting ? 'Sending to Formspree...' : 'Send Inquiry to MUFC Pune'}</span>
                 </button>
               </form>
             )}

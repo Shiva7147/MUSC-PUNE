@@ -183,7 +183,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
 
   // Helper: Dispatch Order to Formspree
   const dispatchToFormspree = async (orderRecord: ProductOrderRecord) => {
-    const formspreeUrl = siteTaxConfig.formspreeEndpoint || 'https://formspree.io/f/manunitedpune';
+    const formspreeUrl = siteTaxConfig.formspreeEndpoint || 'https://formspree.io/f/xrppgvbv';
 
     const itemsSummary = orderRecord.items
       .map((it) => `${it.name} [Size: ${it.size}] x ${it.quantity} = ₹${it.price * it.quantity}`)
@@ -612,7 +612,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                     <span className="font-mono text-white">₹{baseAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-white/60">
-                    <span>Applicable Tax ({Math.round(taxRate * 100)}% GST):</span>
+                    <span>Applicable Tax ({Math.round(taxRate * 100)}%):</span>
                     <span className="font-mono text-white">₹{taxAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-white/60">

@@ -78,22 +78,46 @@ function ImageUploadOrUrlField({
   aspectRatio = 'square',
 }: ImageUploadOrUrlFieldProps) {
   const [mode, setMode] = useState<'upload' | 'url'>('upload');
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds 5MB limit. Please select a smaller image.');
+    if (file.size > 8 * 1024 * 1024) {
+      alert('File size exceeds 8MB limit. Please select a smaller image.');
       return;
     }
 
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          onChange(data.url);
+          setIsUploading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('UploadThing upload failed, falling back to local reader:', err);
+    }
+
+    // Fallback to local Data URL
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
         onChange(reader.result);
       }
+      setIsUploading(false);
     };
     reader.readAsDataURL(file);
   };
@@ -136,15 +160,15 @@ function ImageUploadOrUrlField({
             className="hidden"
           />
           <div
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => !isUploading && fileInputRef.current?.click()}
             className="w-full bg-[#050505] hover:bg-black border-2 border-dashed border-white/20 hover:border-[#E60012] rounded-xl p-4 text-center cursor-pointer transition-colors space-y-1"
           >
-            <UploadIcon className="w-6 h-6 text-[#E60012] mx-auto" />
+            <UploadIcon className={`w-6 h-6 text-[#E60012] mx-auto ${isUploading ? 'animate-bounce' : ''}`} />
             <p className="text-xs font-display font-bold text-white uppercase">
-              Click to browse or upload image directly
+              {isUploading ? 'Uploading to UploadThing CDN...' : 'Click to browse or upload image directly'}
             </p>
             <p className="text-[10px] text-white/50 font-sans">
-              Supports JPG, PNG, WEBP, SVG (Auto-converts and sets ratio)
+              {isUploading ? 'Please wait a moment while your image is secured on CDN' : 'Fast UploadThing CDN • Supports JPG, PNG, WEBP, SVG'}
             </p>
           </div>
         </div>
@@ -248,7 +272,7 @@ export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<'SUPER_ADMIN' | 'GATE_MARSHAL'>('SUPER_ADMIN');
   const [userDisplayName, setUserDisplayName] = useState<string>('Super Admin');
-  const [activeTab, setActiveTab] = useState<'SCANNER' | 'PRICING' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER' | 'TOURS'>('SCANNER');
+  const [activeTab, setActiveTab] = useState<'SCANNER' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER' | 'TOURS'>('SCANNER');
   const [siteTaxConfig, setSiteTaxConfig] = useState<SiteTaxConfig>(getSiteTaxConfigStore());
   const [productOrders, setProductOrders] = useState<ProductOrderRecord[]>([]);
   const [ledgerSubTab, setLedgerSubTab] = useState<'TICKETS' | 'MERCH_ORDERS'>('TICKETS');
@@ -333,10 +357,8 @@ export default function AdminDashboardPage() {
     if (!editingProductRef.current) {
       setProducts(getProductsStore());
     }
-    if (activeTabRef.current !== 'PRICING') {
-      setMembershipConfig(getMembershipConfigStore());
-      setSiteTaxConfig(getSiteTaxConfigStore());
-    }
+    setMembershipConfig(getMembershipConfigStore());
+    setSiteTaxConfig(getSiteTaxConfigStore());
     if (activeTabRef.current !== 'TOURS') {
       setTourConfig(getTourConfigStore());
     }
@@ -347,9 +369,9 @@ export default function AdminDashboardPage() {
     refreshStoreData();
     // Fetch latest remote state from server & Supabase on mount
     fetchConfigRemoteAsync().then((res) => {
-      if (activeTabRef.current !== 'PRICING' && res.membership) setMembershipConfig(res.membership);
+      if (res.membership) setMembershipConfig(res.membership);
       if (activeTabRef.current !== 'TOURS' && res.tour) setTourConfig(res.tour);
-      if (activeTabRef.current !== 'PRICING' && res.taxConfig) setSiteTaxConfig(res.taxConfig);
+      if (res.taxConfig) setSiteTaxConfig(res.taxConfig);
     });
     fetchScreeningsRemoteAsync().then((sc) => {
       if (sc && sc.length > 0 && !editingScreeningRef.current) setScreenings(sc);
@@ -847,22 +869,41 @@ export default function AdminDashboardPage() {
     alert(`Product "${editingProduct.name}" updated successfully across the website!`);
   };
 
-  const handleSaveUniversalTaxAndPricing = async (e: React.FormEvent) => {
+  const handleSaveScreeningsTax = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updateSiteTaxConfigStore(siteTaxConfig);
+    await fetchConfigRemoteAsync();
+    alert('Screening Tax Rate and Screening Platform Fee saved and live across all match screening passes!');
+  };
+
+  const handleSaveMerchandiseTax = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updateSiteTaxConfigStore(siteTaxConfig);
+    await fetchConfigRemoteAsync();
+    alert('Merchandise Tax Rate and Platform Fee saved and live across shop checkout!');
+  };
+
+  const handleSaveMembershipTaxAndPricing = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateMembershipConfigStore(membershipConfig);
     await updateSiteTaxConfigStore(siteTaxConfig);
-    await updateTourConfigStore(tourConfig);
     await fetchConfigRemoteAsync();
-    alert('Universal Tax Slabs, Platform Fees, and Membership Pricing saved to database and live across the entire website!');
+    alert('Membership Size Pricing, Tax Rate, and Platform Fee saved and live across membership checkout!');
   };
 
-  const handleSaveMembershipConfig = handleSaveUniversalTaxAndPricing;
+  const handleSaveFormspreeEndpoint = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updateSiteTaxConfigStore(siteTaxConfig);
+    await fetchConfigRemoteAsync();
+    alert('Formspree order dispatch endpoint saved successfully!');
+  };
 
   const handleSaveTourConfig = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateTourConfigStore(tourConfig);
+    await updateSiteTaxConfigStore(siteTaxConfig);
     await fetchConfigRemoteAsync();
-    alert('Old Trafford Group Trip configuration saved to database and live across the entire website!');
+    alert('Old Trafford Group Trip configuration, price, tax rate, and platform fee saved live!');
   };
 
   const handleCreateGal = async (e: React.FormEvent) => {
@@ -1059,18 +1100,6 @@ export default function AdminDashboardPage() {
 
               {userRole === 'SUPER_ADMIN' && (
                 <>
-                  <button
-                    onClick={() => setActiveTab('PRICING')}
-                    className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
-                      activeTab === 'PRICING'
-                        ? 'bg-[#E60012] text-white shadow-lg'
-                        : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                    }`}
-                  >
-                    <PriceIcon className="w-4 h-4" />
-                    <span>⚙️ TAX SLABS & PRICING</span>
-                  </button>
-
                   <button
                     onClick={() => setActiveTab('SCREENINGS')}
                     className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
@@ -1753,37 +1782,29 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 2: PRICING & UNIVERSAL TAX MANAGER */}
-            {activeTab === 'PRICING' && (
-              <div className="max-w-4xl mx-auto glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-8">
-                <div className="border-b border-white/10 pb-4">
-                  <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
-                    SUPER ADMIN FINANCIAL CONTROLS
-                  </span>
-                  <h2 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase mt-1">
-                    UNIVERSAL TAX SLABS & PRICING MANAGER
-                  </h2>
-                  <p className="text-xs text-white/60 font-sans mt-1">
-                    Manage real-time tax slabs (GST), platform convenience fees, membership sizing prices, and Formspree order notifications across all site checkout flows.
-                  </p>
-                </div>
-
-                <form onSubmit={handleSaveUniversalTaxAndPricing} className="space-y-8">
-                  {/* SLAB 1: SCREENINGS / MATCH TICKETS */}
-                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
-                        <CalIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>MATCH SCREENINGS TAX & PLATFORM FEE SLAB</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-[#E60012] bg-[#E60012]/15 px-2 py-0.5 rounded">
-                        APPLIES TO ALL EVENTS
+            {/* SCREENINGS TAB */}
+            {activeTab === 'SCREENINGS' && (
+              <div className="space-y-8">
+                {/* Screening Tax & Platform Fee Slab */}
+                <div className="glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4 gap-2">
+                    <div>
+                      <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
+                        SCREENINGS FINANCIAL SETTINGS
                       </span>
+                      <h2 className="font-display text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">
+                        SCREENING TAX & PLATFORM FEE SETTINGS
+                      </h2>
                     </div>
+                    <span className="text-xs font-mono text-[#E60012] bg-[#E60012]/15 px-3 py-1 rounded-lg border border-[#E60012]/30 w-fit">
+                      APPLIES TO ALL MATCH SCREENING TICKETS
+                    </span>
+                  </div>
 
+                  <form onSubmit={handleSaveScreeningsTax} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENINGS TAX RATE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENING TAX RATE (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -1792,13 +1813,13 @@ export default function AdminDashboardPage() {
                             const val = e.target.value === '' ? 0 : Number(e.target.value);
                             setSiteTaxConfig({ ...siteTaxConfig, screeningsTaxRate: val / 100 });
                           }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
                         />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18% GST</span>
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18%</span>
                       </div>
 
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENINGS PLATFORM FEE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENING PLATFORM FEES (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -1807,232 +1828,24 @@ export default function AdminDashboardPage() {
                             const val = e.target.value === '' ? 0 : Number(e.target.value);
                             setSiteTaxConfig({ ...siteTaxConfig, screeningsPlatformFeeRate: val / 100 });
                           }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
                         />
                         <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Convenience Fee</span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* SLAB 2: MERCHANDISE / PRODUCTS */}
-                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
-                        <ShoppingIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>MERCHANDISE & PRODUCTS TAX SLAB</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">
-                        APPLIES TO SHOPPING CART
-                      </span>
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="submit"
+                        className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-6 py-3 rounded-xl transition-all uppercase cursor-pointer"
+                      >
+                        SAVE SCREENING TAX SETTINGS
+                      </button>
                     </div>
+                  </form>
+                </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">PRODUCTS TAX RATE (%)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={Math.round(((siteTaxConfig.productsTaxRate ?? 0.18) * 100))}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setSiteTaxConfig({ ...siteTaxConfig, productsTaxRate: val / 100 });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18% Merchandise GST</span>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">PRODUCTS PLATFORM FEE (%)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={Math.round(((siteTaxConfig.productsPlatformFeeRate ?? 0.03) * 100))}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setSiteTaxConfig({ ...siteTaxConfig, productsPlatformFeeRate: val / 100 });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Platform Fee</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SLAB 3: MEMBERSHIP & SIZES */}
-                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
-                        <PriceIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>PUNE&apos;S RED ARMY MEMBERSHIP PRICING & TAX</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded">
-                        APPLIES TO SUPPORTERS CLUB PASS
-                      </span>
-                    </div>
-
-                    {/* Sizing Price Grid */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-display text-white/80 font-bold uppercase block">
-                        SIZE-BASED T-SHIRT PRICING (S THROUGH 5XL)
-                      </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {(['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'] as const).map((size) => (
-                          <div key={size} className="bg-[#121212] p-3 rounded-xl border border-white/10 space-y-1">
-                            <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} (₹)</label>
-                            <input
-                              type="number"
-                              value={membershipConfig?.sizePrices?.[size] ?? 999}
-                              onChange={(e) => {
-                                const val = e.target.value === '' ? 0 : Number(e.target.value);
-                                const updatedPrices = { ...(membershipConfig?.sizePrices || {}), [size]: val };
-                                setMembershipConfig({ ...membershipConfig, sizePrices: updatedPrices });
-                              }}
-                              className="w-full bg-[#050505] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#E60012]"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP TAX RATE (%)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={Math.round(((membershipConfig?.taxRate ?? siteTaxConfig.membershipTaxRate ?? 0.18) * 100))}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setMembershipConfig({ ...membershipConfig, taxRate: val / 100 });
-                            setSiteTaxConfig({ ...siteTaxConfig, membershipTaxRate: val / 100 });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18% Tax</span>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP PLATFORM FEE (%)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={Math.round(((membershipConfig?.platformFeeRate ?? siteTaxConfig.membershipPlatformFeeRate ?? 0.03) * 100))}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setMembershipConfig({ ...membershipConfig, platformFeeRate: val / 100 });
-                            setSiteTaxConfig({ ...siteTaxConfig, membershipPlatformFeeRate: val / 100 });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Platform Fee</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SLAB 4: OLD TRAFFORD TRIP */}
-                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
-                        <ShieldIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>OLD TRAFFORD TRIP PRICE & TAX SLAB</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded">
-                        PILGRIMAGE BOOKING
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">PACKAGE PRICE (₹)</label>
-                        <input
-                          type="number"
-                          value={tourConfig.price ?? 125000}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setTourConfig({ ...tourConfig, price: val });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: ₹1,25,000 per person</span>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">TOUR TAX RATE (%)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={Math.round(((tourConfig.taxRate ?? siteTaxConfig.toursTaxRate ?? 0.05) * 100))}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setTourConfig({ ...tourConfig, taxRate: val / 100 });
-                            setSiteTaxConfig({ ...siteTaxConfig, toursTaxRate: val / 100 });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 5% Tour GST</span>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">TOUR PLATFORM FEE (%)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={Math.round(((tourConfig.platformFeeRate ?? siteTaxConfig.toursPlatformFeeRate ?? 0.02) * 100))}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? 0 : Number(e.target.value);
-                            setTourConfig({ ...tourConfig, platformFeeRate: val / 100 });
-                            setSiteTaxConfig({ ...siteTaxConfig, toursPlatformFeeRate: val / 100 });
-                          }}
-                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                        />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 2% Booking Fee</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SLAB 5: FORMSPREE ORDER INTEGRATION */}
-                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
-                        <SparkIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>FORMSPREE ORDER DISPATCH ENDPOINT</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">
-                        CONNECTED
-                      </span>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase">FORMSPREE ENDPOINT URL</label>
-                      <input
-                        type="url"
-                        value={siteTaxConfig.formspreeEndpoint || 'https://formspree.io/f/manunitedpune'}
-                        onChange={(e) => {
-                          setSiteTaxConfig({ ...siteTaxConfig, formspreeEndpoint: e.target.value });
-                        }}
-                        placeholder="https://formspree.io/f/your_form_id"
-                        className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
-                      />
-                      <span className="text-[10px] text-white/50 font-sans mt-1 block">
-                        Every time a supporter completes payment for merchandise or membership, full customer details & shipping addresses are dispatched instantly to this Formspree inbox.
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.4)] uppercase cursor-pointer"
-                  >
-                    SAVE ALL TAX SLABS & PRICING CONFIGURATION
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* TAB 3: ADD/MANAGE SCREENINGS */}
-            {activeTab === 'SCREENINGS' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Create Form */}
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
                   <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3 flex items-center gap-2">
@@ -2436,11 +2249,158 @@ export default function AdminDashboardPage() {
                   </div>
                 )}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* TAB 4: ADD/MANAGE PRODUCTS */}
+            {/* PRODUCTS TAB */}
             {activeTab === 'PRODUCTS' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="space-y-8">
+                {/* Merchandise Tax & Platform Fee Slab */}
+                <div className="glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4 gap-2">
+                    <div>
+                      <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
+                        MERCHANDISE FINANCIAL SETTINGS
+                      </span>
+                      <h2 className="font-display text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">
+                        MERCHANDISE TAX & PLATFORM FEE SETTINGS
+                      </h2>
+                    </div>
+                    <span className="text-xs font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg border border-emerald-500/30 w-fit">
+                      APPLIES TO SHOPPING CART & STORE
+                    </span>
+                  </div>
+
+                  <form onSubmit={handleSaveMerchandiseTax} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MERCHANDISE TAX RATE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((siteTaxConfig.productsTaxRate ?? 0.18) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setSiteTaxConfig({ ...siteTaxConfig, productsTaxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18%</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MERCHANDISE PLATFORM FEE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((siteTaxConfig.productsPlatformFeeRate ?? 0.03) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setSiteTaxConfig({ ...siteTaxConfig, productsPlatformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Convenience Fee</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="submit"
+                        className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-6 py-3 rounded-xl transition-all uppercase cursor-pointer"
+                      >
+                        SAVE MERCHANDISE TAX SETTINGS
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Membership Sizing Pricing & Tax Settings */}
+                <div className="glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4 gap-2">
+                    <div>
+                      <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
+                        SUPPORTERS CLUB MEMBERSHIP
+                      </span>
+                      <h2 className="font-display text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">
+                        MEMBERSHIP SIZING & TAX SLAB
+                      </h2>
+                    </div>
+                    <span className="text-xs font-mono text-amber-400 bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-500/30 w-fit">
+                      APPLIES TO PUNE&apos;S RED ARMY PASS
+                    </span>
+                  </div>
+
+                  <form onSubmit={handleSaveMembershipTaxAndPricing} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-display text-white/80 font-bold uppercase block">
+                        SIZE-BASED T-SHIRT PRICING (S THROUGH 5XL)
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {(['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'] as const).map((size) => (
+                          <div key={size} className="bg-[#050505] p-3 rounded-xl border border-white/10 space-y-1">
+                            <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} (₹)</label>
+                            <input
+                              type="number"
+                              value={membershipConfig?.sizePrices?.[size] ?? 999}
+                              onChange={(e) => {
+                                const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                const updatedPrices = { ...(membershipConfig?.sizePrices || {}), [size]: val };
+                                setMembershipConfig({ ...membershipConfig, sizePrices: updatedPrices });
+                              }}
+                              className="w-full bg-[#121212] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#E60012]"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP TAX RATE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((membershipConfig?.taxRate ?? siteTaxConfig.membershipTaxRate ?? 0.18) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setMembershipConfig({ ...membershipConfig, taxRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, membershipTaxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18%</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP PLATFORM FEE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((membershipConfig?.platformFeeRate ?? siteTaxConfig.membershipPlatformFeeRate ?? 0.03) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setMembershipConfig({ ...membershipConfig, platformFeeRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, membershipPlatformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Convenience Fee</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="submit"
+                        className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-6 py-3 rounded-xl transition-all uppercase cursor-pointer"
+                      >
+                        SAVE MEMBERSHIP PRICING & TAX SETTINGS
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-5 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10 space-y-4">
                   <h3 className="font-display text-xl font-bold text-white uppercase border-b border-white/10 pb-3">
                     ADD NEW MERCHANDISE PRODUCT
@@ -2764,7 +2724,8 @@ export default function AdminDashboardPage() {
                   </div>
                 )}
               </div>
-            )}
+            </div>
+          )}
 
             {/* TAB 5: GALLERY ARCHIVE */}
             {activeTab === 'GALLERY' && (
@@ -2916,6 +2877,41 @@ export default function AdminDashboardPage() {
                     </div>
                   ) : null}
                 </div>
+
+                {/* FORMSPREE ORDER DISPATCH ENDPOINT SETTING */}
+                {userRole === 'SUPER_ADMIN' && (
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-3">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <SparkIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>FORMSPREE ORDER NOTIFICATION ENDPOINT</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">
+                        LIVE DISPATCH
+                      </span>
+                    </div>
+                    <form onSubmit={handleSaveFormspreeEndpoint} className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="url"
+                        value={siteTaxConfig.formspreeEndpoint || 'https://formspree.io/f/xrppgvbv'}
+                        onChange={(e) => {
+                          setSiteTaxConfig({ ...siteTaxConfig, formspreeEndpoint: e.target.value });
+                        }}
+                        placeholder="https://formspree.io/f/xrppgvbv"
+                        className="flex-1 bg-[#121212] border border-white/20 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#E60012]"
+                      />
+                      <button
+                        type="submit"
+                        className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-5 py-2.5 rounded-xl uppercase transition-all whitespace-nowrap cursor-pointer"
+                      >
+                        SAVE ENDPOINT
+                      </button>
+                    </form>
+                    <p className="text-[10px] text-white/50 font-sans">
+                      All completed orders, member t-shirt sizing, phone numbers, and addresses are instantly dispatched to this endpoint.
+                    </p>
+                  </div>
+                )}
 
                 {/* VIEW 1: GATE MARSHAL SANITIZED ATTENDEE LIST */}
                 {userRole === 'GATE_MARSHAL' && (
@@ -3227,15 +3223,73 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-xs font-display text-white/90 font-bold uppercase block">FEATURED BANNER IMAGE URL *</label>
-                    <input
-                      type="text"
-                      required
-                      value={tourConfig.image}
-                      onChange={(e) => setTourConfig({ ...tourConfig, image: e.target.value })}
-                      className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1"
-                    />
+                  <ImageUploadOrUrlField
+                    label="FEATURED BANNER IMAGE"
+                    value={tourConfig.image || ''}
+                    onChange={(img) => setTourConfig({ ...tourConfig, image: img })}
+                    required
+                    aspectRatio="video"
+                  />
+
+                  {/* Trip Pricing, Tax Rate & Platform Fee Slab */}
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <PriceIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>OLD TRAFFORD TRIP PRICING & TAX SLAB</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded">
+                        PILGRIMAGE BOOKING
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase block">PACKAGE PRICE (₹)</label>
+                        <input
+                          type="number"
+                          value={tourConfig.price ?? 125000}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setTourConfig({ ...tourConfig, price: val });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: ₹1,25,000 per supporter</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase block">TOUR TAX RATE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((tourConfig.taxRate ?? siteTaxConfig.toursTaxRate ?? 0.05) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setTourConfig({ ...tourConfig, taxRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, toursTaxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 5%</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase block">TOUR PLATFORM FEE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((tourConfig.platformFeeRate ?? siteTaxConfig.toursPlatformFeeRate ?? 0.02) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setTourConfig({ ...tourConfig, platformFeeRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, toursPlatformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 2% Booking Fee</span>
+                      </div>
+                    </div>
                   </div>
 
                   <div>

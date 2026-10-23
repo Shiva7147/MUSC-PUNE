@@ -1,15 +1,15 @@
 import { Screening, Product, TourPackage, TourConfig, GalleryItem, FanChant, TeamMember, MembershipConfig, SiteTaxConfig } from './types';
 
 export const defaultSiteTaxConfig: SiteTaxConfig = {
-  screeningsTaxRate: 0.18,       // 18% GST for live entertainment/match screenings
-  screeningsPlatformFeeRate: 0.03, // 3% Platform Convenience fee
-  productsTaxRate: 0.18,         // 18% GST for official merchandise
-  productsPlatformFeeRate: 0.03, // 3% Platform fee
-  membershipTaxRate: 0.18,       // 18% GST for Pune's Red Army membership
-  membershipPlatformFeeRate: 0.03, // 3% Platform fee
-  toursTaxRate: 0.05,            // 5% Travel & Tour service GST
-  toursPlatformFeeRate: 0.02,    // 2% Platform fee
-  formspreeEndpoint: 'https://formspree.io/f/manunitedpune',
+  screeningsTaxRate: 0.18,       // 18% Screening Tax Rate for match screenings
+  screeningsPlatformFeeRate: 0.03, // 3% Screening Platform Fee
+  productsTaxRate: 0.18,         // 18% Merchandise Tax Rate
+  productsPlatformFeeRate: 0.03, // 3% Merchandise Platform Fee
+  membershipTaxRate: 0.18,       // 18% Membership Tax Rate
+  membershipPlatformFeeRate: 0.03, // 3% Membership Platform Fee
+  toursTaxRate: 0.05,            // 5% Tour Tax Rate
+  toursPlatformFeeRate: 0.02,    // 2% Tour Platform Fee
+  formspreeEndpoint: 'https://formspree.io/f/xrppgvbv',
 };
 
 export const officialClubDetails = {
