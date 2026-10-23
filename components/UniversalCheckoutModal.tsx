@@ -294,6 +294,8 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
           throw new Error('Unable to connect to Razorpay payment gateway. Please check your internet connection.');
         }
 
+        const formattedPhone = phone.trim().startsWith('+') ? phone.trim() : `+91${phone.trim().replace(/^0+/, '')}`;
+
         const options = {
           key: keyId,
           amount: orderData.amount,
@@ -305,12 +307,32 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
           prefill: {
             name: fullName,
             email: email,
-            contact: phone,
+            contact: formattedPhone,
           },
           theme: {
             color: '#E60012',
           },
           handler: async (response: any) => {
+            // Step 5 of Razorpay Standard Checkout: Verify payment signature server-side
+            try {
+              const verifyRes = await fetch('/api/razorpay', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+              const verifyData = await verifyRes.json().catch(() => ({}));
+              if (!verifyRes.ok || verifyData.error) {
+                console.error('Signature verification warning:', verifyData);
+                setErrorMessage('Payment verification warning: Signature mismatch. If money was debited, please contact ebrahimmred@gmail.com.');
+              }
+            } catch (verifyErr) {
+              console.error('Signature verification network error:', verifyErr);
+            }
+
             const finalOrder: ProductOrderRecord = {
               orderId: orderData.orderId,
               paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
