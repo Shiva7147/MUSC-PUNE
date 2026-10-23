@@ -59,7 +59,7 @@ const saveStorage = <T>(key: string, data: T) => {
 
 // INITIAL LOAD
 let ticketsMemory: AdminTicketRecord[] = loadStorage(TICKETS_STORAGE_KEY, []);
-let screeningEditsMemory: Record<string, Screening> = loadStorage(SCREENINGS_EDITS_KEY, {});
+const screeningEditsMemory: Record<string, Screening> = loadStorage(SCREENINGS_EDITS_KEY, {});
 let screeningDeletedMemory: string[] = loadStorage(SCREENINGS_DELETED_KEY, []);
 let screeningsMemory: Screening[] = loadStorage(SCREENINGS_STORAGE_KEY, upcomingScreenings);
 let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGallery);
@@ -415,7 +415,7 @@ export const verifyTicketScanAsync = async (
 
 // Toggle Check-In status manually from gate ledger
 export const toggleCheckInTicket = async (ticketId: string, adminName: string = 'Gate Admin 1') => {
-  let allTickets = getTicketStore();
+  const allTickets = getTicketStore();
   const index = allTickets.findIndex((t) => t.ticketId === ticketId);
   if (index === -1) return null;
 

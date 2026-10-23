@@ -24,23 +24,23 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
   isPlaying,
   onTogglePlay,
 }) => {
-  if (!isOpen || items.length === 0) return null;
-
-  const currentItem = items[currentIndex] || items[0];
+  const currentItem = items && items.length > 0 ? (items[currentIndex] || items[0]) : null;
 
   const handlePrev = () => {
+    if (!items || items.length === 0) return;
     const newIdx = currentIndex === 0 ? items.length - 1 : currentIndex - 1;
     onNavigate(newIdx);
   };
 
   const handleNext = () => {
+    if (!items || items.length === 0) return;
     const newIdx = currentIndex === items.length - 1 ? 0 : currentIndex + 1;
     onNavigate(newIdx);
   };
 
   // Keyboard Navigation: Arrow Left/Right, Space (Play/Pause), Escape (Close)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !items || items.length === 0) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') {
@@ -57,11 +57,11 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentIndex, items.length, isPlaying]);
+  }, [isOpen, currentIndex, items?.length, isPlaying]);
 
   // Auto-Play Slideshow Timer
   useEffect(() => {
-    if (!isOpen || !isPlaying) return;
+    if (!isOpen || !isPlaying || !items || items.length === 0) return;
 
     const interval = setInterval(() => {
       const newIdx = currentIndex === items.length - 1 ? 0 : currentIndex + 1;
@@ -69,7 +69,9 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
     }, 3500);
 
     return () => clearInterval(interval);
-  }, [isOpen, isPlaying, currentIndex, items.length]);
+  }, [isOpen, isPlaying, currentIndex, items?.length]);
+
+  if (!isOpen || !items || items.length === 0 || !currentItem) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-200">
