@@ -62,7 +62,7 @@ export const HeroSection: React.FC = () => {
                   एक शहर, एक क्लब, एक प्रेम
                 </h1>
                 <div className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#E60012] tracking-wide leading-relaxed drop-shadow-[0_4px_30px_rgba(230,0,18,0.7)] pt-2 sm:pt-3">
-                  मैनचेस्टर यूनाइटेड
+                  मँचेस्टर युनायटेड
                 </div>
               </div>
             ) : (

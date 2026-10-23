@@ -87,18 +87,18 @@ export default function ProductDetailPage() {
         {/* Product Details Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Product Image */}
-          <div className="lg:col-span-7 bg-neutral-950 border border-neutral-850 rounded-3xl p-8 relative min-h-[420px] flex items-center justify-center shadow-2xl">
-            <div className="w-full h-full min-h-[380px] relative rounded-2xl overflow-hidden border border-neutral-900">
+          <div className="lg:col-span-7 bg-neutral-950 border border-neutral-800 rounded-2xl sm:rounded-3xl p-4 sm:p-8 relative min-h-[260px] sm:min-h-[360px] lg:min-h-[420px] flex items-center justify-center shadow-2xl">
+            <div className="w-full h-full min-h-[240px] sm:min-h-[340px] relative rounded-2xl overflow-hidden border border-neutral-900">
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
                 unoptimized
-                className="object-cover"
+                className="object-contain p-2 sm:p-4"
               />
             </div>
             {product.badge && (
-              <span className="absolute top-6 left-6 bg-[#C8102E] text-white text-xs font-mono font-bold px-3 py-1 rounded uppercase tracking-widest">
+              <span className="absolute top-4 sm:top-6 left-4 sm:left-6 bg-[#C8102E] text-white text-[10px] sm:text-xs font-mono font-bold px-2.5 sm:px-3 py-1 rounded uppercase tracking-widest">
                 {product.badge}
               </span>
             )}
@@ -110,11 +110,11 @@ export default function ProductDetailPage() {
               <span className="text-xs font-mono text-[#C8102E] font-bold uppercase tracking-widest">
                 OFFICIAL APPAREL • {product.category}
               </span>
-              <h1 className="font-display text-4xl font-bold text-white mt-1 leading-tight">
+              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-1 leading-tight">
                 {product.name}
               </h1>
               <div className="flex items-center gap-4 mt-3">
-                <span className="font-display text-4xl font-bold text-[#C8102E]">
+                <span className="font-display text-3xl sm:text-4xl font-bold text-[#C8102E]">
                   ₹{product.price.toLocaleString('en-IN')}
                 </span>
                 {product.originalPrice && (
@@ -132,12 +132,12 @@ export default function ProductDetailPage() {
             {product.availableSizes.length > 0 && (
               <div className="space-y-2 pt-2 border-t border-neutral-800">
                 <label className="block text-xs font-mono text-neutral-400">SELECT SIZE</label>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2.5 sm:gap-3">
                   {product.availableSizes.map((sz) => (
                     <button
                       key={sz}
                       onClick={() => setSelectedSize(sz)}
-                      className={`px-4 py-2 rounded-xl font-mono text-xs font-bold border transition-all ${
+                      className={`px-3.5 sm:px-4 py-2 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl font-mono text-xs font-bold border transition-all ${
                         selectedSize === sz
                           ? 'bg-[#C8102E] text-white border-[#C8102E] shadow-lg shadow-[#C8102E]/30'
                           : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'

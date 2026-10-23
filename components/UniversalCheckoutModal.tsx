@@ -437,16 +437,16 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
       <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-auto">
         {/* Header Bar */}
-        <div className="bg-gradient-to-r from-[#171717] via-[#050505] to-[#171717] p-5 sm:p-6 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {mode === 'MERCHANDISE' && <ShoppingBag className="w-6 h-6 text-[#E60012]" />}
-            {mode === 'MEMBERSHIP' && <Award className="w-6 h-6 text-[#E60012]" />}
-            {mode === 'TOUR' && <Plane className="w-6 h-6 text-[#E60012]" />}
-            <div>
-              <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
+        <div className="bg-gradient-to-r from-[#171717] via-[#050505] to-[#171717] p-3.5 sm:p-5 sm:p-6 border-b border-white/10 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            {mode === 'MERCHANDISE' && <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[#E60012] shrink-0" />}
+            {mode === 'MEMBERSHIP' && <Award className="w-5 h-5 sm:w-6 sm:h-6 text-[#E60012] shrink-0" />}
+            {mode === 'TOUR' && <Plane className="w-5 h-5 sm:w-6 sm:h-6 text-[#E60012] shrink-0" />}
+            <div className="min-w-0">
+              <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block truncate">
                 OFFICIAL MUSC PUNE CHECKOUT
               </span>
-              <h3 className="font-display text-xl sm:text-2xl font-bold uppercase tracking-tight text-white">
+              <h3 className="font-display text-base sm:text-xl lg:text-2xl font-bold uppercase tracking-tight text-white truncate">
                 {mode === 'MERCHANDISE' && 'MERCHANDISE ORDER'}
                 {mode === 'MEMBERSHIP' && "PUNE'S RED ARMY MEMBERSHIP"}
                 {mode === 'TOUR' && 'TRIP TO OLD TRAFFORD BOOKING'}
@@ -455,7 +455,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2.5 rounded-xl bg-[#171717] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-2 sm:p-2.5 rounded-xl bg-[#171717] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
             aria-label="Close Checkout"
           >
             <X className="w-5 h-5 text-[#E60012]" />
@@ -551,13 +551,13 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                 {mode === 'MERCHANDISE' && (
                   <div className="space-y-2.5">
                     {cartItems.map((item) => (
-                      <div key={`${item.product.id}-${item.size}`} className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-3">
+                      <div key={`${item.product.id}-${item.size}`} className="flex items-center justify-between text-xs gap-2">
+                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                           <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10">
-                            <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                            <Image src={item.product.image} alt={item.product.name} fill unoptimized className="object-cover" />
                           </div>
-                          <div>
-                            <p className="font-display font-bold uppercase text-white truncate max-w-[200px] sm:max-w-xs">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-display font-bold uppercase text-white truncate max-w-full">
                               {item.product.name}
                             </p>
                             <p className="font-sans text-[11px] text-white/50">
@@ -565,7 +565,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                             </p>
                           </div>
                         </div>
-                        <span className="font-display text-sm font-bold text-white">
+                        <span className="font-display text-sm font-bold text-white shrink-0 ml-2">
                           ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -808,7 +808,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                   type="button"
                   disabled={isProcessing}
                   onClick={handleProceedToPayment}
-                  className="w-full bg-[#E60012] hover:bg-[#B3000C] text-white font-display text-base font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.5)] flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50 uppercase cursor-pointer"
+                  className="w-full bg-[#E60012] hover:bg-[#B3000C] text-white font-display text-sm sm:text-base font-bold py-3.5 sm:py-4 px-3 sm:px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.5)] flex items-center justify-center gap-2 sm:gap-2.5 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50 uppercase cursor-pointer text-center"
                 >
                   {isProcessing ? (
                     <>

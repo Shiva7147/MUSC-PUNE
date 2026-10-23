@@ -48,17 +48,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   return (
     <>
       <div className="fixed inset-0 z-[60] overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-        <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+        <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
           <div className="w-screen max-w-md bg-[#171717] border-l border-white/10 text-white shadow-2xl flex flex-col justify-between">
             {/* Header */}
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <ShoppingBag className="w-5 h-5 text-[#E60012]" />
-                <h3 className="font-display text-2xl font-bold tracking-tight uppercase">YOUR MERCH CART</h3>
+                <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight uppercase">YOUR MERCH CART</h3>
               </div>
               <button
                 onClick={onClose}
-                className="p-2.5 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-2 sm:p-2.5 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
                 aria-label="Close Cart"
               >
                 <X className="w-5 h-5 text-[#E60012]" />
@@ -66,7 +66,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
 
             {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4">
               {cartItems.length === 0 ? (
                 <div className="py-20 text-center space-y-3">
                   <ShoppingBag className="w-16 h-16 text-white/20 mx-auto" />
@@ -77,19 +77,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 cartItems.map((item) => (
                   <div
                     key={`${item.product.id}-${item.size}`}
-                    className="bg-[#050505] border border-white/10 rounded-2xl p-4 flex gap-4 items-center relative group"
+                    className="bg-[#050505] border border-white/10 rounded-2xl p-3 sm:p-4 flex gap-3 sm:gap-4 items-center relative group"
                   >
-                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
-                      <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
+                      <Image src={item.product.image} alt={item.product.name} fill unoptimized className="object-cover" />
                     </div>
 
                     <div className="flex-1 min-w-0 space-y-1">
-                      <h4 className="font-display text-lg font-bold truncate text-white uppercase">{item.product.name}</h4>
+                      <h4 className="font-display text-base sm:text-lg font-bold truncate text-white uppercase">{item.product.name}</h4>
                       <div className="text-xs font-sans text-white/60">Size: <strong className="text-white">{item.size}</strong></div>
-                      <div className="font-display text-lg font-bold text-[#E60012]">₹{item.product.price}</div>
+                      <div className="font-display text-base sm:text-lg font-bold text-[#E60012]">₹{item.product.price}</div>
 
                       {/* Quantity Stepper */}
-                      <div className="flex items-center gap-3 pt-1">
+                      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pt-1">
                         <div className="flex items-center bg-[#171717] rounded-lg border border-white/15">
                           <button
                             onClick={() => onUpdateQuantity(item.product.id, item.size, -1)}

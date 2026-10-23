@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -8,20 +8,33 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { CartDrawer } from '@/components/CartDrawer';
-import { upcomingScreenings, merchandiseProducts } from '@/lib/data';
+import { upcomingScreenings } from '@/lib/data';
 import { CartItem, Screening } from '@/lib/types';
+import { getScreeningsStore, fetchScreeningsRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 import { Calendar, Clock, MapPin, Ticket, ArrowLeft, ShieldCheck, CheckCircle2, HelpCircle } from 'lucide-react';
 
 export default function ScreeningDetailPage() {
   const params = useParams();
   const id = params?.id as string;
 
+  const [allScreenings, setAllScreenings] = useState<Screening[]>(getScreeningsStore());
   const screening: Screening =
-    upcomingScreenings.find((s) => s.id === id) || upcomingScreenings[0];
+    allScreenings.find((s) => s.id === id) || upcomingScreenings.find((s) => s.id === id) || upcomingScreenings[0];
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
+
+  useEffect(() => {
+    setAllScreenings(getScreeningsStore());
+    fetchScreeningsRemoteAsync();
+    const unsubscribe = subscribeStore(() => {
+      setAllScreenings(getScreeningsStore());
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleUpdateQuantity = (productId: string, size: string, delta: number) => {
     setCartItems((prev) =>
@@ -63,19 +76,21 @@ export default function ScreeningDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left Poster & Venue Map Brief */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border border-[#C8102E]/30 shadow-2xl">
+            <div className="relative aspect-[4/3] sm:aspect-[16/9] rounded-3xl overflow-hidden border border-[#E60012]/30 shadow-2xl bg-[#171717]">
               <Image
-                src="/images/screening.jpg"
+                src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg"
                 alt={screening.matchTitle}
                 fill
+                priority
+                unoptimized
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <span className="bg-[#C8102E] text-white text-xs font-mono font-bold px-3 py-1 rounded uppercase tracking-wider">
+              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent" />
+              <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
+                <span className="bg-[#E60012] text-white text-[10px] sm:text-xs font-mono font-bold px-3 py-1 rounded uppercase tracking-wider">
                   {screening.competition}
                 </span>
-                <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mt-2">
+                <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-white mt-2 leading-tight">
                   {screening.matchTitle}
                 </h1>
               </div>
@@ -120,7 +135,7 @@ export default function ScreeningDetailPage() {
 
           {/* Right Ticket Purchasing Summary Card */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-neutral-900 border border-[#C8102E]/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl sticky top-28">
+            <div className="bg-neutral-900 border border-[#C8102E]/40 rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xl lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
               <div>
                 <div className="text-xs font-mono text-neutral-400 uppercase">TICKET PRICING</div>
                 <div className="font-display text-4xl font-bold text-[#C8102E] mt-1">

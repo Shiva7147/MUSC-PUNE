@@ -125,10 +125,10 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
 
         {/* 1. PUNE'S RED ARMY MEMBERSHIP BLOCK (LOCAL) */}
         <div className="space-y-6">
-          <div className="plan-card max-w-5xl mx-auto glass-card rounded-[2.5rem] p-6 sm:p-10 bg-gradient-to-br from-[#1A1A1A] via-[#0E0E0E] to-[#141414] border-2 border-[#E60012]/70 shadow-[0_20px_60px_rgba(230,0,18,0.35)] space-y-8 relative overflow-hidden">
+          <div className="plan-card max-w-5xl mx-auto glass-card rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 lg:p-10 bg-gradient-to-br from-[#1A1A1A] via-[#0E0E0E] to-[#141414] border-2 border-[#E60012]/70 shadow-[0_20px_60px_rgba(230,0,18,0.35)] space-y-6 sm:space-y-8 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Left: Official Membership Poster Image */}
-              <div className="lg:col-span-5 relative w-full h-[360px] sm:h-[440px] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-black group flex items-center justify-center p-2">
+              <div className="lg:col-span-5 relative w-full h-[260px] sm:h-[380px] lg:h-[440px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-black group flex items-center justify-center p-2">
                 <Image
                   src={officialMembershipImageUrl}
                   alt="Official MUSC Pune Membership Card Poster"
@@ -211,7 +211,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                           setSelectedSize(sz);
                           setSizeError(false);
                         }}
-                        className={`px-4 py-2.5 rounded-xl font-display text-base font-bold border transition-all cursor-pointer ${
+                        className={`px-3.5 sm:px-4 py-2 sm:py-2.5 min-w-[42px] min-h-[42px] flex items-center justify-center rounded-xl font-display text-base font-bold border transition-all cursor-pointer ${
                           selectedSize === sz
                             ? 'bg-[#E60012] text-white border-[#E60012] shadow-lg shadow-[#E60012]/40 scale-105'
                             : 'bg-[#050505] text-white/70 border-white/15 hover:text-white hover:border-white/30'
@@ -228,9 +228,9 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                   <button
                     type="button"
                     onClick={handleJoinClicked}
-                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl sm:text-2xl font-bold py-4 px-8 rounded-2xl shadow-[0_10px_35px_rgba(230,0,18,0.45)] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] border border-white/20 uppercase cursor-pointer"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base sm:text-xl lg:text-2xl font-bold py-3.5 sm:py-4 px-4 sm:px-8 rounded-2xl shadow-[0_10px_35px_rgba(230,0,18,0.45)] flex items-center justify-center gap-2.5 sm:gap-3 transition-all hover:scale-[1.02] border border-white/20 uppercase cursor-pointer"
                   >
-                    <ShoppingBag className="w-6 h-6 shrink-0 text-white" />
+                    <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-white" />
                     <span>JOIN PUNE&apos;S RED ARMY</span>
                   </button>
                 </div>
@@ -241,7 +241,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
 
         {/* 2. OUM (ONE UNITED MEMBERSHIP) BLOCK (GLOBAL) — DISPLAYED ON DEDICATED MEMBERSHIP PAGE */}
         {!isHomepage && (
-          <div className="max-w-5xl mx-auto glass-card rounded-[2.5rem] p-6 sm:p-10 bg-[#171717] border border-white/15 space-y-8 shadow-2xl relative overflow-hidden">
+          <div className="max-w-5xl mx-auto glass-card rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 lg:p-10 bg-[#171717] border border-white/15 space-y-6 sm:space-y-8 shadow-2xl relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/15 pb-6 gap-4">
               <div>
                 <span className="badge-pune text-xs font-display font-bold px-3 py-1 rounded uppercase">
@@ -263,7 +263,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
             </div>
 
             {/* 3-Step OUM Onboarding Guide */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Step 1 */}
               <div className="bg-[#050505] border border-white/10 rounded-2xl p-5 space-y-3 relative group hover:border-[#E60012]/60 transition-all">
                 <div className="w-10 h-10 rounded-xl bg-[#E60012]/15 border border-[#E60012]/40 text-[#E60012] font-display font-bold text-lg flex items-center justify-center">

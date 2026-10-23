@@ -1064,15 +1064,6 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              {/* Authorized Accounts Legend Box */}
-              <div className="bg-[#050505] p-3 rounded-xl border border-white/10 text-[11px] font-sans text-white/60 space-y-1">
-                <p className="font-bold text-white/80">AUTHORIZED LOGIN ROLES:</p>
-                <p>• <strong>Super Admin</strong>: ibrahimred@gmail.com (PIN: 1999)</p>
-                <p>• <strong>Gate 1</strong>: gate1@manutdpune.com (PIN: 1101)</p>
-                <p>• <strong>Gate 2</strong>: gate2@manutdpune.com (PIN: 1102)</p>
-                <p>• <strong>Gate 3</strong>: gate3@manutdpune.com (PIN: 1103)</p>
-              </div>
-
               <button
                 type="submit"
                 className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm tracking-wider font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all uppercase cursor-pointer"
@@ -1085,7 +1076,7 @@ export default function AdminDashboardPage() {
           /* Main Authenticated Dashboard */
           <div className="space-y-8">
             {/* Admin Tabs */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto no-scrollbar flex-nowrap sm:flex-wrap">
               <button
                 onClick={() => setActiveTab('SCANNER')}
                 className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
@@ -1209,32 +1200,32 @@ export default function AdminDashboardPage() {
                   </div>
 
                   {/* 4 Real-Time Gate Counters for Selected Screening */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
-                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">🏟️ SCREENING CAPACITY</span>
-                      <div className="text-2xl sm:text-3xl font-display font-bold text-white">{gateCapacity}</div>
-                      <span className="text-[10px] text-white/40 font-mono block">Total Venue Seats</span>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+                    <div className="bg-[#050505] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold truncate">🏟️ CAPACITY</span>
+                      <div className="text-xl sm:text-3xl font-display font-bold text-white">{gateCapacity}</div>
+                      <span className="text-[10px] text-white/40 font-mono block">Total Seats</span>
                     </div>
 
-                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
-                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">🎟️ TICKETS SOLD (LIVE)</span>
-                      <div className="text-2xl sm:text-3xl font-display font-bold text-[#FFC400]">{gateTicketsSold}</div>
-                      <span className="text-[10px] text-white/40 font-mono block">Real-time Booked Passes</span>
+                    <div className="bg-[#050505] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold truncate">🎟️ SOLD (LIVE)</span>
+                      <div className="text-xl sm:text-3xl font-display font-bold text-[#FFC400]">{gateTicketsSold}</div>
+                      <span className="text-[10px] text-white/40 font-mono block">Booked Passes</span>
                     </div>
 
-                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
-                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">👥 ADMITTED AT GATE</span>
-                      <div className="text-2xl sm:text-3xl font-display font-bold text-emerald-400">
+                    <div className="bg-[#050505] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold truncate">👥 ADMITTED</span>
+                      <div className="text-xl sm:text-3xl font-display font-bold text-emerald-400">
                         {gateCheckedInCount} <span className="text-xs text-white/50 font-normal">/ {gateTicketsSold}</span>
                       </div>
                       <span className="text-[10px] text-emerald-400/70 font-mono block">
-                        {gateTicketsSold - gateCheckedInCount} Remaining to enter
+                        {gateTicketsSold - gateCheckedInCount} Remaining
                       </span>
                     </div>
 
-                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-1">
-                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold">📊 TURNSTILE ATTENDANCE</span>
-                      <div className="text-2xl sm:text-3xl font-display font-bold text-[#E60012]">{gateTurnstilePercent}%</div>
+                    <div className="bg-[#050505] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10 space-y-1">
+                      <span className="text-[10px] font-display text-white/50 uppercase block font-bold truncate">📊 ATTENDANCE</span>
+                      <div className="text-xl sm:text-3xl font-display font-bold text-[#E60012]">{gateTurnstilePercent}%</div>
                       <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden mt-1">
                         <div
                           className="bg-[#E60012] h-full transition-all duration-500 rounded-full"
@@ -1258,7 +1249,7 @@ export default function AdminDashboardPage() {
                         </label>
                         <span className="text-[10px] text-white/50 font-mono">Mobile Quick-Entry</span>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           placeholder="Enter 10-digit Phone (e.g. 7276735140) or Ticket ID"
@@ -1274,7 +1265,7 @@ export default function AdminDashboardPage() {
                         />
                         <button
                           onClick={() => handleVerifyCode(manualCode)}
-                          className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center gap-1.5 shadow-lg cursor-pointer uppercase transition-all hover:scale-105"
+                          className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center justify-center gap-1.5 shadow-lg cursor-pointer uppercase transition-all hover:scale-[1.02] shrink-0"
                         >
                           <SearchIcon className="w-4 h-4" />
                           <span>VERIFY PASS</span>
@@ -1348,7 +1339,7 @@ export default function AdminDashboardPage() {
 
                     {/* HTML5 Camera Viewport Box */}
                     <div className="relative min-h-[340px] sm:min-h-[420px] w-full bg-[#050505] rounded-2xl overflow-hidden border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-2 shadow-2xl">
-                      <div id="qr-reader-viewport" className="w-full h-full min-h-[340px] sm:min-h-[420px]" />
+                      <div id="qr-reader-viewport" className="w-full h-full min-h-[340px] sm:min-h-[420px] [&_video]:max-w-full [&_video]:object-cover [&_canvas]:max-w-full" />
                       {!cameraActive && (
                         <div className="text-center space-y-4 p-6 my-auto z-10">
                           <QrIcon className="w-20 h-20 text-[#E60012] mx-auto animate-pulse" />
@@ -1712,7 +1703,7 @@ export default function AdminDashboardPage() {
 
                   {/* Attendees Table */}
                   <div className="overflow-x-auto rounded-2xl border border-white/10">
-                    <table className="w-full text-left text-xs font-sans">
+                    <table className="w-full min-w-[620px] text-left text-xs font-sans">
                       <thead className="bg-[#050505] text-white/60 uppercase font-display border-b border-white/10">
                         <tr>
                           <th className="p-4">Ticket ID</th>
@@ -2922,7 +2913,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs font-sans border-collapse">
+                        <table className="w-full min-w-[680px] text-left text-xs font-sans border-collapse">
                           <thead>
                             <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
                               <th className="py-3 px-3">TICKET ID</th>
@@ -2984,7 +2975,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs font-sans border-collapse">
+                        <table className="w-full min-w-[760px] text-left text-xs font-sans border-collapse">
                           <thead>
                             <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
                               <th className="py-3 px-3">TICKET ID</th>
@@ -3073,7 +3064,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs font-sans border-collapse">
+                        <table className="w-full min-w-[850px] text-left text-xs font-sans border-collapse">
                           <thead>
                             <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
                               <th className="py-3 px-3">ORDER ID</th>

@@ -57,31 +57,31 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#121212] border border-[#C8102E]/30 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative">
+      <div className="bg-[#121212] border border-[#C8102E]/30 rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative">
         {/* Close Button */}
         <button
           onClick={handleReset}
-          className="absolute top-4 right-4 p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white z-10"
+          className="absolute top-4 right-4 p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
         {!submitted ? (
-          <div>
+          <div className="flex flex-col flex-1 overflow-hidden">
             {/* Header */}
-            <div className="bg-[#870019] p-6 text-white relative overflow-hidden">
+            <div className="bg-[#870019] p-5 sm:p-6 pr-14 text-white relative overflow-hidden shrink-0">
               <div className="flex items-center gap-2 text-xs font-mono tracking-widest uppercase opacity-80">
                 <Plane className="w-4 h-4 text-white" />
                 <span>OFFICIAL TOUR DELEGATION</span>
               </div>
-              <h3 className="font-display text-2xl font-bold mt-1">OLD TRAFFORD TOUR ENQUIRY</h3>
+              <h3 className="font-display text-xl sm:text-2xl font-bold mt-1">OLD TRAFFORD TOUR ENQUIRY</h3>
               <p className="text-xs text-white/80 font-mono mt-1">
                 Travel from Pune to Manchester with fellow United Reds
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-xs font-mono text-neutral-400 mb-1">ENQUIRY SUBJECT</label>
                 <input

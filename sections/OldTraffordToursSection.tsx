@@ -62,7 +62,7 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
         <div className="glass-card rounded-3xl overflow-hidden shadow-2xl border border-white/10 hover:border-[#E60012] bg-[#171717] transition-all">
           <div className="grid grid-cols-1 lg:grid-cols-12">
             {/* Tour Photo */}
-            <div className="lg:col-span-7 relative min-h-[340px] lg:min-h-[480px] bg-black">
+            <div className="lg:col-span-7 relative min-h-[240px] sm:min-h-[340px] lg:min-h-[480px] bg-black">
               <Image
                 src={tourConfig.image}
                 alt={tourConfig.title}
@@ -72,22 +72,22 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
                 className="object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#171717]/60 lg:to-[#171717]" />
-              <div className="absolute top-6 left-6 flex items-center gap-2">
-                <span className="bg-[#E60012] text-white text-xs font-display font-bold px-3 py-1.5 rounded-md shadow-lg uppercase tracking-wider">
+              <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2">
+                <span className="bg-[#E60012] text-white text-[10px] sm:text-xs font-display font-bold px-2.5 sm:px-3 py-1.5 rounded-md shadow-lg uppercase tracking-wider">
                   AUTUMN 2026 DELEGATION
                 </span>
               </div>
             </div>
 
             {/* Package Details & Inclusions */}
-            <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
+            <div className="lg:col-span-5 p-5 sm:p-8 flex flex-col justify-between space-y-6 bg-gradient-to-br from-[#171717] to-[#050505]">
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-display text-[#FFC400] font-bold">
-                  <Calendar className="w-4 h-4 text-[#E60012]" />
+                <div className="flex items-center gap-2 text-[11px] sm:text-xs font-display text-[#FFC400] font-bold">
+                  <Calendar className="w-4 h-4 text-[#E60012] shrink-0" />
                   <span>NEXT BATCH: {tourConfig.nextBatch} ({tourConfig.duration})</span>
                 </div>
 
-                <h3 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight uppercase">
+                <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight uppercase">
                   {tourConfig.title}
                 </h3>
 

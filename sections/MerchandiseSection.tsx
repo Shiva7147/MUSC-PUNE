@@ -18,7 +18,7 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   return (
-    <section id="merchandise" className="py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
+    <section id="merchandise" className="py-12 sm:py-20 lg:py-24 bg-[#050505] relative overflow-hidden border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -27,7 +27,7 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
               <Tag className="w-4 h-4" />
               <span>PUNE REDS OFFICIAL STORE</span>
             </div>
-            <h2 className="font-display text-4xl sm:text-6xl font-bold text-white mt-1 uppercase">
+            <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold text-white mt-1 uppercase">
               OFFICIAL <span className="text-[#E60012]">MERCHANDISE</span>
             </h2>
             <p className="text-sm text-[#F5F5F5]/70 max-w-xl mt-2 font-sans">
@@ -58,20 +58,22 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
                     unoptimized
                     className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                   />
-                  {prod.badge && (
-                    <span className="absolute top-4 left-4 bg-[#E60012] text-white text-[10px] font-display font-bold px-2.5 py-1 rounded uppercase tracking-wider shadow">
-                      {prod.badge}
-                    </span>
-                  )}
-                  {!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0) ? (
-                    <span className="absolute top-4 right-4 bg-red-950/90 text-red-300 border border-red-500/50 text-[10px] font-display font-bold px-2.5 py-1 rounded uppercase tracking-wider shadow">
-                      SOLD OUT
-                    </span>
-                  ) : prod.stockCount !== undefined && prod.stockCount <= 10 ? (
-                    <span className="absolute top-4 right-4 bg-amber-950/90 text-amber-300 border border-amber-500/50 text-[10px] font-display font-bold px-2.5 py-1 rounded uppercase tracking-wider shadow">
-                      ONLY {prod.stockCount} LEFT
-                    </span>
-                  ) : null}
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none gap-2 z-10">
+                    {prod.badge ? (
+                      <span className="bg-[#E60012] text-white text-[10px] font-display font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow truncate max-w-[58%]">
+                        {prod.badge}
+                      </span>
+                    ) : <span />}
+                    {!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0) ? (
+                      <span className="bg-red-950/90 text-red-300 border border-red-500/50 text-[10px] font-display font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow shrink-0">
+                        SOLD OUT
+                      </span>
+                    ) : prod.stockCount !== undefined && prod.stockCount <= 10 ? (
+                      <span className="bg-amber-950/90 text-amber-300 border border-amber-500/50 text-[10px] font-display font-bold px-2 py-0.5 rounded uppercase tracking-wider shadow shrink-0">
+                        ONLY {prod.stockCount} LEFT
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
                 {/* Product Content */}
@@ -103,7 +105,7 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
                   <button
                     disabled={!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0)}
                     onClick={() => onAddToCart(prod, prod.availableSizes[0] || 'ONE SIZE', 1)}
-                    className="flex-1 bg-[#E60012] hover:bg-[#C40010] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display text-xs tracking-wider font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02] uppercase"
+                    className="flex-1 min-w-0 bg-[#E60012] hover:bg-[#C40010] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display text-[11px] sm:text-xs tracking-wider font-bold py-3 sm:py-3.5 px-2.5 sm:px-4 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_4px_15px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02] uppercase whitespace-nowrap"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>{!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0) ? 'SOLD OUT' : 'ADD TO CART'}</span>

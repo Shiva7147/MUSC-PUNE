@@ -90,16 +90,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="object-cover object-center"
                 />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="font-display font-bold text-lg sm:text-xl text-white group-hover:text-[#E60012] transition-colors leading-none tracking-tight">
                     MUSC PUNE
                   </span>
-                  <span className="bg-[#171717] border border-white/20 text-xs font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
+                  <span className="bg-[#171717] border border-white/20 text-[10px] sm:text-xs font-sans px-1.5 py-0.5 rounded text-white uppercase font-bold">
                     पुणे
                   </span>
                 </div>
-                <span className="text-xs text-white/60 uppercase font-sans font-medium mt-0.5">
+                <span className="text-[11px] sm:text-xs text-white/60 uppercase font-sans font-medium mt-0.5 truncate max-w-[130px] sm:max-w-none">
                   OFFICIAL SUPPORTERS CLUB
                 </span>
               </div>

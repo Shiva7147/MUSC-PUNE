@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText, AlertTriangle } from 'lucide-react';
 import { Screening } from '@/lib/types';
-import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore } from '@/lib/ticketStore';
+import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore, getSiteTaxConfigStore } from '@/lib/ticketStore';
 import { generatePDFTicketPass } from '@/lib/pdfTicketGenerator';
 import { dispatchWhatsAppTicketMessage } from '@/lib/whatsappService';
 
@@ -41,6 +41,33 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
       );
       setBookingData(pendingRecord);
       setStep('INTERRUPTED');
+
+      // Dispatch pending/interrupted record to Formspree
+      try {
+        const endpoint = getSiteTaxConfigStore().formspreeEndpoint || 'https://formspree.io/f/xrppgvbv';
+        await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            _subject: `⚠️ Screening Payment Interrupted / Attention: ${screening.matchTitle} - ${name || 'Supporter'}`,
+            status: 'PAYMENT_INTERRUPTED_CHECK_SCREENING_GATE',
+            matchTitle: screening.matchTitle,
+            quantity,
+            supporterName: name || 'Supporter',
+            supporterEmail: email || 'supporter@muscpune.in',
+            supporterPhone: phone || '+91 7276735140',
+            totalAmount: `₹${totalAmount}`,
+            interruptionReason: reason || 'Transaction window closed or interrupted',
+            screeningDate: screening.date,
+            venue: screening.venueName,
+          }),
+        });
+      } catch (fErr) {
+        console.warn('Formspree dispatch warning:', fErr);
+      }
     } catch (err) {
       console.error('Failed to log interrupted payment attempt:', err);
     }
@@ -114,6 +141,35 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
 
     setBookingData(record);
     setStep('CONFIRMATION');
+
+    // Instant Formspree Ticket Dispatch
+    try {
+      const endpoint = getSiteTaxConfigStore().formspreeEndpoint || 'https://formspree.io/f/xrppgvbv';
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          _subject: `🎟️ New Match Screening Ticket: ${record.matchTitle} (${record.quantity} passes) - ${record.userName}`,
+          orderType: 'MATCH_SCREENING_TICKET',
+          ticketId: record.ticketId,
+          matchTitle: record.matchTitle,
+          quantity: record.quantity,
+          supporterName: record.userName,
+          supporterEmail: record.userEmail,
+          supporterPhone: record.userPhone,
+          totalAmount: `₹${record.totalAmount}`,
+          paymentId: record.paymentId || paymentRefId || 'Confirmed',
+          orderId: record.orderId || orderId || 'Confirmed',
+          bookingDate: record.bookingDate,
+          venue: record.venue || screening.venueName,
+        }),
+      });
+    } catch (fErr) {
+      console.warn('Formspree ticket dispatch warning:', fErr);
+    }
 
     try {
       confetti({
@@ -427,7 +483,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
               </div>
 
               {/* Ticket Card Visual */}
-              <div className="bg-[#050505] border-2 border-[#E60012]/60 rounded-3xl p-6 text-left space-y-4 relative overflow-hidden shadow-2xl">
+              <div className="bg-[#050505] border-2 border-[#E60012]/60 rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-left space-y-4 relative overflow-hidden shadow-2xl">
                 <div className="flex justify-between items-start border-b border-white/10 pb-3">
                   <div>
                     <div className="text-xs font-display text-white/60 font-bold uppercase">TICKET ID</div>
@@ -462,14 +518,14 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 {/* Real Authentic QR Code Image */}
                 {bookingData?.qrDataUrl && (
                   <div className="pt-4 border-t border-dashed border-white/20 flex flex-col items-center justify-center space-y-2">
-                    <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-[#E60012]">
+                    <div className="bg-white p-2.5 sm:p-3 rounded-2xl shadow-2xl border-4 border-[#E60012]">
                       <img
                         src={bookingData.qrDataUrl}
                         alt={`Ticket QR Code ${bookingData.ticketId}`}
-                        className="w-44 h-44 object-contain"
+                        className="w-36 h-36 sm:w-44 sm:h-44 object-contain max-w-full"
                       />
                     </div>
-                    <div className="text-xs font-mono text-white font-bold bg-[#171717] px-3 py-1 rounded-lg border border-white/10">
+                    <div className="text-xs font-mono text-white font-bold bg-[#171717] px-3 py-1 rounded-lg border border-white/10 text-center">
                       SCAN AT GATE FOR INSTANT ENTRY
                     </div>
                   </div>
@@ -541,8 +597,8 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px] font-mono text-white/70">
-                  <div>Ref ID: <span className="text-white font-bold">{bookingData?.ticketId}</span></div>
+                <div className="pt-2 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 text-[11px] font-mono text-white/70">
+                  <div>Ref ID: <span className="text-white font-bold break-all">{bookingData?.ticketId}</span></div>
                   <div>Quantity: <span className="text-white font-bold">{quantity} Pass(es)</span></div>
                   <div>Amount: <span className="text-white font-bold">₹{totalAmount}</span></div>
                   <div>Match: <span className="text-white font-bold truncate block">{screening.matchTitle}</span></div>

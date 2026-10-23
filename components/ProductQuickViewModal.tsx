@@ -59,27 +59,27 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
           <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2">
             {/* Product Image */}
-            <div className="bg-neutral-950 p-6 flex items-center justify-center relative min-h-[280px]">
-              <div className="w-full h-full min-h-[240px] relative rounded-xl overflow-hidden border border-neutral-900">
+            <div className="bg-neutral-950 p-4 sm:p-6 flex items-center justify-center relative min-h-[190px] sm:min-h-[280px]">
+              <div className="w-full h-full min-h-[170px] sm:min-h-[240px] relative rounded-xl overflow-hidden border border-neutral-900">
                 <Image
                   src={product.image}
                   alt={product.name}
                   fill
                   unoptimized
-                  className="object-cover"
+                  className="object-contain p-2 sm:p-4"
                 />
               </div>
               {product.badge && (
-                <span className="absolute top-4 left-4 bg-[#E60012] text-white text-xs font-bold px-2.5 py-1 rounded tracking-widest uppercase shadow">
+                <span className="absolute top-4 left-4 bg-[#E60012] text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded tracking-widest uppercase shadow">
                   {product.badge}
                 </span>
               )}
             </div>
 
             {/* Product Details Form */}
-            <div className="p-6 flex flex-col justify-between space-y-5">
+            <div className="p-4 sm:p-6 flex flex-col justify-between space-y-5">
               <div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="text-xs font-mono tracking-widest text-[#E60012] uppercase font-bold">
                     OFFICIAL STORE • {product.category}
                   </div>

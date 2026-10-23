@@ -69,7 +69,7 @@ export default function AboutPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
-                <span className="bg-[#E60012] font-display font-bold px-3 py-1 rounded uppercase">
+                <span className="bg-[#E60012] font-display font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded uppercase truncate max-w-full">
                   📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
                 </span>
                 <span className="text-white/70 hidden sm:inline">Chants, Celebrations & Unforgettable Moments</span>
@@ -100,7 +100,7 @@ export default function AboutPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
-                <span className="bg-[#E60012] font-display font-bold px-3 py-1 rounded uppercase">
+                <span className="bg-[#E60012] font-display font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded uppercase truncate max-w-full">
                   ✈️ THEATRE OF DREAMS PILGRIMAGE
                 </span>
                 <span className="text-white/70 hidden sm:inline">Turning Dreams into Memories for Life</span>
@@ -136,24 +136,24 @@ export default function AboutPage() {
           </div>
 
           {/* Action Navigation Buttons */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+          <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
             <Link
               href="/screenings"
-              className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02] uppercase"
+              className="w-full sm:w-auto bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02] uppercase text-center"
             >
               <Ticket className="w-4 h-4" />
               <span>EXPLORE MATCH SCREENINGS</span>
             </Link>
             <Link
               href="/membership"
-              className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-xl hover:scale-[1.02] uppercase"
+              className="w-full sm:w-auto bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-xl hover:scale-[1.02] uppercase text-center"
             >
               <Users className="w-4 h-4 text-[#E60012]" />
               <span>JOIN PUNE&apos;S RED ARMY</span>
             </Link>
             <Link
               href="/gallery"
-              className="bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-xl hover:scale-[1.02] uppercase"
+              className="w-full sm:w-auto bg-[#171717] hover:bg-black border border-white/20 text-white font-display text-sm font-bold px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-xl hover:scale-[1.02] uppercase text-center"
             >
               <Camera className="w-4 h-4 text-[#FFC400]" />
               <span>VIEW GALLERY ARCHIVE</span>
