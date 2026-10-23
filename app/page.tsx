@@ -14,11 +14,12 @@ import { ProductQuickViewModal } from '@/components/ProductQuickViewModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { EnquiryModal } from '@/components/EnquiryModal';
 import { oldTraffordTours, galleryImages } from '@/lib/data';
-import { Screening, Product, CartItem, GalleryItem } from '@/lib/types';
+import { Screening, Product, CartItem, GalleryItem, TourConfig } from '@/lib/types';
 import {
   getScreeningsStore,
   getProductsStore,
   getGalleryStore,
+  getTourConfigStore,
   fetchScreeningsRemoteAsync,
   fetchProductsRemoteAsync,
   fetchGalleryRemoteAsync,
@@ -30,18 +31,20 @@ export default function Home() {
   const [screenings, setScreenings] = useState<Screening[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
+  const [tourConfig, setTourConfig] = useState<TourConfig>(getTourConfigStore());
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState<boolean>(false);
   const [enquiryOpen, setEnquiryOpen] = useState<boolean>(false);
 
-  const bookTripUrl = 'https://manutdpune.com/product/oldtrafford/';
+  const bookTripUrl = tourConfig.bookingUrl || 'https://manutdpune.com/product/oldtrafford/';
 
   const refreshStoreData = () => {
     setScreenings(getScreeningsStore());
     setProducts(getProductsStore());
     setGalleryList(getGalleryStore());
+    setTourConfig(getTourConfigStore());
   };
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function Home() {
   }, []);
 
   const featuredScreening = screenings.find((s) => s.featured) || screenings[0];
-  const featuredTour = oldTraffordTours[0];
+  const featuredTour = tourConfig;
 
   const handleAddToCart = (product: Product, size: string, quantity: number) => {
     setCartItems((prev) => {
@@ -286,10 +289,11 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12">
               <div className="lg:col-span-7 relative min-h-[280px] lg:min-h-[380px]">
                 <Image
-                  src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg"
+                  src={featuredTour.image || 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg'}
                   alt="Old Trafford Delegation Photo"
                   fill
                   quality={95}
+                  unoptimized
                   className="object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
@@ -406,6 +410,7 @@ export default function Home() {
                   alt={img.title}
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"
+                  unoptimized
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />

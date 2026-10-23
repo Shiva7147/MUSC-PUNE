@@ -65,6 +65,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   src={product.image}
                   alt={product.name}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </div>

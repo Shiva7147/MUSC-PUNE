@@ -9,11 +9,35 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "utfs.io",
+        hostname: "*.ufs.sh",
+      },
+      {
+        protocol: "https",
+        hostname: "**.ufs.sh",
+      },
+      {
+        protocol: "https",
+        hostname: "drjqa2zoci.ufs.sh",
+      },
+      {
+        protocol: "https",
+        hostname: "*.utfs.io",
+      },
+      {
+        protocol: "https",
+        hostname: "**.utfs.io",
+      },
+      {
+        protocol: "https",
+        hostname: "drjqa2zoci.utfs.io",
       },
       {
         protocol: "https",
         hostname: "ufs.sh",
+      },
+      {
+        protocol: "https",
+        hostname: "utfs.io",
       },
     ],
   },

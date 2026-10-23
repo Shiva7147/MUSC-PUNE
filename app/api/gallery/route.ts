@@ -22,9 +22,11 @@ const formatGalleryRow = (row: any): GalleryItem => ({
 export async function GET() {
   try {
     if (supabaseAdmin) {
-      const { data, error } = await supabaseAdmin.from('gallery').select('*');
+      const { data, error } = await supabaseAdmin.from('gallery').select('*').order('created_at', { ascending: false });
       if (!error && data) {
-        inMemoryGallery = data.map(formatGalleryRow);
+        const remoteIds = new Set(data.map((r: any) => r.id));
+        const missingDefaults = galleryImages.filter((d) => !remoteIds.has(d.id));
+        inMemoryGallery = [...data.map(formatGalleryRow), ...missingDefaults];
         return NextResponse.json({ gallery: inMemoryGallery }, { status: 200 });
       }
     }

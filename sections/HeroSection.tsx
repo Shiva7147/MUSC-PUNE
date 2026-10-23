@@ -49,27 +49,33 @@ export const HeroSection: React.FC = () => {
           <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
-        {/* ALTERNATING SLOGAN HEADLINE (HINDI & ENGLISH) WITH LUXURY WHITE SHIMMER & AMBIENT RED GLOW */}
-        <div className="min-h-[120px] sm:min-h-[160px] md:min-h-[190px] flex items-center justify-center">
-          <h1
-            className={`text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-normal drop-shadow-[0_0_35px_rgba(230,0,18,0.45)] max-w-3xl mx-auto px-2 relative transition-all duration-500 transform ${
+        {/* ALTERNATING SLOGAN HEADLINE (HINDI & ENGLISH) */}
+        <div className="min-h-[140px] sm:min-h-[180px] md:min-h-[220px] flex items-center justify-center">
+          <div
+            className={`w-full text-center transition-all duration-500 transform ${
               fade ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-            } ${isHindi ? 'font-devanagari' : 'font-display uppercase tracking-tight'}`}
+            }`}
           >
-            <span className="bg-gradient-to-r from-white via-neutral-100 to-white bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,0,0,0.95)] block">
-              {isHindi ? (
-                <>
-                  <span className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-wide">एक शहर, एक क्लब, एक प्रेम</span>
-                  <span className="block mt-4 sm:mt-5 md:mt-6 text-[#E60012] drop-shadow-[0_4px_25px_rgba(230,0,18,0.6)]">मैनचेस्टर यूनाइटेड</span>
-                </>
-              ) : (
-                <>
-                  <span className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-wide">ONE CITY, ONE CLUB, ONE LOVE</span>
-                  <span className="block mt-4 sm:mt-5 md:mt-6 text-[#E60012] tracking-wider drop-shadow-[0_4px_25px_rgba(230,0,18,0.6)]">MANCHESTER UNITED</span>
-                </>
-              )}
-            </span>
-          </h1>
+            {isHindi ? (
+              <div className="font-devanagari space-y-4 sm:space-y-6 md:space-y-7">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-normal leading-relaxed drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]">
+                  एक शहर, एक क्लब, एक प्रेम
+                </h1>
+                <div className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#E60012] tracking-wide leading-relaxed drop-shadow-[0_4px_30px_rgba(230,0,18,0.7)] pt-2 sm:pt-3">
+                  मैनचेस्टर यूनाइटेड
+                </div>
+              </div>
+            ) : (
+              <div className="font-display uppercase space-y-4 sm:space-y-6 md:space-y-7">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-wide leading-relaxed drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]">
+                  ONE CITY, ONE CLUB, ONE LOVE
+                </h1>
+                <div className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#E60012] tracking-wider leading-relaxed drop-shadow-[0_4px_30px_rgba(230,0,18,0.7)] pt-2 sm:pt-3">
+                  MANCHESTER UNITED
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* English Subtitle: Updated Official About Copy */}

@@ -2505,7 +2505,7 @@ export default function AdminDashboardPage() {
                         <div key={p.id} className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
                           <div className="flex items-center gap-4 min-w-0">
                             <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
-                              <Image src={p.image} alt={p.name} fill className="object-cover" />
+                              <Image src={p.image} alt={p.name} fill unoptimized className="object-cover" />
                             </div>
                             <div className="min-w-0 space-y-1">
                               <h4 className="font-display text-lg font-bold text-white uppercase truncate">{p.name}</h4>
@@ -2774,7 +2774,7 @@ export default function AdminDashboardPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {galleryList.map((g) => (
                       <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden bg-black border border-white/10 group">
-                        <Image src={g.imageUrl} alt={g.title} fill className="object-cover group-hover:scale-105 transition-transform" />
+                        <Image src={g.imageUrl} alt={g.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-2 flex items-end justify-between gap-1">
                           <span className="text-[10px] font-display text-white truncate font-bold">{g.title}</span>
                           <button

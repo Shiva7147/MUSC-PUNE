@@ -140,6 +140,7 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
             fill
             quality={100}
             priority
+            unoptimized
             className="object-contain"
           />
         </div>
