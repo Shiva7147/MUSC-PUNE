@@ -21,6 +21,7 @@ import {
 import { officialLogoUrl, officialMembershipImageUrl } from '@/lib/data';
 import { Product, MembershipConfig } from '@/lib/types';
 import { getMembershipConfigStore, fetchConfigRemoteAsync, subscribeStore } from '@/lib/ticketStore';
+import { UniversalCheckoutModal } from '@/components/UniversalCheckoutModal';
 
 interface MembershipSectionProps {
   onAddToCart?: (product: Product, size: string, quantity: number) => void;
@@ -36,6 +37,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [sizeError, setSizeError] = useState<boolean>(false);
   const [membershipConfig, setMembershipConfig] = useState<MembershipConfig>(getMembershipConfigStore());
+  const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
 
   const whatsappNumberUrl = 'https://wa.me/917276735140';
 
@@ -101,11 +103,7 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
       ],
     };
 
-    if (onAddToCart) {
-      onAddToCart(membershipItem, selectedSize, 1);
-    } else {
-      if (onOpenCart) onOpenCart();
-    }
+    setIsMembershipModalOpen(true);
   };
 
   return (
@@ -345,6 +343,23 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
           </div>
         )}
       </div>
+
+      {/* Universal Membership Checkout Modal with Razorpay & Formspree */}
+      {isMembershipModalOpen && (
+        <UniversalCheckoutModal
+          isOpen={isMembershipModalOpen}
+          onClose={() => setIsMembershipModalOpen(false)}
+          mode="MEMBERSHIP"
+          membershipDetails={{
+            size: selectedSize,
+            price:
+              membershipConfig.sizePrices && membershipConfig.sizePrices[selectedSize]
+                ? membershipConfig.sizePrices[selectedSize]
+                : membershipConfig.basePrice || 999,
+            name: "Pune's Red Army Official Membership",
+          }}
+        />
+      )}
     </section>
   );
 };

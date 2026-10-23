@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Plane, Calendar, CheckCircle, ShieldCheck, ExternalLink } from 'lucide-react';
+import { Plane, Calendar, CheckCircle, ShieldCheck, ExternalLink, CreditCard } from 'lucide-react';
 import { TourPackage, TourConfig } from '@/lib/types';
 import { getTourConfigStore, fetchConfigRemoteAsync, subscribeStore } from '@/lib/ticketStore';
+import { UniversalCheckoutModal } from '@/components/UniversalCheckoutModal';
 
 interface OldTraffordToursSectionProps {
   tours?: TourPackage[];
@@ -12,6 +13,7 @@ interface OldTraffordToursSectionProps {
 
 export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = () => {
   const [tourConfig, setTourConfig] = useState<TourConfig>(getTourConfigStore());
+  const [isTourCheckoutOpen, setIsTourCheckoutOpen] = useState(false);
 
   useEffect(() => {
     fetchConfigRemoteAsync();
@@ -112,16 +114,14 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
               </div>
 
               <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
-                <a
-                  href={bookTripUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setIsTourCheckoutOpen(true)}
                   className="w-full bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-base tracking-wider font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase cursor-pointer"
                 >
                   <Plane className="w-5 h-5 text-white" />
                   <span>BOOK THE TRIP</span>
-                  <ExternalLink className="w-4 h-4 text-white/80" />
-                </a>
+                </button>
                 <div className="flex items-center justify-center gap-1.5 text-[10px] font-sans text-white/50">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   <span>OFFICIAL SUPPORTERS CLUB VISA GUIDANCE INCLUDED</span>
@@ -145,6 +145,20 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
           </div>
         )}
       </div>
+
+      {/* Universal Tour Checkout Modal with Razorpay & Formspree */}
+      {isTourCheckoutOpen && (
+        <UniversalCheckoutModal
+          isOpen={isTourCheckoutOpen}
+          onClose={() => setIsTourCheckoutOpen(false)}
+          mode="TOUR"
+          tourDetails={{
+            title: tourConfig.title,
+            price: tourConfig.price || 125000,
+            batch: tourConfig.nextBatch,
+          }}
+        />
+      )}
     </section>
   );
 };

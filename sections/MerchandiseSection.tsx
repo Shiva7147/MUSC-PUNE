@@ -62,6 +62,15 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
                       {prod.badge}
                     </span>
                   )}
+                  {!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0) ? (
+                    <span className="absolute top-4 right-4 bg-red-950/90 text-red-300 border border-red-500/50 text-[10px] font-display font-bold px-2.5 py-1 rounded uppercase tracking-wider shadow">
+                      SOLD OUT
+                    </span>
+                  ) : prod.stockCount !== undefined && prod.stockCount <= 10 ? (
+                    <span className="absolute top-4 right-4 bg-amber-950/90 text-amber-300 border border-amber-500/50 text-[10px] font-display font-bold px-2.5 py-1 rounded uppercase tracking-wider shadow">
+                      ONLY {prod.stockCount} LEFT
+                    </span>
+                  ) : null}
                 </div>
 
                 {/* Product Content */}
@@ -91,11 +100,12 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
 
                 <div className="flex gap-2">
                   <button
+                    disabled={!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0)}
                     onClick={() => onAddToCart(prod, prod.availableSizes[0] || 'ONE SIZE', 1)}
-                    className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs tracking-wider font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02]"
+                    className="flex-1 bg-[#E60012] hover:bg-[#C40010] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display text-xs tracking-wider font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(230,0,18,0.25)] transition-all hover:scale-[1.02] uppercase"
                   >
                     <ShoppingBag className="w-4 h-4" />
-                    <span>ADD TO CART</span>
+                    <span>{!prod.inStock || (prod.stockCount !== undefined && prod.stockCount <= 0) ? 'SOLD OUT' : 'ADD TO CART'}</span>
                   </button>
 
                   <button

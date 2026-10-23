@@ -1,4 +1,16 @@
-import { Screening, Product, TourPackage, TourConfig, GalleryItem, FanChant, TeamMember, MembershipConfig } from './types';
+import { Screening, Product, TourPackage, TourConfig, GalleryItem, FanChant, TeamMember, MembershipConfig, SiteTaxConfig } from './types';
+
+export const defaultSiteTaxConfig: SiteTaxConfig = {
+  screeningsTaxRate: 0.18,       // 18% GST for live entertainment/match screenings
+  screeningsPlatformFeeRate: 0.03, // 3% Platform Convenience fee
+  productsTaxRate: 0.18,         // 18% GST for official merchandise
+  productsPlatformFeeRate: 0.03, // 3% Platform fee
+  membershipTaxRate: 0.18,       // 18% GST for Pune's Red Army membership
+  membershipPlatformFeeRate: 0.03, // 3% Platform fee
+  toursTaxRate: 0.05,            // 5% Travel & Tour service GST
+  toursPlatformFeeRate: 0.02,    // 2% Platform fee
+  formspreeEndpoint: 'https://formspree.io/f/manunitedpune',
+};
 
 export const officialClubDetails = {
   name: 'MUSC Pune',
@@ -166,6 +178,9 @@ export const merchandiseProducts: Product[] = [
     description: 'Classic football terrace scarf with red, black, and white detail. Dual-sided weave featuring "MANCHESTER UNITED SUPPORTERS CLUB PUNE". Essential matchday gear.',
     availableSizes: ['ONE SIZE'],
     inStock: true,
+    stockCount: 45,
+    taxRate: 0.18,
+    platformFeeRate: 0.03,
     badge: 'OFFICIAL MERCH • BESTSELLER',
     details: [
       'High-bulk soft acrylic Jacquard knit',
@@ -184,6 +199,9 @@ export const merchandiseProducts: Product[] = [
     description: 'Official Supporters Club Pune ceramic mug with high-gloss finish, featuring the authentic emblem.',
     availableSizes: ['STANDARD'],
     inStock: true,
+    stockCount: 30,
+    taxRate: 0.18,
+    platformFeeRate: 0.03,
     badge: 'OFFICIAL MERCH',
     details: [
       'High-grade ceramic construction',
@@ -199,6 +217,10 @@ export const defaultTourConfig: TourConfig = {
   subtitle: 'Experience the Theatre of Dreams with MUSC Pune',
   duration: '7 Days / 6 Nights',
   nextBatch: 'October 18 – 24, 2026',
+  price: 125000,
+  taxRate: 0.05,
+  platformFeeRate: 0.02,
+  platformFee: 2500,
   matchHighlights: ['Match Tickets', 'Stadium and Museum Tour', 'Accommodation'],
   includedFeatures: [
     'Guaranteed Home Match Ticket for Premier League Fixture at Old Trafford',

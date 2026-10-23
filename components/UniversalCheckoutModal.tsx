@@ -1,0 +1,810 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import {
+  X,
+  ShieldCheck,
+  CreditCard,
+  Truck,
+  CheckCircle2,
+  AlertCircle,
+  Copy,
+  Check,
+  ShoppingBag,
+  Plane,
+  Award,
+  Loader2,
+  Phone,
+  Mail,
+  MapPin,
+  User,
+} from 'lucide-react';
+import { CartItem, ProductOrderRecord } from '@/lib/types';
+import {
+  getSiteTaxConfigStore,
+  getMembershipConfigStore,
+  getTourConfigStore,
+  addProductOrderToStore,
+} from '@/lib/ticketStore';
+
+export interface UniversalCheckoutModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  mode: 'MERCHANDISE' | 'MEMBERSHIP' | 'TOUR';
+  cartItems?: CartItem[];
+  membershipDetails?: {
+    size: string;
+    price: number;
+    name?: string;
+  };
+  tourDetails?: {
+    title: string;
+    price: number;
+    batch: string;
+  };
+  onSuccess?: (order: ProductOrderRecord) => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
+  isOpen,
+  onClose,
+  mode,
+  cartItems = [],
+  membershipDetails,
+  tourDetails,
+  onSuccess,
+}) => {
+  const [siteTaxConfig, setSiteTaxConfig] = useState(getSiteTaxConfigStore());
+  const [membershipConfig, setMembershipConfig] = useState(getMembershipConfigStore());
+  const [tourConfig, setTourConfig] = useState(getTourConfigStore());
+
+  // Customer Form state
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+
+  // Shipping Address state (for merchandise)
+  const [streetAddress, setStreetAddress] = useState('');
+  const [area, setArea] = useState('');
+  const [city, setCity] = useState('Pune');
+  const [stateName, setStateName] = useState('Maharashtra');
+  const [pincode, setPincode] = useState('');
+
+  // Tour specific details
+  const [passportName, setPassportName] = useState('');
+  const [preferredBatch, setPreferredBatch] = useState(tourDetails?.batch || 'October 18 – 24, 2026');
+
+  // Checkout UI States
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState<ProductOrderRecord | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedOrderId, setCopiedOrderId] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSiteTaxConfig(getSiteTaxConfigStore());
+      setMembershipConfig(getMembershipConfigStore());
+      setTourConfig(getTourConfigStore());
+      setOrderComplete(false);
+      setCompletedOrder(null);
+      setErrorMessage(null);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  // Compute Base Total, Tax, Platform Fee, and Final Total
+  let baseAmount = 0;
+  let taxRate = 0.18;
+  let feeRate = 0.03;
+
+  if (mode === 'MERCHANDISE') {
+    baseAmount = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    taxRate = siteTaxConfig.productsTaxRate ?? 0.18;
+    feeRate = siteTaxConfig.productsPlatformFeeRate ?? 0.03;
+  } else if (mode === 'MEMBERSHIP') {
+    baseAmount = membershipDetails?.price || membershipConfig.basePrice || 999;
+    taxRate = membershipConfig.taxRate ?? siteTaxConfig.membershipTaxRate ?? 0.18;
+    feeRate = membershipConfig.platformFeeRate ?? siteTaxConfig.membershipPlatformFeeRate ?? 0.03;
+  } else if (mode === 'TOUR') {
+    baseAmount = tourDetails?.price || tourConfig.price || 125000;
+    taxRate = tourConfig.taxRate ?? siteTaxConfig.toursTaxRate ?? 0.05;
+    feeRate = tourConfig.platformFeeRate ?? siteTaxConfig.toursPlatformFeeRate ?? 0.02;
+  }
+
+  const taxAmount = Math.round(baseAmount * taxRate);
+  const platformFee = Math.round(baseAmount * feeRate);
+  const totalAmount = baseAmount + taxAmount + platformFee;
+
+  // Validation
+  const validateForm = () => {
+    if (!fullName.trim()) {
+      setErrorMessage('Please enter your full name.');
+      return false;
+    }
+    if (!email.trim() || !email.includes('@')) {
+      setErrorMessage('Please enter a valid email address.');
+      return false;
+    }
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setErrorMessage('Please enter a valid 10-digit mobile number.');
+      return false;
+    }
+
+    if (mode === 'MERCHANDISE') {
+      if (!streetAddress.trim()) {
+        setErrorMessage('Please enter your shipping address for merchandise delivery.');
+        return false;
+      }
+      if (!city.trim()) {
+        setErrorMessage('Please enter your city.');
+        return false;
+      }
+      if (!pincode.trim() || pincode.trim().length < 6) {
+        setErrorMessage('Please enter a valid 6-digit postal pincode.');
+        return false;
+      }
+    }
+
+    if (mode === 'TOUR') {
+      if (!passportName.trim()) {
+        setErrorMessage('Please enter your full name as printed on your passport.');
+        return false;
+      }
+    }
+
+    setErrorMessage(null);
+    return true;
+  };
+
+  // Helper: Load Razorpay script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Helper: Dispatch Order to Formspree
+  const dispatchToFormspree = async (orderRecord: ProductOrderRecord) => {
+    const formspreeUrl = siteTaxConfig.formspreeEndpoint || 'https://formspree.io/f/manunitedpune';
+
+    const itemsSummary = orderRecord.items
+      .map((it) => `${it.name} [Size: ${it.size}] x ${it.quantity} = ₹${it.price * it.quantity}`)
+      .join('\n');
+
+    const formPayload = {
+      _subject: `New Official MUSC Pune ${orderRecord.orderType} Order - ${orderRecord.orderId}`,
+      order_id: orderRecord.orderId,
+      payment_id: orderRecord.paymentId,
+      order_type: orderRecord.orderType,
+      customer_name: orderRecord.customerName,
+      customer_email: orderRecord.customerEmail,
+      customer_phone: orderRecord.customerPhone,
+      subtotal_inr: `₹${orderRecord.baseAmount}`,
+      tax_amount_inr: `₹${orderRecord.taxAmount}`,
+      platform_fee_inr: `₹${orderRecord.platformFee}`,
+      total_paid_inr: `₹${orderRecord.totalAmount}`,
+      items_ordered: itemsSummary,
+      shipping_address: orderRecord.shippingAddress
+        ? `${orderRecord.shippingAddress.address}, ${orderRecord.shippingAddress.city}, ${orderRecord.shippingAddress.state} - ${orderRecord.shippingAddress.pincode}`
+        : 'N/A (Screening / Membership Pickup)',
+      order_notes: orderRecord.notes || 'None',
+      submitted_at: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    };
+
+    try {
+      await fetch(formspreeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(formPayload),
+      });
+    } catch (err) {
+      console.warn('Formspree dispatch notification attempt completed:', err);
+    }
+  };
+
+  // Main Handle Payment
+  const handleProceedToPayment = async () => {
+    if (!validateForm()) return;
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    // Build items record
+    const itemsList =
+      mode === 'MERCHANDISE'
+        ? cartItems.map((c) => ({
+            id: c.product.id,
+            name: c.product.name,
+            size: c.size,
+            quantity: c.quantity,
+            price: c.product.price,
+          }))
+        : mode === 'MEMBERSHIP'
+        ? [
+            {
+              id: 'musc-pune-membership',
+              name: "Pune's Red Army Official Membership",
+              size: membershipDetails?.size || 'M',
+              quantity: 1,
+              price: baseAmount,
+            },
+          ]
+        : [
+            {
+              id: 'tour-autumn-2026',
+              name: 'Trip to Old Trafford (Deposit / Registration)',
+              size: preferredBatch,
+              quantity: 1,
+              price: baseAmount,
+            },
+          ];
+
+    try {
+      // 1. Create Razorpay Order via API route
+      const receiptId = `musc_${mode.toLowerCase().slice(0, 4)}_${Date.now()}`.slice(0, 40);
+      const res = await fetch('/api/razorpay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: totalAmount,
+          currency: 'INR',
+          receipt: receiptId,
+          notes: {
+            mode,
+            customerName: fullName,
+            customerPhone: phone,
+            customerEmail: email,
+          },
+        }),
+      });
+
+      const orderData = await res.json();
+      if (!res.ok || !orderData.orderId) {
+        throw new Error(orderData.error || 'Failed to initialize payment gateway.');
+      }
+
+      // Check if real Razorpay is active or simulated fallback
+      const isSimulated = orderData.simulated === true;
+      const keyId = orderData.key;
+
+      if (!isSimulated && keyId && !keyId.startsWith('rzp_test_musc')) {
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          throw new Error('Unable to connect to Razorpay payment gateway. Please check your internet connection.');
+        }
+
+        const options = {
+          key: keyId,
+          amount: orderData.amount,
+          currency: orderData.currency || 'INR',
+          name: 'MUSC Pune',
+          description: `Official ${mode} Payment (${itemsList[0]?.name || 'Order'})`,
+          image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1787381769/WhatsApp_Image_2026-08-22_at_12.09.49_AM_cof7cr.jpg',
+          order_id: orderData.orderId,
+          prefill: {
+            name: fullName,
+            email: email,
+            contact: phone,
+          },
+          theme: {
+            color: '#E60012',
+          },
+          handler: async (response: any) => {
+            const finalOrder: ProductOrderRecord = {
+              orderId: orderData.orderId,
+              paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
+              orderType: mode,
+              customerName: fullName,
+              customerEmail: email,
+              customerPhone: phone,
+              shippingAddress:
+                mode === 'MERCHANDISE'
+                  ? {
+                      address: streetAddress,
+                      city,
+                      state: stateName,
+                      pincode,
+                    }
+                  : undefined,
+              items: itemsList,
+              baseAmount,
+              taxAmount,
+              platformFee,
+              totalAmount,
+              notes: mode === 'TOUR' ? `Passport Name: ${passportName}` : undefined,
+              createdAt: new Date().toISOString(),
+              status: 'PAID',
+            };
+
+            // Save to Store and Formspree
+            addProductOrderToStore(finalOrder);
+            await dispatchToFormspree(finalOrder);
+
+            setCompletedOrder(finalOrder);
+            setOrderComplete(true);
+            setIsProcessing(false);
+            if (onSuccess) onSuccess(finalOrder);
+          },
+          modal: {
+            ondismiss: () => {
+              setIsProcessing(false);
+            },
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', (failResp: any) => {
+          setIsProcessing(false);
+          setErrorMessage(
+            `Payment was interrupted: ${failResp.error?.description || 'Transaction cancelled'}. Please do not worry, if any money was debited, contact our support with your phone (${phone}).`
+          );
+        });
+        rzp.open();
+      } else {
+        // Simulated Direct Booking (Pre-Live Activation)
+        const finalOrder: ProductOrderRecord = {
+          orderId: orderData.orderId,
+          paymentId: `pay_sim_${Date.now()}`,
+          orderType: mode,
+          customerName: fullName,
+          customerEmail: email,
+          customerPhone: phone,
+          shippingAddress:
+            mode === 'MERCHANDISE'
+              ? {
+                  address: streetAddress,
+                  city,
+                  state: stateName,
+                  pincode,
+                }
+              : undefined,
+          items: itemsList,
+          baseAmount,
+          taxAmount,
+          platformFee,
+          totalAmount,
+          notes: mode === 'TOUR' ? `Passport Name: ${passportName}` : undefined,
+          createdAt: new Date().toISOString(),
+          status: 'PAID',
+        };
+
+        addProductOrderToStore(finalOrder);
+        await dispatchToFormspree(finalOrder);
+
+        setCompletedOrder(finalOrder);
+        setOrderComplete(true);
+        setIsProcessing(false);
+        if (onSuccess) onSuccess(finalOrder);
+      }
+    } catch (err: any) {
+      setIsProcessing(false);
+      setErrorMessage(err.message || 'Payment initiation failed. Please try again.');
+    }
+  };
+
+  const copyOrderId = () => {
+    if (completedOrder) {
+      navigator.clipboard.writeText(completedOrder.orderId);
+      setCopiedOrderId(true);
+      setTimeout(() => setCopiedOrderId(false), 2000);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-auto">
+        {/* Header Bar */}
+        <div className="bg-gradient-to-r from-[#171717] via-[#050505] to-[#171717] p-5 sm:p-6 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {mode === 'MERCHANDISE' && <ShoppingBag className="w-6 h-6 text-[#E60012]" />}
+            {mode === 'MEMBERSHIP' && <Award className="w-6 h-6 text-[#E60012]" />}
+            {mode === 'TOUR' && <Plane className="w-6 h-6 text-[#E60012]" />}
+            <div>
+              <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
+                OFFICIAL MUSC PUNE CHECKOUT
+              </span>
+              <h3 className="font-display text-xl sm:text-2xl font-bold uppercase tracking-tight text-white">
+                {mode === 'MERCHANDISE' && 'MERCHANDISE ORDER'}
+                {mode === 'MEMBERSHIP' && "PUNE'S RED ARMY MEMBERSHIP"}
+                {mode === 'TOUR' && 'TRIP TO OLD TRAFFORD BOOKING'}
+              </h3>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2.5 rounded-xl bg-[#171717] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Close Checkout"
+          >
+            <X className="w-5 h-5 text-[#E60012]" />
+          </button>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+          {orderComplete && completedOrder ? (
+            /* ORDER SUCCESS SCREEN */
+            <div className="py-6 text-center space-y-5 animate-in fade-in duration-300">
+              <div className="w-20 h-20 rounded-full bg-[#E60012]/15 border-2 border-[#E60012] text-[#E60012] mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(230,0,18,0.4)]">
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
+
+              <div className="space-y-1">
+                <span className="badge-united text-xs font-display font-bold px-3 py-1 rounded-full uppercase">
+                  ORDER VERIFIED & CONFIRMED
+                </span>
+                <h2 className="font-display text-3xl font-bold uppercase text-white mt-2">
+                  THANK YOU, {completedOrder.customerName}!
+                </h2>
+                <p className="text-sm font-sans text-white/70 max-w-md mx-auto leading-relaxed">
+                  Your order has been authorized through the payment gateway and officially registered in our dispatch ledger.
+                </p>
+              </div>
+
+              {/* Order Reference Box */}
+              <div className="bg-[#050505] border border-white/10 rounded-2xl p-4 max-w-md mx-auto text-left space-y-3">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span className="text-xs font-sans text-white/60">Order Reference:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-white">{completedOrder.orderId}</span>
+                    <button
+                      onClick={copyOrderId}
+                      className="text-white/60 hover:text-white p-1 rounded"
+                      title="Copy Reference"
+                    >
+                      {copiedOrderId ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span className="text-xs font-sans text-white/60">Payment ID:</span>
+                  <span className="font-mono text-xs text-white/80">{completedOrder.paymentId}</span>
+                </div>
+
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span className="text-xs font-sans text-white/60">Total Amount Paid:</span>
+                  <span className="font-display text-base font-bold text-[#E60012]">
+                    ₹{completedOrder.totalAmount.toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                {completedOrder.shippingAddress && (
+                  <div className="pt-1">
+                    <span className="text-xs font-sans text-white/60 block mb-1">Delivery Address:</span>
+                    <p className="font-sans text-xs text-white/90 leading-relaxed bg-[#121212] p-2.5 rounded-lg border border-white/5">
+                      {completedOrder.shippingAddress.address}, {completedOrder.shippingAddress.city},{' '}
+                      {completedOrder.shippingAddress.state} - {completedOrder.shippingAddress.pincode}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-3">
+                <button
+                  onClick={onClose}
+                  className="bg-[#E60012] hover:bg-[#B3000C] text-white font-display text-sm font-bold py-3.5 px-8 rounded-xl uppercase tracking-wider transition-all"
+                >
+                  CLOSE & RETURN TO STORE
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* CHECKOUT FORM & PAYMENT SUMMARY */
+            <div className="space-y-6">
+              {errorMessage && (
+                <div className="p-4 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-[#E60012] shrink-0 mt-0.5" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {/* 1. ORDER SUMMARY CARD */}
+              <div className="bg-[#050505] border border-white/10 rounded-2xl p-4 sm:p-5 space-y-3">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                  <span className="text-xs font-display text-white/60 uppercase font-bold">ORDER ITEMS</span>
+                  <span className="text-xs font-display text-[#E60012] font-bold">PRICE</span>
+                </div>
+
+                {mode === 'MERCHANDISE' && (
+                  <div className="space-y-2.5">
+                    {cartItems.map((item) => (
+                      <div key={`${item.product.id}-${item.size}`} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10">
+                            <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                          </div>
+                          <div>
+                            <p className="font-display font-bold uppercase text-white truncate max-w-[200px] sm:max-w-xs">
+                              {item.product.name}
+                            </p>
+                            <p className="font-sans text-[11px] text-white/50">
+                              Size: <strong className="text-white">{item.size}</strong> × {item.quantity}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="font-display text-sm font-bold text-white">
+                          ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {mode === 'MEMBERSHIP' && (
+                  <div className="flex items-center justify-between text-xs py-1">
+                    <div>
+                      <p className="font-display font-bold uppercase text-white">
+                        {membershipDetails?.name || "Pune's Red Army Official Membership"}
+                      </p>
+                      <p className="font-sans text-[11px] text-white/50">
+                        Official Supporter T-Shirt Included (Size: <strong className="text-white">{membershipDetails?.size || 'M'}</strong>)
+                      </p>
+                    </div>
+                    <span className="font-display text-base font-bold text-white">
+                      ₹{baseAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                )}
+
+                {mode === 'TOUR' && (
+                  <div className="flex items-center justify-between text-xs py-1">
+                    <div>
+                      <p className="font-display font-bold uppercase text-white">
+                        {tourDetails?.title || 'Trip to Old Trafford'}
+                      </p>
+                      <p className="font-sans text-[11px] text-white/50">
+                        Batch: <strong className="text-white">{preferredBatch}</strong>
+                      </p>
+                    </div>
+                    <span className="font-display text-base font-bold text-white">
+                      ₹{baseAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                )}
+
+                {/* Tax Slab & Platform Fee Calculation Breakdown */}
+                <div className="border-t border-white/10 pt-3 space-y-1.5 text-xs font-sans">
+                  <div className="flex justify-between text-white/60">
+                    <span>Subtotal Base Amount:</span>
+                    <span className="font-mono text-white">₹{baseAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between text-white/60">
+                    <span>Applicable Tax ({Math.round(taxRate * 100)}% GST):</span>
+                    <span className="font-mono text-white">₹{taxAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between text-white/60">
+                    <span>Platform Convenience Fee ({Math.round(feeRate * 100)}%):</span>
+                    <span className="font-mono text-white">₹{platformFee.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-white/10 text-sm">
+                    <span className="font-display font-bold uppercase text-white">Total Amount Payable:</span>
+                    <span className="font-display text-xl font-black text-[#E60012]">
+                      ₹{totalAmount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. CUSTOMER CONTACT DETAILS FORM */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+                  <User className="w-4 h-4 text-[#E60012]" />
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+                    CUSTOMER CONTACT DETAILS
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Rahul Sharma"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. rahul@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                      WhatsApp / Mobile Number (10 digits) *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      maxLength={10}
+                      placeholder="e.g. 9876543210"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. SHIPPING ADDRESS (FOR MERCHANDISE) */}
+              {mode === 'MERCHANDISE' && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+                    <Truck className="w-4 h-4 text-[#E60012]" />
+                    <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+                      SHIPPING & DELIVERY ADDRESS
+                    </h4>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                        Flat / Building / Street Address *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Flat 402, Royal Palms, FC Road"
+                        value={streetAddress}
+                        onChange={(e) => setStreetAddress(e.target.value)}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          State *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={stateName}
+                          onChange={(e) => setStateName(e.target.value)}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          Pincode *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          placeholder="e.g. 411001"
+                          value={pincode}
+                          onChange={(e) => setPincode(e.target.value)}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. TOUR SPECIFIC PASSPORT DETAILS */}
+              {mode === 'TOUR' && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+                    <Plane className="w-4 h-4 text-[#E60012]" />
+                    <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+                      PASSPORT & TRAVEL PREFERENCES
+                    </h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                        Full Name as per Passport *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="As shown in passport"
+                        value={passportName}
+                        onChange={(e) => setPassportName(e.target.value)}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                        Preferred Batch
+                      </label>
+                      <input
+                        type="text"
+                        value={preferredBatch}
+                        onChange={(e) => setPreferredBatch(e.target.value)}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Security & Payment Notice */}
+              <div className="bg-[#171717] p-3.5 rounded-xl border border-white/10 flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" />
+                <p className="text-[11px] font-sans text-white/70 leading-relaxed">
+                  256-bit Encrypted checkout via Razorpay (UPI, GPay, PhonePe, Cards, NetBanking). Form confirmation sent automatically upon payment verification.
+                </p>
+              </div>
+
+              {/* CTA Action Button */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={handleProceedToPayment}
+                  className="w-full bg-[#E60012] hover:bg-[#B3000C] text-white font-display text-base font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.5)] flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50 uppercase cursor-pointer"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>INITIALIZING PAYMENT GATEWAY...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      <span>PAY ₹{totalAmount.toLocaleString('en-IN')} & CONFIRM ORDER</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

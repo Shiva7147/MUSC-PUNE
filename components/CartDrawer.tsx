@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { X, Trash2, ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react';
 import { CartItem } from '@/lib/types';
-import { getMembershipConfigStore } from '@/lib/ticketStore';
+import { getSiteTaxConfigStore } from '@/lib/ticketStore';
+import { UniversalCheckoutModal } from './UniversalCheckoutModal';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface CartDrawerProps {
   cartItems: CartItem[];
   onUpdateQuantity: (productId: string, size: string, delta: number) => void;
   onRemoveItem: (productId: string, size: string) => void;
+  onClearCart?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -20,134 +22,149 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   cartItems,
   onUpdateQuantity,
   onRemoveItem,
+  onClearCart,
 }) => {
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+
   if (!isOpen) return null;
 
-  const membershipConfig = getMembershipConfigStore();
+  const siteTaxConfig = getSiteTaxConfigStore();
   const baseTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const taxRate = membershipConfig.taxRate ?? 0.18; // Applicable tax rate (e.g. 18%)
+  const taxRate = siteTaxConfig.productsTaxRate ?? 0.18; // Applicable tax rate (e.g. 18%)
   const taxAmount = Math.round(baseTotal * taxRate);
-  const platformFeeRate = membershipConfig.platformFeeRate ?? 0.03; // Platform Fee rate (e.g. 3%)
+  const platformFeeRate = siteTaxConfig.productsPlatformFeeRate ?? 0.03; // Platform Fee rate (e.g. 3%)
   const platformFeeAmount = Math.round(baseTotal * platformFeeRate);
   const finalTotal = baseTotal + taxAmount + platformFeeAmount;
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
-    const itemsSummary = cartItems
-      .map((item) => `${item.product.name} (Size: ${item.size}, Qty: ${item.quantity}) - ₹${item.product.price * item.quantity}`)
-      .join('%0A');
+    setIsCheckoutModalOpen(true);
+  };
 
-    const whatsappMessage = `Hi MUSC Pune, I want to order the following official merchandise:%0A%0A${itemsSummary}%0A%0ASubtotal: ₹${baseTotal}%0ATaxes (${Math.round(taxRate * 100)}%): ₹${taxAmount}%0APlatform Fee (${Math.round(platformFeeRate * 100)}%): ₹${platformFeeAmount}%0A%0ATotal Payable: ₹${finalTotal}%0A%0APlease assist with payment & shipping!`;
-    window.open(`https://wa.me/917276735140?text=${whatsappMessage}`, '_blank');
+  const handleCheckoutSuccess = () => {
+    if (onClearCart) onClearCart();
   };
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#171717] border-l border-white/10 text-white shadow-2xl flex flex-col justify-between">
-          {/* Header */}
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <ShoppingBag className="w-5 h-5 text-[#E60012]" />
-              <h3 className="font-display text-2xl font-bold tracking-tight uppercase">YOUR MERCH CART</h3>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2.5 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label="Close Cart"
-            >
-              <X className="w-5 h-5 text-[#E60012]" />
-            </button>
-          </div>
-
-          {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {cartItems.length === 0 ? (
-              <div className="py-20 text-center space-y-3">
-                <ShoppingBag className="w-16 h-16 text-white/20 mx-auto" />
-                <p className="font-display text-xl font-bold uppercase text-white/60">YOUR CART IS EMPTY</p>
-                <p className="text-xs font-sans text-white/50">Explore official scarves, mugs, and kit releases!</p>
+    <>
+      <div className="fixed inset-0 z-[60] overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+          <div className="w-screen max-w-md bg-[#171717] border-l border-white/10 text-white shadow-2xl flex flex-col justify-between">
+            {/* Header */}
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <ShoppingBag className="w-5 h-5 text-[#E60012]" />
+                <h3 className="font-display text-2xl font-bold tracking-tight uppercase">YOUR MERCH CART</h3>
               </div>
-            ) : (
-              cartItems.map((item) => (
-                <div
-                  key={`${item.product.id}-${item.size}`}
-                  className="bg-[#050505] border border-white/10 rounded-2xl p-4 flex gap-4 items-center relative group"
-                >
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
-                    <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
-                  </div>
-
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <h4 className="font-display text-lg font-bold truncate text-white uppercase">{item.product.name}</h4>
-                    <div className="text-xs font-sans text-white/60">Size: <strong className="text-white">{item.size}</strong></div>
-                    <div className="font-display text-lg font-bold text-[#E60012]">₹{item.product.price}</div>
-
-                    {/* Quantity Stepper */}
-                    <div className="flex items-center gap-3 pt-1">
-                      <div className="flex items-center bg-[#171717] rounded-lg border border-white/15">
-                        <button
-                          onClick={() => onUpdateQuantity(item.product.id, item.size, -1)}
-                          className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white cursor-pointer min-w-[32px] min-h-[32px]"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="font-display text-sm font-bold px-2">{item.quantity}</span>
-                        <button
-                          onClick={() => onUpdateQuantity(item.product.id, item.size, 1)}
-                          className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white cursor-pointer min-w-[32px] min-h-[32px]"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      <button
-                        onClick={() => onRemoveItem(item.product.id, item.size)}
-                        className="text-white/40 hover:text-[#E60012] transition-colors p-1.5 cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Footer Checkout */}
-          {cartItems.length > 0 && (
-            <div className="p-6 border-t border-white/10 bg-[#050505] space-y-4">
-              <div className="space-y-1.5 text-xs font-sans">
-                <div className="flex justify-between text-white/70">
-                  <span>Subtotal</span>
-                  <span className="font-mono">₹{baseTotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-white/70">
-                  <span>Applicable Taxes ({Math.round(taxRate * 100)}%)</span>
-                  <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-white/70">
-                  <span>Applicable Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
-                  <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between font-display text-xl font-bold text-white pt-2 border-t border-white/10">
-                  <span>TOTAL PAYABLE</span>
-                  <span className="text-[#E60012]">₹{finalTotal.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-
               <button
-                onClick={handleCheckout}
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold tracking-tight py-4 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase border border-white/20 cursor-pointer min-h-[44px]"
+                onClick={onClose}
+                className="p-2.5 rounded-xl bg-[#050505] border border-white/10 text-white/70 hover:text-white cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Close Cart"
               >
-                <span>PROCEED TO CHECKOUT</span>
-                <ArrowRight className="w-4 h-4" />
+                <X className="w-5 h-5 text-[#E60012]" />
               </button>
             </div>
-          )}
+
+            {/* Cart Items List */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {cartItems.length === 0 ? (
+                <div className="py-20 text-center space-y-3">
+                  <ShoppingBag className="w-16 h-16 text-white/20 mx-auto" />
+                  <p className="font-display text-xl font-bold uppercase text-white/60">YOUR CART IS EMPTY</p>
+                  <p className="text-xs font-sans text-white/50">Explore official scarves, mugs, and kit releases!</p>
+                </div>
+              ) : (
+                cartItems.map((item) => (
+                  <div
+                    key={`${item.product.id}-${item.size}`}
+                    className="bg-[#050505] border border-white/10 rounded-2xl p-4 flex gap-4 items-center relative group"
+                  >
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
+                      <Image src={item.product.image} alt={item.product.name} fill className="object-cover" />
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <h4 className="font-display text-lg font-bold truncate text-white uppercase">{item.product.name}</h4>
+                      <div className="text-xs font-sans text-white/60">Size: <strong className="text-white">{item.size}</strong></div>
+                      <div className="font-display text-lg font-bold text-[#E60012]">₹{item.product.price}</div>
+
+                      {/* Quantity Stepper */}
+                      <div className="flex items-center gap-3 pt-1">
+                        <div className="flex items-center bg-[#171717] rounded-lg border border-white/15">
+                          <button
+                            onClick={() => onUpdateQuantity(item.product.id, item.size, -1)}
+                            className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white cursor-pointer min-w-[32px] min-h-[32px]"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="font-display text-sm font-bold px-2">{item.quantity}</span>
+                          <button
+                            onClick={() => onUpdateQuantity(item.product.id, item.size, 1)}
+                            className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white cursor-pointer min-w-[32px] min-h-[32px]"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => onRemoveItem(item.product.id, item.size)}
+                          className="text-white/40 hover:text-[#E60012] p-1.5 transition-colors cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
+                          aria-label="Remove Item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer / Summary */}
+            {cartItems.length > 0 && (
+              <div className="p-6 border-t border-white/10 bg-[#050505] space-y-4">
+                <div className="space-y-1.5 text-xs font-sans">
+                  <div className="flex justify-between text-white/70">
+                    <span>Subtotal</span>
+                    <span className="font-mono">₹{baseTotal.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between text-white/70">
+                    <span>Applicable Taxes ({Math.round(taxRate * 100)}% GST)</span>
+                    <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between text-white/70">
+                    <span>Applicable Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
+                    <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between font-display text-xl font-bold text-white pt-2 border-t border-white/10">
+                    <span>TOTAL PAYABLE</span>
+                    <span className="text-[#E60012]">₹{finalTotal.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold tracking-tight py-4 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase border border-white/20 cursor-pointer min-h-[44px]"
+                >
+                  <span>PROCEED TO ORDER & PAY</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Universal Checkout Modal with Razorpay & Formspree */}
+      {isCheckoutModalOpen && (
+        <UniversalCheckoutModal
+          isOpen={isCheckoutModalOpen}
+          onClose={() => setIsCheckoutModalOpen(false)}
+          mode="MERCHANDISE"
+          cartItems={cartItems}
+          onSuccess={handleCheckoutSuccess}
+        />
+      )}
+    </>
   );
 };

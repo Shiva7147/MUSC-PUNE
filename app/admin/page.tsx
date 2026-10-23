@@ -52,12 +52,15 @@ import {
   updateMembershipConfigStore,
   getTourConfigStore,
   updateTourConfigStore,
+  getSiteTaxConfigStore,
+  updateSiteTaxConfigStore,
+  getProductOrdersStore,
   approveDebitedPayment,
   toggleCheckInTicket,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
-import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from '@/lib/types';
+import { Screening, GalleryItem, Product, MembershipConfig, TourConfig, SiteTaxConfig, ProductOrderRecord } from '@/lib/types';
 
 interface ImageUploadOrUrlFieldProps {
   label: string;
@@ -187,11 +190,68 @@ function ImageUploadOrUrlField({
   );
 }
 
+interface AdminAccount {
+  email: string;
+  pin: string;
+  role: 'SUPER_ADMIN' | 'GATE_MARSHAL';
+  displayName: string;
+}
+
+const AUTHORIZED_ACCOUNTS: AdminAccount[] = [
+  {
+    email: 'ibrahimred@gmail.com',
+    pin: '1999',
+    role: 'SUPER_ADMIN',
+    displayName: 'Ibrahim (Super Admin)',
+  },
+  {
+    email: 'ebrahimmred@gmail.com',
+    pin: '1999',
+    role: 'SUPER_ADMIN',
+    displayName: 'Ebrahim Kondkar (Super Admin)',
+  },
+  {
+    email: 'manunitedpune@gmail.com',
+    pin: '1999',
+    role: 'SUPER_ADMIN',
+    displayName: 'Committee HQ (Super Admin)',
+  },
+  {
+    email: 'admin',
+    pin: '1999',
+    role: 'SUPER_ADMIN',
+    displayName: 'Super Admin',
+  },
+  {
+    email: 'gate1@manutdpune.com',
+    pin: '1101',
+    role: 'GATE_MARSHAL',
+    displayName: 'Gate 1 Marshal (North Turnstile)',
+  },
+  {
+    email: 'gate2@manutdpune.com',
+    pin: '1102',
+    role: 'GATE_MARSHAL',
+    displayName: 'Gate 2 Marshal (South Turnstile)',
+  },
+  {
+    email: 'gate3@manutdpune.com',
+    pin: '1103',
+    role: 'GATE_MARSHAL',
+    displayName: 'Gate 3 Marshal (Taproom Entry)',
+  },
+];
+
 export default function AdminDashboardPage() {
   const [adminEmailInput, setAdminEmailInput] = useState('');
   const [pinInput, setPinInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<'SUPER_ADMIN' | 'GATE_MARSHAL'>('SUPER_ADMIN');
+  const [userDisplayName, setUserDisplayName] = useState<string>('Super Admin');
   const [activeTab, setActiveTab] = useState<'SCANNER' | 'PRICING' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER' | 'TOURS'>('SCANNER');
+  const [siteTaxConfig, setSiteTaxConfig] = useState<SiteTaxConfig>(getSiteTaxConfigStore());
+  const [productOrders, setProductOrders] = useState<ProductOrderRecord[]>([]);
+  const [ledgerSubTab, setLedgerSubTab] = useState<'TICKETS' | 'MERCH_ORDERS'>('TICKETS');
 
   // Scanner states
   const [manualCode, setManualCode] = useState('');
@@ -238,6 +298,9 @@ export default function AdminDashboardPage() {
     category: 'Apparel',
     price: 799,
     originalPrice: 999,
+    stockCount: 50,
+    taxRate: 0.18,
+    platformFeeRate: 0.03,
     image: '',
     description: '',
     availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
@@ -263,6 +326,7 @@ export default function AdminDashboardPage() {
   // Sync state on load and on store changes
   const refreshStoreData = () => {
     setTickets(getTicketStore());
+    setProductOrders(getProductOrdersStore());
     if (!editingScreeningRef.current) {
       setScreenings(getScreeningsStore());
     }
@@ -271,6 +335,7 @@ export default function AdminDashboardPage() {
     }
     if (activeTabRef.current !== 'PRICING') {
       setMembershipConfig(getMembershipConfigStore());
+      setSiteTaxConfig(getSiteTaxConfigStore());
     }
     if (activeTabRef.current !== 'TOURS') {
       setTourConfig(getTourConfigStore());
@@ -284,6 +349,7 @@ export default function AdminDashboardPage() {
     fetchConfigRemoteAsync().then((res) => {
       if (activeTabRef.current !== 'PRICING' && res.membership) setMembershipConfig(res.membership);
       if (activeTabRef.current !== 'TOURS' && res.tour) setTourConfig(res.tour);
+      if (activeTabRef.current !== 'PRICING' && res.taxConfig) setSiteTaxConfig(res.taxConfig);
     });
     fetchScreeningsRemoteAsync().then((sc) => {
       if (sc && sc.length > 0 && !editingScreeningRef.current) setScreenings(sc);
@@ -300,9 +366,13 @@ export default function AdminDashboardPage() {
 
     // Check session auth on load
     if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('musc_admin_auth');
-      if (saved === 'true') {
+      const savedAuth = sessionStorage.getItem('musc_admin_auth');
+      const savedRole = sessionStorage.getItem('musc_admin_role') as 'SUPER_ADMIN' | 'GATE_MARSHAL';
+      const savedName = sessionStorage.getItem('musc_admin_name');
+      if (savedAuth === 'true') {
         setIsAuthenticated(true);
+        if (savedRole) setUserRole(savedRole);
+        if (savedName) setUserDisplayName(savedName);
       }
     }
 
@@ -318,27 +388,31 @@ export default function AdminDashboardPage() {
     const cleanEmail = adminEmailInput.trim().toLowerCase();
     const cleanPin = pinInput.trim();
 
-    const authorizedEmails = [
-      'ebrahimmred@gmail.com',
-      'ebrahimred@gmail.com',
-      'manunitedpune@gmail.com',
-      'admin@muscpune.in',
-      'admin',
-    ];
-    const validPins = ['1999', '2011', 'admin'];
+    // Find account by exact email or prefix match
+    const account = AUTHORIZED_ACCOUNTS.find((acc) => {
+      const emailMatches =
+        acc.email.toLowerCase() === cleanEmail ||
+        (cleanEmail === 'admin' && acc.email === 'admin') ||
+        (cleanEmail === 'ebrahim' && acc.email.includes('ebrahim'));
+      return emailMatches && acc.pin === cleanPin;
+    });
 
-    const emailMatches = authorizedEmails.includes(cleanEmail) || cleanEmail === 'ebrahim';
-    const pinMatches = validPins.includes(cleanPin);
-
-    if (emailMatches && pinMatches) {
+    if (account) {
       setIsAuthenticated(true);
+      setUserRole(account.role);
+      setUserDisplayName(account.displayName);
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('musc_admin_auth', 'true');
+        sessionStorage.setItem('musc_admin_role', account.role);
+        sessionStorage.setItem('musc_admin_name', account.displayName);
       }
-    } else if (!emailMatches) {
-      alert('Unrecognized Admin Email. Please use your authorized email (e.g. ebrahimmred@gmail.com).');
+      if (account.role === 'GATE_MARSHAL') {
+        setActiveTab('SCANNER');
+      }
     } else {
-      alert('Incorrect 4-digit Passcode. Please enter your committee PIN (1999).');
+      alert(
+        'Invalid login credentials.\n\nFor Super Admin: use ibrahimred@gmail.com with PIN 1999.\nFor Gate Marshals:\n- Gate 1: gate1@manutdpune.com (PIN: 1101)\n- Gate 2: gate2@manutdpune.com (PIN: 1102)\n- Gate 3: gate3@manutdpune.com (PIN: 1103)'
+      );
     }
   };
 
@@ -578,6 +652,97 @@ export default function AdminDashboardPage() {
     document.body.removeChild(link);
   };
 
+  // Export Merchandise & Member Orders to CSV
+  const exportProductOrdersToCSV = () => {
+    if (productOrders.length === 0) {
+      alert('No merchandise or member orders placed yet!');
+      return;
+    }
+
+    const headers = [
+      'Order ID',
+      'Type',
+      'Order Date',
+      'Customer Name',
+      'Email',
+      'Phone',
+      'Shipping Address',
+      'City',
+      'Pincode',
+      'Passport Name',
+      'Items Summary',
+      'Subtotal (INR)',
+      'Tax Amount (INR)',
+      'Platform Fee (INR)',
+      'Total Amount (INR)',
+      'Payment ID',
+      'Payment Status',
+      'Formspree Dispatched',
+    ];
+
+    const rows = productOrders.map((o) => {
+      const addrStr = o.shippingAddress
+        ? `${o.shippingAddress.address}, ${o.shippingAddress.city}, ${o.shippingAddress.state} - ${o.shippingAddress.pincode}`
+        : '';
+      const itemsStr = (o.items || []).map((i) => `${i.name} (${i.size}) x${i.quantity}`).join('; ');
+
+      return [
+        o.orderId,
+        o.orderType,
+        `"${o.createdAt}"`,
+        `"${(o.customerName || '').replace(/"/g, '""')}"`,
+        o.customerEmail,
+        o.customerPhone,
+        `"${addrStr.replace(/"/g, '""')}"`,
+        `"${(o.shippingAddress?.city || '').replace(/"/g, '""')}"`,
+        o.shippingAddress?.pincode || '',
+        `"${(o.notes || '').replace(/"/g, '""')}"`,
+        `"${itemsStr.replace(/"/g, '""')}"`,
+        o.baseAmount,
+        o.taxAmount,
+        o.platformFee,
+        o.totalAmount,
+        o.paymentId || 'N/A',
+        o.status,
+        'YES',
+      ];
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `MUSC-Pune-Orders-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Quick adjust stock count for products
+  const handleAdjustStock = async (product: Product, delta: number) => {
+    const currentCount = product.stockCount !== undefined ? product.stockCount : 50;
+    const newCount = Math.max(0, currentCount + delta);
+    const updated = {
+      ...product,
+      stockCount: newCount,
+      inStock: newCount > 0,
+    };
+    await updateProductInStore(updated);
+    await fetchProductsRemoteAsync();
+  };
+
+  // Toggle in-stock status for products
+  const handleToggleInStock = async (product: Product) => {
+    const willBeInStock = !product.inStock;
+    const updated = {
+      ...product,
+      inStock: willBeInStock,
+      stockCount: willBeInStock ? (product.stockCount && product.stockCount > 0 ? product.stockCount : 25) : 0,
+    };
+    await updateProductInStore(updated);
+    await fetchProductsRemoteAsync();
+  };
+
   // Handlers for dynamic admin additions
   const handleCreateScreening = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -657,17 +822,20 @@ export default function AdminDashboardPage() {
       category: (newProduct.category as any) || 'Apparel',
       price: Number(newProduct.price) || 799,
       originalPrice: Number(newProduct.originalPrice) || 999,
+      stockCount: Number(newProduct.stockCount) !== undefined ? Number(newProduct.stockCount) : 50,
+      taxRate: Number(newProduct.taxRate) || 0.18,
+      platformFeeRate: Number(newProduct.platformFeeRate) || 0.03,
       image: newProduct.image,
       description: newProduct.description || newProduct.name,
       availableSizes: newProduct.availableSizes || ['S', 'M', 'L', 'XL', 'XXL'],
-      inStock: true,
+      inStock: newProduct.inStock !== false,
       badge: newProduct.badge || 'NEW ARRIVAL',
       details: ['Official Supporter Merchandise', 'High-quality print & fabric'],
     };
     await addProductToStore(item);
     await fetchProductsRemoteAsync();
-    setNewProduct({ name: '', image: '', price: 799, description: '' });
-    alert('New product added and saved to shop database!');
+    setNewProduct({ name: '', image: '', price: 799, stockCount: 50, description: '' });
+    alert('New product added and saved to shop database with inventory stock tracking!');
   };
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
@@ -679,12 +847,16 @@ export default function AdminDashboardPage() {
     alert(`Product "${editingProduct.name}" updated successfully across the website!`);
   };
 
-  const handleSaveMembershipConfig = async (e: React.FormEvent) => {
+  const handleSaveUniversalTaxAndPricing = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateMembershipConfigStore(membershipConfig);
+    await updateSiteTaxConfigStore(siteTaxConfig);
+    await updateTourConfigStore(tourConfig);
     await fetchConfigRemoteAsync();
-    alert('Membership pricing & fee configuration saved to database and live across the site!');
+    alert('Universal Tax Slabs, Platform Fees, and Membership Pricing saved to database and live across the entire website!');
   };
+
+  const handleSaveMembershipConfig = handleSaveUniversalTaxAndPricing;
 
   const handleSaveTourConfig = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -777,20 +949,24 @@ export default function AdminDashboardPage() {
           </div>
 
           {isAuthenticated && (
-            <div className="flex items-center gap-3">
-              <span className="badge-united text-xs font-display px-3 py-1.5 rounded-lg font-bold">
-                🟢 GATE ADMIN ACTIVE
+            <div className="flex flex-wrap items-center gap-3">
+              <span className={`text-xs font-display px-3 py-1.5 rounded-lg font-bold shadow ${
+                userRole === 'SUPER_ADMIN' ? 'bg-[#E60012] text-white' : 'bg-emerald-600 text-white'
+              }`}>
+                {userRole === 'SUPER_ADMIN' ? '👑 SUPER ADMIN' : '🛡️ GATE MARSHAL'}: {userDisplayName}
               </span>
               <button
                 onClick={() => {
                   setIsAuthenticated(false);
                   if (typeof window !== 'undefined') {
                     sessionStorage.removeItem('musc_admin_auth');
+                    sessionStorage.removeItem('musc_admin_role');
+                    sessionStorage.removeItem('musc_admin_name');
                   }
                 }}
                 className="text-xs font-display text-white/60 hover:text-[#E60012] underline uppercase cursor-pointer"
               >
-                LOCK ADMIN
+                SWITCH / LOCK
               </button>
             </div>
           )}
@@ -809,19 +985,19 @@ export default function AdminDashboardPage() {
               </span>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase mt-1">OFFICIAL ADMIN LOGIN</h2>
               <p className="text-xs font-sans text-white/70">
-                Authorized for matchday gate marshals & club administrators.
+                Authorized credentials for Super Admin & Matchday Gate Marshals.
               </p>
             </div>
 
             <form onSubmit={handlePinSubmit} className="space-y-4 text-left">
               <div>
                 <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
-                  ADMIN EMAIL ADDRESS
+                  ADMIN / MARSHAL EMAIL ADDRESS
                 </label>
                 <input
                   type="email"
                   required
-                  placeholder="ebrahimmred@gmail.com"
+                  placeholder="ibrahimred@gmail.com or gate1@manutdpune.com"
                   value={adminEmailInput}
                   onChange={(e) => setAdminEmailInput(e.target.value)}
                   className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3.5 text-sm font-sans text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#E60012]"
@@ -832,9 +1008,9 @@ export default function AdminDashboardPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-display text-white/90 font-bold uppercase">
-                    4-DIGIT ADMIN PASSCODE
+                    4-DIGIT PASSCODE PIN
                   </label>
-                  <span className="text-[10px] font-mono text-white/40">PIN (1999)</span>
+                  <span className="text-[10px] font-mono text-white/40">PIN REQUIRED</span>
                 </div>
                 <input
                   type="password"
@@ -845,6 +1021,15 @@ export default function AdminDashboardPage() {
                   onChange={(e) => setPinInput(e.target.value)}
                   className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3.5 text-center text-2xl font-mono tracking-[0.5em] text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#E60012]"
                 />
+              </div>
+
+              {/* Authorized Accounts Legend Box */}
+              <div className="bg-[#050505] p-3 rounded-xl border border-white/10 text-[11px] font-sans text-white/60 space-y-1">
+                <p className="font-bold text-white/80">AUTHORIZED LOGIN ROLES:</p>
+                <p>• <strong>Super Admin</strong>: ibrahimred@gmail.com (PIN: 1999)</p>
+                <p>• <strong>Gate 1</strong>: gate1@manutdpune.com (PIN: 1101)</p>
+                <p>• <strong>Gate 2</strong>: gate2@manutdpune.com (PIN: 1102)</p>
+                <p>• <strong>Gate 3</strong>: gate3@manutdpune.com (PIN: 1103)</p>
               </div>
 
               <button
@@ -872,53 +1057,57 @@ export default function AdminDashboardPage() {
                 <span>📷 GATE SCANNER</span>
               </button>
 
-              <button
-                onClick={() => setActiveTab('PRICING')}
-                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
-                  activeTab === 'PRICING'
-                    ? 'bg-[#E60012] text-white shadow-lg'
-                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                }`}
-              >
-                <PriceIcon className="w-4 h-4" />
-                <span>⚙️ MEMBERSHIP & TAX PRICING</span>
-              </button>
+              {userRole === 'SUPER_ADMIN' && (
+                <>
+                  <button
+                    onClick={() => setActiveTab('PRICING')}
+                    className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                      activeTab === 'PRICING'
+                        ? 'bg-[#E60012] text-white shadow-lg'
+                        : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    <PriceIcon className="w-4 h-4" />
+                    <span>⚙️ TAX SLABS & PRICING</span>
+                  </button>
 
-              <button
-                onClick={() => setActiveTab('SCREENINGS')}
-                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
-                  activeTab === 'SCREENINGS'
-                    ? 'bg-[#E60012] text-white shadow-lg'
-                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                }`}
-              >
-                <CalIcon className="w-4 h-4" />
-                <span>🎟️ ADD/MANAGE EVENTS ({screenings.length})</span>
-              </button>
+                  <button
+                    onClick={() => setActiveTab('SCREENINGS')}
+                    className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                      activeTab === 'SCREENINGS'
+                        ? 'bg-[#E60012] text-white shadow-lg'
+                        : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    <CalIcon className="w-4 h-4" />
+                    <span>🎟️ ADD/MANAGE EVENTS ({screenings.length})</span>
+                  </button>
 
-              <button
-                onClick={() => setActiveTab('PRODUCTS')}
-                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
-                  activeTab === 'PRODUCTS'
-                    ? 'bg-[#E60012] text-white shadow-lg'
-                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                }`}
-              >
-                <ShoppingIcon className="w-4 h-4" />
-                <span>🛍️ ADD/MANAGE PRODUCTS ({products.length})</span>
-              </button>
+                  <button
+                    onClick={() => setActiveTab('PRODUCTS')}
+                    className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                      activeTab === 'PRODUCTS'
+                        ? 'bg-[#E60012] text-white shadow-lg'
+                        : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    <ShoppingIcon className="w-4 h-4" />
+                    <span>🛍️ ADD/MANAGE PRODUCTS ({products.length})</span>
+                  </button>
 
-              <button
-                onClick={() => setActiveTab('GALLERY')}
-                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
-                  activeTab === 'GALLERY'
-                    ? 'bg-[#E60012] text-white shadow-lg'
-                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                }`}
-              >
-                <CamIcon className="w-4 h-4" />
-                <span>🖼️ GALLERY ({galleryList.length})</span>
-              </button>
+                  <button
+                    onClick={() => setActiveTab('GALLERY')}
+                    className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                      activeTab === 'GALLERY'
+                        ? 'bg-[#E60012] text-white shadow-lg'
+                        : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                    }`}
+                  >
+                    <CamIcon className="w-4 h-4" />
+                    <span>🖼️ GALLERY ({galleryList.length})</span>
+                  </button>
+                </>
+              )}
 
               <button
                 onClick={() => setActiveTab('LEDGER')}
@@ -929,20 +1118,22 @@ export default function AdminDashboardPage() {
                 }`}
               >
                 <SparkIcon className="w-4 h-4" />
-                <span>📊 TICKET LEDGER ({tickets.length})</span>
+                <span>📊 {userRole === 'GATE_MARSHAL' ? 'ATTENDEE ENTRY LIST' : `TICKET LEDGER (${tickets.length})`}</span>
               </button>
 
-              <button
-                onClick={() => setActiveTab('TOURS')}
-                className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
-                  activeTab === 'TOURS'
-                    ? 'bg-[#E60012] text-white shadow-lg'
-                    : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
-                }`}
-              >
-                <ShieldIcon className="w-4 h-4" />
-                <span>✈️ OLD TRAFFORD TRIP MANAGER</span>
-              </button>
+              {userRole === 'SUPER_ADMIN' && (
+                <button
+                  onClick={() => setActiveTab('TOURS')}
+                  className={`font-display text-xs sm:text-sm font-bold px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl flex items-center gap-2 transition-all uppercase tracking-tight ${
+                    activeTab === 'TOURS'
+                      ? 'bg-[#E60012] text-white shadow-lg'
+                      : 'bg-[#171717] text-white/60 hover:text-white border border-white/10'
+                  }`}
+                >
+                  <ShieldIcon className="w-4 h-4" />
+                  <span>✈️ OLD TRAFFORD TRIP MANAGER</span>
+                </button>
+              )}
             </div>
 
             {/* TAB 1: LIVE QR SCANNER */}
@@ -1562,88 +1753,278 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 2: PRICING & TAX MANAGER */}
+            {/* TAB 2: PRICING & UNIVERSAL TAX MANAGER */}
             {activeTab === 'PRICING' && (
-              <div className="max-w-3xl mx-auto glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-6">
+              <div className="max-w-4xl mx-auto glass-card rounded-3xl p-6 sm:p-8 bg-[#171717] border border-white/10 space-y-8">
                 <div className="border-b border-white/10 pb-4">
-                  <h2 className="font-display text-2xl font-bold text-white uppercase">ADMIN PRICING & TAX MANAGER</h2>
-                  <p className="text-xs text-white/60 font-sans mt-1">Configure size-based membership prices, applicable tax rates, and platform fees.</p>
+                  <span className="text-[10px] font-display uppercase tracking-widest text-[#E60012] font-bold block">
+                    SUPER ADMIN FINANCIAL CONTROLS
+                  </span>
+                  <h2 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase mt-1">
+                    UNIVERSAL TAX SLABS & PRICING MANAGER
+                  </h2>
+                  <p className="text-xs text-white/60 font-sans mt-1">
+                    Manage real-time tax slabs (GST), platform convenience fees, membership sizing prices, and Formspree order notifications across all site checkout flows.
+                  </p>
                 </div>
 
-                <form onSubmit={handleSaveMembershipConfig} className="space-y-6">
-                  {/* Size-based pricing configuration */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-display text-[#E60012] font-bold uppercase block">
-                      MEMBERSHIP SIZE-BASED PRICING (S THROUGH 5XL)
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {(['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'] as const).map((size) => (
-                        <div key={size} className="bg-[#050505] p-3 rounded-xl border border-white/10 space-y-1">
-                          <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} PRICE (₹)</label>
-                          <input
-                            type="number"
-                            value={membershipConfig?.sizePrices?.[size] ?? 999}
-                            onChange={(e) => {
-                              const val = e.target.value === '' ? 0 : Number(e.target.value);
-                              const updatedPrices = { ...(membershipConfig?.sizePrices || {}), [size]: val };
-                              setMembershipConfig({ ...membershipConfig, sizePrices: updatedPrices });
-                            }}
-                            className="w-full bg-[#171717] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#E60012]"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Taxes & Fees Slabs */}
-                  <div className="space-y-3 pt-4 border-t border-white/10">
-                    <div className="bg-[#050505] p-4 rounded-2xl border border-white/10 space-y-2">
-                      <div className="text-xs font-display text-[#FFC400] font-bold uppercase flex items-center gap-1.5">
-                        <SparkIcon className="w-4 h-4 text-[#E60012]" />
-                        <span>FEE SLABS CONTROL NOTICE</span>
+                <form onSubmit={handleSaveUniversalTaxAndPricing} className="space-y-8">
+                  {/* SLAB 1: SCREENINGS / MATCH TICKETS */}
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <CalIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>MATCH SCREENINGS TAX & PLATFORM FEE SLAB</span>
                       </div>
-                      <p className="text-xs font-sans text-white/70 leading-relaxed">
-                        Note: <strong>Applicable Tax Rate</strong> and <strong>Applicable Platform Fees</strong> are the ONLY TWO fee slabs applied across match screenings, memberships, and shop checkouts. Admin can dynamically adjust both percentage slabs below.
-                      </p>
+                      <span className="text-[10px] font-mono text-[#E60012] bg-[#E60012]/15 px-2 py-0.5 rounded">
+                        APPLIES TO ALL EVENTS
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENINGS TAX RATE (%)</label>
                         <input
                           type="number"
                           step="1"
-                          value={Math.round(((membershipConfig?.taxRate ?? 0.18) * 100))}
+                          value={Math.round(((siteTaxConfig.screeningsTaxRate ?? 0.18) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setSiteTaxConfig({ ...siteTaxConfig, screeningsTaxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18% GST</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENINGS PLATFORM FEE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((siteTaxConfig.screeningsPlatformFeeRate ?? 0.03) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setSiteTaxConfig({ ...siteTaxConfig, screeningsPlatformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Convenience Fee</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SLAB 2: MERCHANDISE / PRODUCTS */}
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <ShoppingIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>MERCHANDISE & PRODUCTS TAX SLAB</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">
+                        APPLIES TO SHOPPING CART
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">PRODUCTS TAX RATE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((siteTaxConfig.productsTaxRate ?? 0.18) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setSiteTaxConfig({ ...siteTaxConfig, productsTaxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18% Merchandise GST</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">PRODUCTS PLATFORM FEE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((siteTaxConfig.productsPlatformFeeRate ?? 0.03) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setSiteTaxConfig({ ...siteTaxConfig, productsPlatformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Platform Fee</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SLAB 3: MEMBERSHIP & SIZES */}
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <PriceIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>PUNE&apos;S RED ARMY MEMBERSHIP PRICING & TAX</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded">
+                        APPLIES TO SUPPORTERS CLUB PASS
+                      </span>
+                    </div>
+
+                    {/* Sizing Price Grid */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-display text-white/80 font-bold uppercase block">
+                        SIZE-BASED T-SHIRT PRICING (S THROUGH 5XL)
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {(['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'] as const).map((size) => (
+                          <div key={size} className="bg-[#121212] p-3 rounded-xl border border-white/10 space-y-1">
+                            <label className="text-[10px] font-display text-white/70 font-bold uppercase">SIZE {size} (₹)</label>
+                            <input
+                              type="number"
+                              value={membershipConfig?.sizePrices?.[size] ?? 999}
+                              onChange={(e) => {
+                                const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                const updatedPrices = { ...(membershipConfig?.sizePrices || {}), [size]: val };
+                                setMembershipConfig({ ...membershipConfig, sizePrices: updatedPrices });
+                              }}
+                              className="w-full bg-[#050505] border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#E60012]"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP TAX RATE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((membershipConfig?.taxRate ?? siteTaxConfig.membershipTaxRate ?? 0.18) * 100))}
                           onChange={(e) => {
                             const val = e.target.value === '' ? 0 : Number(e.target.value);
                             setMembershipConfig({ ...membershipConfig, taxRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, membershipTaxRate: val / 100 });
                           }}
-                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
                         />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 18% Applicable Tax</span>
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 18% Tax</span>
                       </div>
+
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE PLATFORM FEES (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP PLATFORM FEE (%)</label>
                         <input
                           type="number"
                           step="1"
-                          value={Math.round(((membershipConfig?.platformFeeRate ?? 0.03) * 100))}
+                          value={Math.round(((membershipConfig?.platformFeeRate ?? siteTaxConfig.membershipPlatformFeeRate ?? 0.03) * 100))}
                           onChange={(e) => {
                             const val = e.target.value === '' ? 0 : Number(e.target.value);
                             setMembershipConfig({ ...membershipConfig, platformFeeRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, membershipPlatformFeeRate: val / 100 });
                           }}
-                          className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
                         />
-                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: 3% Platform Fee</span>
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 3% Platform Fee</span>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* SLAB 4: OLD TRAFFORD TRIP */}
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <ShieldIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>OLD TRAFFORD TRIP PRICE & TAX SLAB</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded">
+                        PILGRIMAGE BOOKING
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">PACKAGE PRICE (₹)</label>
+                        <input
+                          type="number"
+                          value={tourConfig.price ?? 125000}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setTourConfig({ ...tourConfig, price: val });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Default: ₹1,25,000 per person</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">TOUR TAX RATE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((tourConfig.taxRate ?? siteTaxConfig.toursTaxRate ?? 0.05) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setTourConfig({ ...tourConfig, taxRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, toursTaxRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 5% Tour GST</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">TOUR PLATFORM FEE (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={Math.round(((tourConfig.platformFeeRate ?? siteTaxConfig.toursPlatformFeeRate ?? 0.02) * 100))}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? 0 : Number(e.target.value);
+                            setTourConfig({ ...tourConfig, platformFeeRate: val / 100 });
+                            setSiteTaxConfig({ ...siteTaxConfig, toursPlatformFeeRate: val / 100 });
+                          }}
+                          className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                        />
+                        <span className="text-[10px] text-white/50 font-sans mt-0.5 block">Standard: 2% Booking Fee</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SLAB 5: FORMSPREE ORDER INTEGRATION */}
+                  <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2 text-xs font-display text-white font-bold uppercase">
+                        <SparkIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>FORMSPREE ORDER DISPATCH ENDPOINT</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded">
+                        CONNECTED
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase">FORMSPREE ENDPOINT URL</label>
+                      <input
+                        type="url"
+                        value={siteTaxConfig.formspreeEndpoint || 'https://formspree.io/f/manunitedpune'}
+                        onChange={(e) => {
+                          setSiteTaxConfig({ ...siteTaxConfig, formspreeEndpoint: e.target.value });
+                        }}
+                        placeholder="https://formspree.io/f/your_form_id"
+                        className="w-full bg-[#121212] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-mono mt-1 focus:outline-none focus:border-[#E60012]"
+                      />
+                      <span className="text-[10px] text-white/50 font-sans mt-1 block">
+                        Every time a supporter completes payment for merchandise or membership, full customer details & shipping addresses are dispatched instantly to this Formspree inbox.
+                      </span>
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 rounded-xl shadow-lg uppercase"
+                    className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.4)] uppercase cursor-pointer"
                   >
-                    SAVE & PUBLISH PRICING CONFIGURATION
+                    SAVE ALL TAX SLABS & PRICING CONFIGURATION
                   </button>
                 </form>
               </div>
@@ -2103,6 +2484,34 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">STOCK COUNT *</label>
+                        <input
+                          type="number"
+                          required
+                          min={0}
+                          value={newProduct.stockCount ?? 50}
+                          onChange={(e) => setNewProduct({ ...newProduct, stockCount: Math.max(0, Number(e.target.value)) })}
+                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">AVAILABILITY</label>
+                        <div className="flex items-center h-[46px]">
+                          <label className="flex items-center gap-2 cursor-pointer text-xs text-white/80">
+                            <input
+                              type="checkbox"
+                              checked={newProduct.inStock !== false}
+                              onChange={(e) => setNewProduct({ ...newProduct, inStock: e.target.checked })}
+                              className="w-4 h-4 accent-[#E60012] rounded cursor-pointer"
+                            />
+                            <span>Available in Store</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
                     <ImageUploadOrUrlField
                       label="PRODUCT IMAGE"
                       value={newProduct.image || ''}
@@ -2126,43 +2535,118 @@ export default function AdminDashboardPage() {
                     LIVE PRODUCTS ({products.length})
                   </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {products.map((p) => (
-                      <div key={p.id} className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex justify-between gap-4 items-center">
-                        <div className="flex items-center gap-4">
-                          <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
-                            <Image src={p.image} alt={p.name} fill className="object-cover" />
+                  <div className="grid grid-cols-1 gap-4">
+                    {products.map((p) => {
+                      const currentStock = p.stockCount !== undefined ? p.stockCount : 50;
+                      const isSoldOut = currentStock === 0 || p.inStock === false;
+                      const isLowStock = !isSoldOut && currentStock <= 5;
+
+                      return (
+                        <div key={p.id} className="bg-[#171717] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-white/10">
+                              <Image src={p.image} alt={p.name} fill className="object-cover" />
+                            </div>
+                            <div className="min-w-0 space-y-1">
+                              <h4 className="font-display text-lg font-bold text-white uppercase truncate">{p.name}</h4>
+                              <div className="flex items-center gap-2">
+                                <span className="font-display text-base font-bold text-[#E60012]">₹{p.price}</span>
+                                <span className="text-[10px] font-sans text-white/50">• {p.category}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {isSoldOut ? (
+                                  <span className="text-[10px] font-mono bg-red-950/80 text-red-400 border border-red-500/30 px-2 py-0.5 rounded font-bold uppercase">
+                                    SOLD OUT
+                                  </span>
+                                ) : isLowStock ? (
+                                  <span className="text-[10px] font-mono bg-amber-950/80 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold uppercase">
+                                    ONLY {currentStock} LEFT
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-mono bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold uppercase">
+                                    IN STOCK ({currentStock})
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-display text-xl font-bold text-white uppercase">{p.name}</h4>
-                            <div className="font-display text-lg font-bold text-[#E60012]">₹{p.price}</div>
-                            <span className="text-[10px] font-sans text-white/60">{p.category}</span>
+
+                          {/* Quick Inventory Controls */}
+                          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                            <div className="flex items-center bg-[#050505] border border-white/15 rounded-xl p-1 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleAdjustStock(p, -5)}
+                                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-[10px] font-mono text-white/70 rounded"
+                                title="Reduce stock by 5"
+                              >
+                                -5
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAdjustStock(p, -1)}
+                                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs font-mono font-bold text-white/90 rounded"
+                                title="Reduce stock by 1"
+                              >
+                                -1
+                              </button>
+                              <span className="px-2 text-xs font-mono font-bold text-white min-w-[32px] text-center">
+                                {currentStock}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleAdjustStock(p, 1)}
+                                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs font-mono font-bold text-white/90 rounded"
+                                title="Add 1 to stock"
+                              >
+                                +1
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAdjustStock(p, 5)}
+                                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-[10px] font-mono text-white/70 rounded"
+                                title="Add 5 to stock"
+                              >
+                                +5
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleInStock(p)}
+                              className={`text-[10px] font-display font-bold px-2.5 py-2 rounded-xl border transition-colors ${
+                                isSoldOut
+                                  ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900'
+                                  : 'bg-neutral-800 border-white/15 text-white/70 hover:bg-neutral-700'
+                              }`}
+                            >
+                              {isSoldOut ? 'RESTOCK' : 'MARK SOLD OUT'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setEditingProduct(p)}
+                              className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 font-display text-xs font-bold p-2.5 rounded-xl flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                              title="Edit Product"
+                            >
+                              <EditIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete product "${p.name}"?`)) {
+                                  deleteProductFromStore(p.id);
+                                }
+                              }}
+                              className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold p-2.5 rounded-xl flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                              title="Delete Product"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setEditingProduct(p)}
-                            className="bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 font-display text-xs font-bold p-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                            title="Edit Product"
-                          >
-                            <EditIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to delete product "${p.name}"?`)) {
-                                deleteProductFromStore(p.id);
-                              }
-                            }}
-                            className="bg-red-950/60 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-xs font-bold p-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                            title="Delete Product"
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -2220,6 +2704,35 @@ export default function AdminDashboardPage() {
                               <option value="Collectibles">Collectibles</option>
                               <option value="Membership">Membership</option>
                             </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">STOCK COUNT *</label>
+                            <input
+                              type="number"
+                              required
+                              min={0}
+                              value={editingProduct.stockCount !== undefined ? editingProduct.stockCount : 50}
+                              onChange={(e) => setEditingProduct({ ...editingProduct, stockCount: Math.max(0, Number(e.target.value)) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">STOCK STATUS</label>
+                            <div className="flex items-center h-[46px] mt-1">
+                              <label className="flex items-center gap-2 cursor-pointer text-xs text-white/80">
+                                <input
+                                  type="checkbox"
+                                  checked={editingProduct.inStock !== false}
+                                  onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.checked })}
+                                  className="w-4 h-4 accent-[#E60012] rounded cursor-pointer"
+                                />
+                                <span>Available in Store</span>
+                              </label>
+                            </div>
                           </div>
                         </div>
 
@@ -2323,124 +2836,331 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {/* TAB 6: TICKET LEDGER & CSV EXPORT */}
+            {/* TAB 6: TICKET & MERCHANDISE LEDGER */}
             {activeTab === 'LEDGER' && (
               <div className="space-y-6 glass-card rounded-3xl p-6 bg-[#171717] border border-white/10">
+                {/* Ledger Header & Sub-Navigation */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/10 pb-4 gap-4">
                   <div>
-                    <h2 className="font-display text-2xl font-bold text-white uppercase">MATCHDAY TICKET LEDGER</h2>
+                    <h2 className="font-display text-2xl font-bold text-white uppercase">
+                      {userRole === 'GATE_MARSHAL' ? 'GATE ATTENDEE ENTRY LIST' : 'ADMIN TRANSACTION & ORDER LEDGER'}
+                    </h2>
                     <p className="text-xs text-white/60 font-sans">
-                      Complete real-time log of generated digital QR ticket passes & entry statuses
+                      {userRole === 'GATE_MARSHAL'
+                        ? 'Gate Turnstile validation list — attendee verification & manual check-in'
+                        : 'Real-time log of matchday tickets, merchandise orders, memberships, and trip bookings'}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => exportTicketsToCSV('ALL')}
-                      className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer uppercase"
-                    >
-                      <DownIcon className="w-4 h-4" />
-                      <span>EXPORT ALL TICKETS (CSV)</span>
-                    </button>
+                  {/* Super Admin Sub-Tabs & Export Controls */}
+                  {userRole === 'SUPER_ADMIN' ? (
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex bg-[#050505] p-1 rounded-xl border border-white/15">
+                        <button
+                          type="button"
+                          onClick={() => setLedgerSubTab('TICKETS')}
+                          className={`px-3 py-1.5 text-xs font-display font-bold rounded-lg uppercase transition-all ${
+                            ledgerSubTab === 'TICKETS' ? 'bg-[#E60012] text-white' : 'text-white/60 hover:text-white'
+                          }`}
+                        >
+                          TICKETS ({tickets.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLedgerSubTab('MERCH_ORDERS')}
+                          className={`px-3 py-1.5 text-xs font-display font-bold rounded-lg uppercase transition-all ${
+                            ledgerSubTab === 'MERCH_ORDERS' ? 'bg-[#E60012] text-white' : 'text-white/60 hover:text-white'
+                          }`}
+                        >
+                          ORDERS & MEMBERS ({productOrders.length})
+                        </button>
+                      </div>
 
-                    {screenings.length > 0 && (
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) exportTicketsToCSV(e.target.value);
-                        }}
-                        defaultValue=""
-                        className="bg-[#050505] border border-white/20 text-white font-display text-xs font-bold px-3 py-2.5 rounded-xl cursor-pointer"
-                      >
-                        <option value="" disabled>EXPORT SCREENING SPECIFIC CSV ▾</option>
-                        {screenings.map((sc) => (
-                          <option key={sc.id} value={sc.matchTitle}>
-                            {sc.matchTitle}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
+                      {ledgerSubTab === 'TICKETS' ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => exportTicketsToCSV('ALL')}
+                            className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow cursor-pointer uppercase"
+                          >
+                            <DownIcon className="w-3.5 h-3.5" />
+                            <span>CSV EXPORT</span>
+                          </button>
+                          {screenings.length > 0 && (
+                            <select
+                              onChange={(e) => {
+                                if (e.target.value) exportTicketsToCSV(e.target.value);
+                              }}
+                              defaultValue=""
+                              className="bg-[#050505] border border-white/20 text-white font-display text-xs font-bold px-2.5 py-2 rounded-xl cursor-pointer"
+                            >
+                              <option value="" disabled>BY MATCH ▾</option>
+                              {screenings.map((sc) => (
+                                <option key={sc.id} value={sc.matchTitle}>
+                                  {sc.matchTitle}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={exportProductOrdersToCSV}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow cursor-pointer uppercase"
+                        >
+                          <DownIcon className="w-3.5 h-3.5" />
+                          <span>EXPORT ORDERS CSV</span>
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
                 </div>
 
-                {tickets.length === 0 ? (
-                  <div className="py-12 text-center text-xs text-white/50 font-sans">
-                    No tickets booked yet. Generate a test booking on the website to view ledger records!
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs font-sans border-collapse">
-                      <thead>
-                        <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
-                          <th className="py-3 px-3">TICKET ID</th>
-                          <th className="py-3 px-3">HOLDER NAME</th>
-                          <th className="py-3 px-3">PHONE</th>
-                          <th className="py-3 px-3">MATCH</th>
-                          <th className="py-3 px-3">QTY</th>
-                          <th className="py-3 px-3">TOTAL</th>
-                          <th className="py-3 px-3">PAYMENT / DEBIT STATUS</th>
-                          <th className="py-3 px-3">GATE STATUS</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/10 text-white/80 font-mono">
-                        {tickets.map((t) => (
-                          <tr key={t.ticketId} className="hover:bg-white/5 transition-colors">
-                            <td className="py-3 px-3 font-bold text-white">
-                              {t.ticketId}
-                              {t.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED' && (
-                                <span className="block text-[9px] text-amber-400 font-sans font-semibold">DEBIT VERIFICATION</span>
-                              )}
-                            </td>
-                            <td className="py-3 px-3 font-sans text-white font-semibold">{t.userName}</td>
-                            <td className="py-3 px-3">{t.userPhone}</td>
-                            <td className="py-3 px-3 font-sans truncate max-w-[150px]">{t.matchTitle}</td>
-                            <td className="py-3 px-3">{t.quantity}</td>
-                            <td className="py-3 px-3 text-[#E60012] font-bold">₹{t.totalAmount}</td>
-                            <td className="py-3 px-3">
-                              {t.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED' ? (
-                                <div className="space-y-1">
-                                  <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase block">
-                                    ⚠️ DEBIT VERIFICATION
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      approveDebitedPayment(t.ticketId);
-                                      alert(`Payment approved & ticket activated for ${t.userName}!`);
-                                    }}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-display font-bold px-2 py-1 rounded cursor-pointer uppercase block"
-                                  >
-                                    ✓ APPROVE DEBIT
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="space-y-0.5">
-                                  <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase inline-block">
-                                    ✓ PAID (SUCCESS)
-                                  </span>
-                                  {t.paymentId && (
-                                    <span className="block text-[9px] font-mono text-emerald-400 truncate max-w-[140px]" title={t.paymentId}>
-                                      REF: {t.paymentId}
+                {/* VIEW 1: GATE MARSHAL SANITIZED ATTENDEE LIST */}
+                {userRole === 'GATE_MARSHAL' && (
+                  <div>
+                    {tickets.length === 0 ? (
+                      <div className="py-12 text-center text-xs text-white/50 font-sans">
+                        No attendees registered yet.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs font-sans border-collapse">
+                          <thead>
+                            <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
+                              <th className="py-3 px-3">TICKET ID</th>
+                              <th className="py-3 px-3">HOLDER NAME</th>
+                              <th className="py-3 px-3">PHONE</th>
+                              <th className="py-3 px-3">MATCH</th>
+                              <th className="py-3 px-3">SEATS</th>
+                              <th className="py-3 px-3">STATUS</th>
+                              <th className="py-3 px-3 text-right">ACTION</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/10 text-white/80 font-mono">
+                            {tickets.map((t) => (
+                              <tr key={t.ticketId} className="hover:bg-white/5 transition-colors">
+                                <td className="py-3 px-3 font-bold text-white">{t.ticketId}</td>
+                                <td className="py-3 px-3 font-sans text-white font-semibold">{t.userName}</td>
+                                <td className="py-3 px-3">{t.userPhone}</td>
+                                <td className="py-3 px-3 font-sans truncate max-w-[160px]">{t.matchTitle}</td>
+                                <td className="py-3 px-3 font-bold text-white">{t.quantity}</td>
+                                <td className="py-3 px-3">
+                                  {t.checkedIn ? (
+                                    <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                      CHECKED IN ({t.checkedInAt?.slice(11, 16) || 'ADMITTED'})
+                                    </span>
+                                  ) : (
+                                    <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                      UNCLAIMED
                                     </span>
                                   )}
-                                </div>
-                              )}
-                            </td>
-                            <td className="py-3 px-3">
-                              {t.checkedIn ? (
-                                <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
-                                  CHECKED IN ({t.checkedInAt?.slice(11, 16)})
-                                </span>
-                              ) : (
-                                <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
-                                  UNCLAIMED
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                </td>
+                                <td className="py-3 px-3 text-right">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleGateCheckIn(t.ticketId)}
+                                    className={`px-3 py-1.5 rounded-lg font-display text-[11px] font-bold uppercase cursor-pointer transition-all ${
+                                      t.checkedIn
+                                        ? 'bg-neutral-800 text-white/60 hover:bg-neutral-700'
+                                        : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow'
+                                    }`}
+                                  >
+                                    {t.checkedIn ? 'UNDO' : 'ADMIT'}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* VIEW 2: SUPER ADMIN - SCREENING TICKETS TABLE */}
+                {userRole === 'SUPER_ADMIN' && ledgerSubTab === 'TICKETS' && (
+                  <div>
+                    {tickets.length === 0 ? (
+                      <div className="py-12 text-center text-xs text-white/50 font-sans">
+                        No tickets booked yet. Generate a test booking on the website to view ledger records!
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs font-sans border-collapse">
+                          <thead>
+                            <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
+                              <th className="py-3 px-3">TICKET ID</th>
+                              <th className="py-3 px-3">HOLDER NAME</th>
+                              <th className="py-3 px-3">PHONE</th>
+                              <th className="py-3 px-3">MATCH</th>
+                              <th className="py-3 px-3">QTY</th>
+                              <th className="py-3 px-3">TOTAL</th>
+                              <th className="py-3 px-3">PAYMENT / DEBIT STATUS</th>
+                              <th className="py-3 px-3">GATE STATUS</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/10 text-white/80 font-mono">
+                            {tickets.map((t) => (
+                              <tr key={t.ticketId} className="hover:bg-white/5 transition-colors">
+                                <td className="py-3 px-3 font-bold text-white">
+                                  {t.ticketId}
+                                  {t.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED' && (
+                                    <span className="block text-[9px] text-amber-400 font-sans font-semibold">DEBIT VERIFICATION</span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-3 font-sans text-white font-semibold">{t.userName}</td>
+                                <td className="py-3 px-3">{t.userPhone}</td>
+                                <td className="py-3 px-3 font-sans truncate max-w-[150px]">{t.matchTitle}</td>
+                                <td className="py-3 px-3">{t.quantity}</td>
+                                <td className="py-3 px-3 text-[#E60012] font-bold">₹{t.totalAmount}</td>
+                                <td className="py-3 px-3">
+                                  {t.paymentStatus === 'DEBIT_VERIFICATION_REQUIRED' ? (
+                                    <div className="space-y-1">
+                                      <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase block">
+                                        ⚠️ DEBIT VERIFICATION
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          approveDebitedPayment(t.ticketId);
+                                          alert(`Payment approved & ticket activated for ${t.userName}!`);
+                                        }}
+                                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-display font-bold px-2 py-1 rounded cursor-pointer uppercase block"
+                                      >
+                                        ✓ APPROVE DEBIT
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-0.5">
+                                      <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase inline-block">
+                                        ✓ PAID (SUCCESS)
+                                      </span>
+                                      {t.paymentId && (
+                                        <span className="block text-[9px] font-mono text-emerald-400 truncate max-w-[140px]" title={t.paymentId}>
+                                          REF: {t.paymentId}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-3 px-3">
+                                  {t.checkedIn ? (
+                                    <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                      CHECKED IN ({t.checkedInAt?.slice(11, 16) || 'ADMITTED'})
+                                    </span>
+                                  ) : (
+                                    <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
+                                      UNCLAIMED
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* VIEW 3: SUPER ADMIN - MERCHANDISE, MEMBERSHIP & TOUR ORDERS */}
+                {userRole === 'SUPER_ADMIN' && ledgerSubTab === 'MERCH_ORDERS' && (
+                  <div>
+                    {productOrders.length === 0 ? (
+                      <div className="py-12 text-center text-xs text-white/50 font-sans space-y-2">
+                        <p className="text-white/70 font-semibold">No merchandise, membership, or tour orders recorded yet.</p>
+                        <p className="text-[11px] text-white/40">
+                          Whenever supporters purchase merchandise through the shopping cart, join the Red Army membership, or book the Old Trafford trip, their full delivery addresses and Razorpay payment details will display here!
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs font-sans border-collapse">
+                          <thead>
+                            <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
+                              <th className="py-3 px-3">ORDER ID</th>
+                              <th className="py-3 px-3">TYPE</th>
+                              <th className="py-3 px-3">CUSTOMER</th>
+                              <th className="py-3 px-3">SHIPPING ADDRESS / DETAILS</th>
+                              <th className="py-3 px-3">ITEMS / SIZES</th>
+                              <th className="py-3 px-3">TOTAL</th>
+                              <th className="py-3 px-3">PAYMENT / FORMSPREE</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/10 text-white/80 font-mono">
+                            {productOrders.map((o) => {
+                              const itemsStr = (o.items || []).map((i) => `${i.name} (${i.size}) x${i.quantity}`).join(', ');
+
+                              return (
+                                <tr key={o.orderId} className="hover:bg-white/5 transition-colors">
+                                  <td className="py-3 px-3 font-bold text-white">
+                                    {o.orderId}
+                                    <span className="block text-[10px] text-white/40 font-sans">{o.createdAt}</span>
+                                  </td>
+                                  <td className="py-3 px-3">
+                                    <span className={`text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase ${
+                                      o.orderType === 'MERCHANDISE'
+                                        ? 'bg-blue-950 text-blue-300 border border-blue-500/30'
+                                        : o.orderType === 'MEMBERSHIP'
+                                        ? 'bg-amber-950 text-amber-300 border border-amber-500/30'
+                                        : 'bg-purple-950 text-purple-300 border border-purple-500/30'
+                                    }`}>
+                                      {o.orderType}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-3 font-sans">
+                                    <div className="font-semibold text-white">{o.customerName}</div>
+                                    <div className="text-[11px] text-white/60">{o.customerPhone}</div>
+                                    <div className="text-[10px] text-white/40">{o.customerEmail}</div>
+                                  </td>
+                                  <td className="py-3 px-3 font-sans max-w-[220px]">
+                                    {o.shippingAddress ? (
+                                      <div className="text-[11px] text-white/80 line-clamp-2">
+                                        {o.shippingAddress.address}, {o.shippingAddress.city} {o.shippingAddress.pincode && `- ${o.shippingAddress.pincode}`}
+                                      </div>
+                                    ) : o.notes ? (
+                                      <div className="text-[11px] text-purple-300">
+                                        Details: {o.notes}
+                                      </div>
+                                    ) : (
+                                      <span className="text-white/40 text-[10px]">Digital Pass / No Physical Shipping</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3 font-sans max-w-[200px]">
+                                    <div className="text-[11px] text-white/90 line-clamp-2 font-mono">
+                                      {itemsStr || 'Order Items'}
+                                    </div>
+                                  </td>
+                                  <td className="py-3 px-3 text-[#E60012] font-bold">
+                                    ₹{o.totalAmount}
+                                    <span className="block text-[9px] text-white/40 font-mono font-normal">
+                                      Tax: ₹{o.taxAmount} | Fee: ₹{o.platformFee}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-3">
+                                    <div className="space-y-0.5">
+                                      <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase inline-block">
+                                        ✓ PAID
+                                      </span>
+                                      {o.paymentId && (
+                                        <span className="block text-[9px] font-mono text-emerald-400 truncate max-w-[130px]" title={o.paymentId}>
+                                          {o.paymentId}
+                                        </span>
+                                      )}
+                                      <span className="block text-[9px] font-sans text-emerald-400/80">
+                                        ✉️ Formspree Dispatched
+                                      </span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

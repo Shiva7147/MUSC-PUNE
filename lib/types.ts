@@ -47,8 +47,50 @@ export interface Product {
   availableSizes: string[];
   sizePrices?: { [size: string]: number }; // Admin configurable price per size
   inStock: boolean;
+  stockCount?: number; // Admin configurable stock inventory count
   badge?: string;
   details: string[];
+}
+
+export interface SiteTaxConfig {
+  screeningsTaxRate: number;      // default 0.18 (18%)
+  screeningsPlatformFeeRate: number; // default 0.03 (3%)
+  productsTaxRate: number;        // default 0.18 (18%)
+  productsPlatformFeeRate: number;   // default 0.03 (3%)
+  membershipTaxRate: number;      // default 0.18 (18%)
+  membershipPlatformFeeRate: number; // default 0.03 (3%)
+  toursTaxRate: number;           // default 0.05 (5%)
+  toursPlatformFeeRate: number;      // default 0.02 (2%)
+  formspreeEndpoint: string;      // e.g. https://formspree.io/f/...
+}
+
+export interface ProductOrderRecord {
+  orderId: string;
+  paymentId: string;
+  orderType: 'MERCHANDISE' | 'MEMBERSHIP' | 'TOUR';
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress?: {
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  items: {
+    id: string;
+    name: string;
+    size: string;
+    quantity: number;
+    price: number;
+  }[];
+  baseAmount: number;
+  taxAmount: number;
+  platformFee: number;
+  totalAmount: number;
+  notes?: string;
+  createdAt: string;
+  status: 'PAID' | 'DISPATCHED' | 'DELIVERED';
 }
 
 export interface MembershipConfig {
@@ -82,6 +124,10 @@ export interface TourConfig {
   subtitle: string;
   duration: string;
   nextBatch: string;
+  price?: number; // Configurable package price (default 125000)
+  taxRate?: number; // Configurable tax rate percentage (default 0.05)
+  platformFeeRate?: number; // Configurable platform fee percentage (default 0.02)
+  platformFee?: number;
   matchHighlights: string[];
   includedFeatures: string[];
   image: string;

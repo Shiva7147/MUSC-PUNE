@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
-import { Screening, GalleryItem, Product, MembershipConfig, TourConfig } from './types';
-import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig, defaultTourConfig } from './data';
+import { Screening, GalleryItem, Product, MembershipConfig, TourConfig, SiteTaxConfig, ProductOrderRecord } from './types';
+import { upcomingScreenings, galleryImages as defaultGallery, merchandiseProducts as defaultProducts, defaultMembershipConfig, defaultTourConfig, defaultSiteTaxConfig } from './data';
 
 export interface AdminTicketRecord {
   ticketId: string;
@@ -33,6 +33,8 @@ const GALLERY_STORAGE_KEY = 'musc_pune_gallery_v1';
 const PRODUCTS_STORAGE_KEY = 'musc_pune_products_v1';
 const MEMBERSHIP_CONFIG_KEY = 'musc_pune_membership_config_v1';
 const TOUR_CONFIG_KEY = 'musc_pune_tour_config_v1';
+const SITE_TAX_CONFIG_KEY = 'musc_pune_site_tax_config_v1';
+const PRODUCT_ORDERS_KEY = 'musc_pune_product_orders_v1';
 
 // Helper to safely load data from LocalStorage
 const loadStorage = <T>(key: string, fallback: T): T => {
@@ -64,6 +66,8 @@ let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGalle
 let productsMemory: Product[] = loadStorage(PRODUCTS_STORAGE_KEY, defaultProducts);
 let membershipConfigMemory: MembershipConfig = loadStorage(MEMBERSHIP_CONFIG_KEY, defaultMembershipConfig);
 let tourConfigMemory: TourConfig = loadStorage(TOUR_CONFIG_KEY, defaultTourConfig);
+let siteTaxConfigMemory: SiteTaxConfig = loadStorage(SITE_TAX_CONFIG_KEY, defaultSiteTaxConfig);
+let productOrdersMemory: ProductOrderRecord[] = loadStorage(PRODUCT_ORDERS_KEY, []);
 
 // Helper to apply user edits & deletions on top of base screenings list so edits NEVER get reverted
 export const applyScreeningOverrides = (baseList: Screening[]): Screening[] => {
@@ -98,7 +102,9 @@ if (typeof window !== 'undefined') {
       e.key === GALLERY_STORAGE_KEY ||
       e.key === PRODUCTS_STORAGE_KEY ||
       e.key === MEMBERSHIP_CONFIG_KEY ||
-      e.key === TOUR_CONFIG_KEY
+      e.key === TOUR_CONFIG_KEY ||
+      e.key === SITE_TAX_CONFIG_KEY ||
+      e.key === PRODUCT_ORDERS_KEY
     ) {
       ticketsMemory = loadStorage(TICKETS_STORAGE_KEY, ticketsMemory);
       screeningsMemory = loadStorage(SCREENINGS_STORAGE_KEY, screeningsMemory);
@@ -106,6 +112,8 @@ if (typeof window !== 'undefined') {
       productsMemory = loadStorage(PRODUCTS_STORAGE_KEY, productsMemory);
       membershipConfigMemory = loadStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
       tourConfigMemory = loadStorage(TOUR_CONFIG_KEY, tourConfigMemory);
+      siteTaxConfigMemory = loadStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+      productOrdersMemory = loadStorage(PRODUCT_ORDERS_KEY, productOrdersMemory);
       notifyListeners();
     }
   });
@@ -779,7 +787,40 @@ export const updateTourConfigStore = async (newConfig: TourConfig) => {
   }
 };
 
-export const fetchConfigRemoteAsync = async (): Promise<{ membership?: MembershipConfig; tour?: TourConfig }> => {
+export const getSiteTaxConfigStore = (): SiteTaxConfig => {
+  return loadStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+};
+
+export const updateSiteTaxConfigStore = async (newConfig: SiteTaxConfig) => {
+  const merged: SiteTaxConfig = {
+    ...defaultSiteTaxConfig,
+    ...newConfig,
+  };
+  siteTaxConfigMemory = merged;
+  saveStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+  notifyListeners();
+  try {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'tax_config', value: merged }),
+    });
+  } catch (err) {
+    console.error('Update tax config error:', err);
+  }
+};
+
+export const getProductOrdersStore = (): ProductOrderRecord[] => {
+  return loadStorage(PRODUCT_ORDERS_KEY, productOrdersMemory);
+};
+
+export const addProductOrderToStore = (order: ProductOrderRecord) => {
+  productOrdersMemory = [order, ...productOrdersMemory.filter((o) => o.orderId !== order.orderId)];
+  saveStorage(PRODUCT_ORDERS_KEY, productOrdersMemory);
+  notifyListeners();
+};
+
+export const fetchConfigRemoteAsync = async (): Promise<{ membership?: MembershipConfig; tour?: TourConfig; taxConfig?: SiteTaxConfig }> => {
   try {
     const res = await fetch('/api/config', { cache: 'no-store' });
     if (res.ok) {
@@ -805,11 +846,19 @@ export const fetchConfigRemoteAsync = async (): Promise<{ membership?: Membershi
         };
         saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
       }
+      const tax = json?.tax_config || json?.taxConfig;
+      if (tax && typeof tax === 'object') {
+        siteTaxConfigMemory = {
+          ...defaultSiteTaxConfig,
+          ...tax,
+        };
+        saveStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+      }
       notifyListeners();
-      return { membership: membershipConfigMemory, tour: tourConfigMemory };
+      return { membership: membershipConfigMemory, tour: tourConfigMemory, taxConfig: siteTaxConfigMemory };
     }
   } catch (err) {
     console.error('Fetch remote config error:', err);
   }
-  return { membership: membershipConfigMemory, tour: tourConfigMemory };
+  return { membership: membershipConfigMemory, tour: tourConfigMemory, taxConfig: siteTaxConfigMemory };
 };
