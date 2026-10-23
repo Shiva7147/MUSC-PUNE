@@ -273,7 +273,15 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                 </div>
                 <h3 className="font-display text-lg font-bold text-white uppercase">Step 01: Buy Your OUM</h3>
                 <p className="text-xs text-white/80 font-sans leading-relaxed">
-                  Purchase your Official One United Membership (Full, Premium, or Junior) on <code className="text-[#E60012]">manutd.com</code>.
+                  Purchase your Official One United Membership (Full, Premium, or Junior) on{' '}
+                  <a
+                    href="https://tickets.manutd.com/memberships"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#E60012] underline font-bold hover:text-white transition-colors"
+                  >
+                    manutd.com
+                  </a>.
                 </p>
               </div>
 
@@ -284,7 +292,16 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
                 </div>
                 <h3 className="font-display text-lg font-bold text-white uppercase">Step 02: Pune Mailing Address</h3>
                 <p className="text-xs text-white/80 font-sans leading-relaxed">
-                  Use a <strong>Pune mailing address</strong> during checkout on <code className="text-[#E60012]">manutd.com</code> to map your membership to MUSC Pune.
+                  Use a <strong>Pune mailing address</strong> during checkout on{' '}
+                  <a
+                    href="https://tickets.manutd.com/memberships"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#E60012] underline font-bold hover:text-white transition-colors"
+                  >
+                    manutd.com
+                  </a>{' '}
+                  to map your membership to MUSC Pune.
                 </p>
               </div>
 
@@ -316,13 +333,13 @@ export const MembershipSection: React.FC<MembershipSectionProps> = ({
             {/* External Link Action */}
             <div className="pt-4 border-t border-white/15 flex items-center justify-center sm:justify-start">
               <a
-                href="https://tickets.manutdpune.com/memberships"
+                href="https://tickets.manutd.com/memberships"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base font-bold py-4 px-8 rounded-xl flex items-center gap-2 shadow-lg transition-all border border-white/20 uppercase cursor-pointer"
+                className="w-full sm:w-auto bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm sm:text-base font-bold py-4 px-8 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.4)] transition-all border border-white/20 uppercase cursor-pointer"
               >
-                <span>Buy One United Membership</span>
-                <ExternalLink className="w-5 h-5" />
+                <span>BUY ONE UNITED MEMBERSHIP ON MANUTD.COM</span>
+                <ExternalLink className="w-5 h-5 shrink-0" />
               </a>
             </div>
           </div>

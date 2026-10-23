@@ -188,6 +188,7 @@ function ImageUploadOrUrlField({
 }
 
 export default function AdminDashboardPage() {
+  const [adminEmailInput, setAdminEmailInput] = useState('');
   const [pinInput, setPinInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState<'SCANNER' | 'PRICING' | 'SCREENINGS' | 'PRODUCTS' | 'GALLERY' | 'LEDGER' | 'TOURS'>('SCANNER');
@@ -297,19 +298,47 @@ export default function AdminDashboardPage() {
       if (remote && remote.length > 0) setTickets(remote);
     });
 
+    // Check session auth on load
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('musc_admin_auth');
+      if (saved === 'true') {
+        setIsAuthenticated(true);
+      }
+    }
+
     const unsubscribe = subscribeStore(refreshStoreData);
     return () => {
       unsubscribe();
     };
   }, []);
 
-  // Handle PIN Login
+  // Handle Admin Email + 4-Digit Passcode Login
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput === '1999' || pinInput === '2011' || pinInput === 'admin') {
+    const cleanEmail = adminEmailInput.trim().toLowerCase();
+    const cleanPin = pinInput.trim();
+
+    const authorizedEmails = [
+      'ebrahimmred@gmail.com',
+      'ebrahimred@gmail.com',
+      'manunitedpune@gmail.com',
+      'admin@muscpune.in',
+      'admin',
+    ];
+    const validPins = ['1999', '2011', 'admin'];
+
+    const emailMatches = authorizedEmails.includes(cleanEmail) || cleanEmail === 'ebrahim';
+    const pinMatches = validPins.includes(cleanPin);
+
+    if (emailMatches && pinMatches) {
       setIsAuthenticated(true);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('musc_admin_auth', 'true');
+      }
+    } else if (!emailMatches) {
+      alert('Unrecognized Admin Email. Please use your authorized email (e.g. ebrahimmred@gmail.com).');
     } else {
-      alert('Incorrect Admin PIN. Try 1999 or 2011.');
+      alert('Incorrect 4-digit Passcode. Please enter your committee PIN (1999).');
     }
   };
 
@@ -753,8 +782,13 @@ export default function AdminDashboardPage() {
                 🟢 GATE ADMIN ACTIVE
               </span>
               <button
-                onClick={() => setIsAuthenticated(false)}
-                className="text-xs font-display text-white/60 hover:text-[#E60012] underline uppercase"
+                onClick={() => {
+                  setIsAuthenticated(false);
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('musc_admin_auth');
+                  }
+                }}
+                className="text-xs font-display text-white/60 hover:text-[#E60012] underline uppercase cursor-pointer"
               >
                 LOCK ADMIN
               </button>
@@ -762,34 +796,60 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* PIN Authentication Gate */}
+        {/* PIN & Email Authentication Gate */}
         {!isAuthenticated ? (
-          <div className="max-w-md mx-auto py-16 px-8 glass-card rounded-3xl bg-[#171717] border border-white/10 text-center space-y-6 shadow-2xl">
-            <div className="w-16 h-16 rounded-2xl bg-[#050505] border border-[#E60012] text-[#E60012] mx-auto flex items-center justify-center">
+          <div className="max-w-md mx-auto py-12 px-6 sm:px-8 glass-card rounded-3xl bg-[#171717] border-2 border-white/15 text-center space-y-6 shadow-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-[#050505] border-2 border-[#E60012] text-[#E60012] mx-auto flex items-center justify-center shadow-lg">
               <LockIcon className="w-8 h-8" />
             </div>
 
-            <div>
-              <h2 className="font-display text-3xl font-bold text-white uppercase">ENTER ADMIN PASSCODE</h2>
-              <p className="text-xs font-sans text-white/70 mt-1">
-                Enter your 4-digit committee PIN to access the gate scanner & dashboard.
+            <div className="space-y-1">
+              <span className="bg-[#E60012]/15 text-[#E60012] border border-[#E60012]/30 text-[10px] font-display font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+                COMMITTEE GATE ACCESS
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase mt-1">OFFICIAL ADMIN LOGIN</h2>
+              <p className="text-xs font-sans text-white/70">
+                Authorized for matchday gate marshals & club administrators.
               </p>
             </div>
 
-            <form onSubmit={handlePinSubmit} className="space-y-4">
-              <input
-                type="password"
-                required
-                maxLength={8}
-                placeholder="Enter PIN (e.g. 1999 or 2011)"
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3.5 text-center text-xl font-mono tracking-widest text-white focus:outline-none focus:border-[#E60012]"
-              />
+            <form onSubmit={handlePinSubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
+                  ADMIN EMAIL ADDRESS
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="ebrahimmred@gmail.com"
+                  value={adminEmailInput}
+                  onChange={(e) => setAdminEmailInput(e.target.value)}
+                  className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3.5 text-sm font-sans text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#E60012]"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-display text-white/90 font-bold uppercase">
+                    4-DIGIT ADMIN PASSCODE
+                  </label>
+                  <span className="text-[10px] font-mono text-white/40">PIN (1999)</span>
+                </div>
+                <input
+                  type="password"
+                  required
+                  maxLength={6}
+                  placeholder="••••"
+                  value={pinInput}
+                  onChange={(e) => setPinInput(e.target.value)}
+                  className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3.5 text-center text-2xl font-mono tracking-[0.5em] text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#E60012]"
+                />
+              </div>
 
               <button
                 type="submit"
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm tracking-wider font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all uppercase"
+                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm tracking-wider font-bold py-4 rounded-xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all uppercase cursor-pointer"
               >
                 UNLOCK ADMIN CONTROL CENTER
               </button>

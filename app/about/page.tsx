@@ -55,26 +55,28 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Embedded Photo 1: Pune Matchday Screening Night */}
+          {/* Embedded Photo 1: Pune Supporters Group Photo */}
           <div className="space-y-2">
-            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
+            <div className="relative aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#0C0C0C] group">
               <Image
-                src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865408/WhatsApp_Image_2026-08-16_at_11.53.51_AM_3_eivq1o.jpg"
-                alt="MUSC Pune 100+ Reds Matchday Screening Atmosphere"
+                src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg"
+                alt="MUSC Pune 1,000+ Passionate Reds Supporter Group"
                 fill
-                quality={95}
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                priority
+                quality={100}
+                unoptimized
+                className="object-contain sm:object-cover object-center group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
                 <span className="bg-[#E60012] font-display font-bold px-3 py-1 rounded uppercase">
-                  📍 100+ REDS AT MATCH SCREENINGS
+                  📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
                 </span>
                 <span className="text-white/70 hidden sm:inline">Chants, Celebrations & Unforgettable Moments</span>
               </div>
             </div>
             <p className="text-xs text-white/50 text-center font-mono italic">
-              Above: 100+ Pune Reds gathered for a live matchday screening.
+              Above: Pune&apos;s Red Army members gathered together.
             </p>
           </div>
 

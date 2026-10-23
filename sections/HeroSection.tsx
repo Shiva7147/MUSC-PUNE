@@ -56,8 +56,18 @@ export const HeroSection: React.FC = () => {
               fade ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
             } ${isHindi ? 'font-devanagari' : 'font-display uppercase tracking-tight'}`}
           >
-            <span className="bg-gradient-to-r from-white via-neutral-100 to-white bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,0,0,0.95)]">
-              {isHindi ? 'एक शहर, एक क्लब, एक प्यार - मैनचेस्टर यूनाइटेड' : 'One City, One Club, One Love, Manchester United'}
+            <span className="bg-gradient-to-r from-white via-neutral-100 to-white bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(0,0,0,0.95)] block">
+              {isHindi ? (
+                <>
+                  <span className="block">एक शहर, एक क्लब, एक प्रेम</span>
+                  <span className="block mt-1 sm:mt-2 text-[#E60012]">मँचेस्टर युनायटेड</span>
+                </>
+              ) : (
+                <>
+                  <span className="block">ONE CITY, ONE CLUB, ONE LOVE</span>
+                  <span className="block mt-1 sm:mt-2 text-[#E60012]">MANCHESTER UNITED</span>
+                </>
+              )}
             </span>
           </h1>
         </div>
