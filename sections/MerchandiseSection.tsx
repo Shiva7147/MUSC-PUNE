@@ -40,8 +40,8 @@ export const MerchandiseSection: React.FC<MerchandiseSectionProps> = ({
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Product Grid - 2 Featured Products Elegantly Centered */}
+        <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-6 sm:gap-8">
           {products.map((prod) => (
             <div
               key={prod.id}

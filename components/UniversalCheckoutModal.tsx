@@ -145,9 +145,9 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
       return false;
     }
 
-    if (mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY') {
+    if (mode === 'MEMBERSHIP' || (mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY')) {
       if (!streetAddress.trim()) {
-        setErrorMessage('Please enter your street address for home delivery.');
+        setErrorMessage(mode === 'MEMBERSHIP' ? 'Please enter your postal address for membership kit delivery.' : 'Please enter your street address for home delivery.');
         return false;
       }
       if (!city.trim()) {
@@ -354,7 +354,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                 : undefined,
               shippingFee: deliveryFee,
               shippingAddress:
-                mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY'
+                (mode === 'MEMBERSHIP' || (mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY'))
                   ? {
                       address: streetAddress,
                       city,
@@ -412,7 +412,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
             : undefined,
           shippingFee: deliveryFee,
           shippingAddress:
-            mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY'
+            (mode === 'MEMBERSHIP' || (mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY'))
               ? {
                   address: streetAddress,
                   city,
@@ -458,7 +458,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
       <div className="bg-[#121212] border border-white/15 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-auto">
         {/* Header Bar */}
-        <div className="bg-gradient-to-r from-[#171717] via-[#050505] to-[#171717] p-3.5 sm:p-5 sm:p-6 border-b border-white/10 flex items-center justify-between gap-2">
+        <div className="bg-gradient-to-r from-[#171717] via-[#050505] to-[#171717] p-4 sm:p-6 border-b border-white/10 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             {mode === 'MERCHANDISE' && <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[#E60012] shrink-0" />}
             {mode === 'MEMBERSHIP' && <Award className="w-5 h-5 sm:w-6 sm:h-6 text-[#E60012] shrink-0" />}
@@ -484,7 +484,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
           {orderComplete && completedOrder ? (
             /* ORDER SUCCESS SCREEN */
             <div className="py-6 text-center space-y-5 animate-in fade-in duration-300">
@@ -872,6 +872,81 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* 3B. MEMBERSHIP SHIPPING ADDRESS */}
+              {mode === 'MEMBERSHIP' && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+                    <Truck className="w-4 h-4 text-[#E60012]" />
+                    <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+                      MEMBERSHIP PACK POSTAL ADDRESS
+                    </h4>
+                  </div>
+                  <div className="space-y-3.5 bg-[#050505] p-4 rounded-2xl border border-white/10">
+                    <p className="text-xs font-sans text-white/70">
+                      Enter your postal shipping address to receive the official MUSC Pune membership kit, welcome pack, member card, and exclusive supporter gifts.
+                    </p>
+                    <div>
+                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                        Flat / Building / Street Address *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Flat 402, Royal Palms, FC Road"
+                        value={streetAddress}
+                        onChange={(e) => setStreetAddress(e.target.value)}
+                        className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Pune"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          State *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Maharashtra"
+                          value={stateName}
+                          onChange={(e) => setStateName(e.target.value)}
+                          className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          Pincode *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          placeholder="e.g. 411001"
+                          value={pincode}
+                          onChange={(e) => setPincode(e.target.value)}
+                          className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

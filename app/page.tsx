@@ -130,18 +130,19 @@ export default function Home() {
           </div>
 
           {/* Photo */}
-          <div className="relative w-full max-w-4xl mx-auto aspect-[1280/1210] rounded-3xl overflow-hidden border-2 border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] bg-[#0C0C0C] group">
+          <div className="relative w-full max-w-3xl mx-auto rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85)] bg-[#111111] group">
             <Image
               src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg"
               alt="MUSC Pune Supporters Group"
-              fill
+              width={1280}
+              height={1210}
               unoptimized
-              quality={100}
+              quality={95}
               priority
-              className="object-contain object-center group-hover:scale-[1.01] transition-transform duration-700"
+              className="w-full h-auto max-h-[380px] sm:max-h-[480px] md:max-h-[540px] object-cover object-top mx-auto group-hover:scale-[1.01] transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 flex items-center gap-2 z-10">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 flex items-center gap-2 z-10">
               <span className="bg-[#E60012] text-white text-[11px] sm:text-xs font-display font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-lg border border-white/15">
                 📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
               </span>

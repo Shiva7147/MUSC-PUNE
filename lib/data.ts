@@ -170,7 +170,7 @@ export const upcomingScreenings: Screening[] = [
 export const merchandiseProducts: Product[] = [
   {
     id: 'merch-scarf',
-    name: 'Manchester United Supporter Scarf',
+    name: 'Official MUSC Pune Jacquard Scarf',
     category: 'Accessories',
     price: 799,
     originalPrice: 999,
@@ -191,7 +191,7 @@ export const merchandiseProducts: Product[] = [
   },
   {
     id: 'merch-mug',
-    name: 'MUFC Mug',
+    name: 'Official MUSC Pune Ceramic Mug',
     category: 'Accessories',
     price: 499,
     originalPrice: 649,

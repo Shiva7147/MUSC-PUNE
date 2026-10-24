@@ -56,26 +56,27 @@ export default function AboutPage() {
           </div>
 
           {/* Embedded Photo 1: Pune Supporters Group Photo */}
-          <div className="space-y-2">
-            <div className="relative aspect-[16/10] sm:aspect-[16/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#0C0C0C] group">
+          <div className="space-y-2 max-w-3xl mx-auto w-full">
+            <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 shadow-2xl bg-[#111111]">
               <Image
                 src="https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865423/WhatsApp_Image_2026-08-16_at_12.29.46_PM_m8ytoq.jpg"
                 alt="MUSC Pune 1,000+ Passionate Reds Supporter Group"
-                fill
+                width={1280}
+                height={1210}
                 priority
-                quality={100}
+                quality={95}
                 unoptimized
-                className="object-contain sm:object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-auto max-h-[380px] sm:max-h-[480px] md:max-h-[540px] object-cover object-top mx-auto"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
-                <span className="bg-[#E60012] font-display font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded uppercase truncate max-w-full">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 text-xs font-sans text-white z-10">
+                <span className="bg-[#E60012] font-display font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded uppercase">
                   📍 PUNE&apos;S RED ARMY • 1,000+ PASSIONATE MEMBERS
                 </span>
-                <span className="text-white/70 hidden sm:inline">Chants, Celebrations & Unforgettable Moments</span>
+                <span className="text-white/80 text-[11px] sm:text-xs hidden sm:inline">Chants, Celebrations & Unforgettable Moments</span>
               </div>
             </div>
-            <p className="text-xs text-white/50 text-center font-mono italic">
+            <p className="text-[11px] sm:text-xs text-white/50 text-center font-mono italic">
               Above: Pune&apos;s Red Army members gathered together.
             </p>
           </div>
@@ -88,25 +89,26 @@ export default function AboutPage() {
           </div>
 
           {/* Embedded Photo 2: Old Trafford Delegation Trip */}
-          <div className="space-y-2">
-            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl bg-[#171717] group">
+          <div className="space-y-2 max-w-3xl mx-auto w-full">
+            <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 shadow-2xl bg-[#111111]">
               <Image
                 src="https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best,w_1600/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg"
                 alt="MUSC Pune Old Trafford Delegation Trip"
-                fill
+                width={1600}
+                height={900}
                 quality={95}
                 unoptimized
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-auto max-h-[360px] sm:max-h-[460px] object-cover object-center mx-auto"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-sans text-white">
-                <span className="bg-[#E60012] font-display font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded uppercase truncate max-w-full">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 text-xs font-sans text-white z-10">
+                <span className="bg-[#E60012] font-display font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded uppercase">
                   ✈️ THEATRE OF DREAMS PILGRIMAGE
                 </span>
-                <span className="text-white/70 hidden sm:inline">Turning Dreams into Memories for Life</span>
+                <span className="text-white/80 text-[11px] sm:text-xs hidden sm:inline">Turning Dreams into Memories for Life</span>
               </div>
             </div>
-            <p className="text-xs text-white/50 text-center font-mono italic">
+            <p className="text-[11px] sm:text-xs text-white/50 text-center font-mono italic">
               Above: MUSC Pune members on an official group trip to Old Trafford.
             </p>
           </div>

@@ -432,9 +432,7 @@ export default function AdminDashboardPage() {
         setActiveTab('SCANNER');
       }
     } else {
-      alert(
-        'Invalid login credentials.\n\nFor Super Admin: use ibrahimred@gmail.com with PIN 1999.\nFor Gate Marshals:\n- Gate 1: gate1@manutdpune.com (PIN: 1101)\n- Gate 2: gate2@manutdpune.com (PIN: 1102)\n- Gate 3: gate3@manutdpune.com (PIN: 1103)'
-      );
+      alert('Invalid login credentials. Please check your authorized email and passcode PIN.');
     }
   };
 
@@ -1036,9 +1034,9 @@ export default function AdminDashboardPage() {
                   ADMIN / MARSHAL EMAIL ADDRESS
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   required
-                  placeholder="ibrahimred@gmail.com or gate1@manutdpune.com"
+                  placeholder="Enter authorized email address"
                   value={adminEmailInput}
                   onChange={(e) => setAdminEmailInput(e.target.value)}
                   className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3.5 text-sm font-sans text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#E60012]"
@@ -1049,14 +1047,13 @@ export default function AdminDashboardPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-display text-white/90 font-bold uppercase">
-                    4-DIGIT PASSCODE PIN
+                    PASSCODE PIN
                   </label>
-                  <span className="text-[10px] font-mono text-white/40">PIN REQUIRED</span>
+                  <span className="text-[10px] font-mono text-white/40">SECURE ACCESS</span>
                 </div>
                 <input
                   type="password"
                   required
-                  maxLength={6}
                   placeholder="••••"
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}

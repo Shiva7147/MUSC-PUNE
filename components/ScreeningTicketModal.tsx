@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText, AlertTriangle } from 'lucide-react';
+import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText, AlertTriangle, Camera, ShieldCheck, CheckCircle2, CreditCard } from 'lucide-react';
 import { Screening } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
 import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore, getSiteTaxConfigStore } from '@/lib/ticketStore';
@@ -27,6 +27,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<AdminTicketRecord | null>(null);
+  const [showSafetyPopup, setShowSafetyPopup] = useState(false);
 
   // Safely record pending debit attempt if payment is interrupted or fails
   const handlePaymentInterrupted = async (reason?: string) => {
@@ -82,6 +83,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
     setEmail('');
     setPhone('');
     setBookingData(null);
+    setShowSafetyPopup(false);
     onClose();
   };
 
@@ -184,8 +186,22 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
     }
   };
 
-  const handleBookingSubmit = async (e: React.FormEvent) => {
+  const handleFormPreSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim() || !email.trim() || !phone.trim()) {
+      alert('Please fill in your name, email, and phone number.');
+      return;
+    }
+    // Trigger the requested safety notice pop-up before proceeding to the payment gateway
+    setShowSafetyPopup(true);
+  };
+
+  const handleExecutePayment = async () => {
+    setShowSafetyPopup(false);
+    await handleBookingSubmit();
+  };
+
+  const handleBookingSubmit = async () => {
     setLoading(true);
 
     try {
@@ -288,8 +304,61 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#171717] border border-[#E60012]/40 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-auto"
+        className="bg-[#171717] border border-[#E60012]/40 rounded-3xl max-w-lg w-full max-h-[92vh] sm:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-white relative my-auto"
       >
+        {/* Safety Pop-up Notice for Match Screening Tickets */}
+        {showSafetyPopup && (
+          <div className="absolute inset-0 z-40 bg-[#050505]/95 backdrop-blur-xl flex flex-col justify-center items-center p-4 sm:p-6 text-center animate-in fade-in zoom-in-95 duration-200 overflow-y-auto">
+            <div className="max-w-md w-full space-y-4 my-auto">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#E60012]/15 border-2 border-[#E60012] flex items-center justify-center mx-auto text-[#E60012] shadow-[0_0_25px_rgba(230,0,18,0.3)]">
+                <Camera className="w-7 h-7 sm:w-8 sm:h-8" />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#171717] border border-white/15 text-[11px] font-display font-bold uppercase tracking-wider text-[#FFC400]">
+                  <span>IMPORTANT VENUE ENTRY NOTICE</span>
+                </div>
+                <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white uppercase leading-tight">
+                  PLEASE TAKE A SCREENSHOT OF YOUR TICKET
+                </h3>
+                <p className="text-xs sm:text-sm text-white/80 font-sans leading-relaxed">
+                  Before you continue to the payment gateway, please note: <strong className="text-white">you must take a screenshot of your ticket pass & QR code</strong> immediately after payment is confirmed.
+                </p>
+              </div>
+
+              <div className="bg-[#171717] p-3 sm:p-3.5 rounded-2xl border border-white/10 text-left text-xs space-y-2 text-white/80 font-sans">
+                <div className="flex items-start gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                  <span>The gate marshals will scan your QR code pass directly from your phone screen.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#FFC400] shrink-0 mt-0.5" />
+                  <span>Your booking will also be safely registered in the official MUSC Pune gate ledger.</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleExecutePayment}
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-sm sm:text-base font-bold py-3.5 sm:py-4 px-4 sm:px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.4)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 uppercase cursor-pointer"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  <span>I UNDERSTAND, CONTINUE TO PAYMENT</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSafetyPopup(false)}
+                  className="w-full bg-transparent hover:bg-white/5 text-white/60 hover:text-white font-display text-xs font-bold py-2 rounded-xl uppercase transition-colors cursor-pointer"
+                >
+                  GO BACK & REVIEW DETAILS
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Prominent High-Visibility Sticky Close Button */}
         <button
           type="button"
@@ -345,7 +414,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleBookingSubmit} className="space-y-4">
+                <form onSubmit={handleFormPreSubmit} className="space-y-4">
                   {/* Quantity Stepper (1 to 10) */}
                   <div>
                     <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
