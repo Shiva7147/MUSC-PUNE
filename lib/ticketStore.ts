@@ -117,14 +117,6 @@ if (typeof window !== 'undefined') {
       notifyListeners();
     }
   });
-
-  // Periodic polling every 15s to reflect admin edits across all devices live
-  setInterval(() => {
-    fetchScreeningsRemoteAsync();
-    fetchProductsRemoteAsync();
-    fetchGalleryRemoteAsync();
-    fetchConfigRemoteAsync();
-  }, 15000);
 }
 
 // Helper to sync ticket record via API route (which uses supabaseAdmin - bypasses RLS)

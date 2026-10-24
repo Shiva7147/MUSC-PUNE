@@ -57,6 +57,13 @@ button {
   cursor: pointer;
 }
 
+/* Ensure touch devices execute clicks immediately without sticky hover delay */
+@media (hover: none) and (pointer: coarse) {
+  button:hover, a:hover {
+    transform: none !important;
+  }
+}
+
 /* High Contrast Input Placeholders */
 input::placeholder, textarea::placeholder {
   color: #A3A3A3 !important;

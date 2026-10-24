@@ -125,8 +125,9 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
+                  type="button"
                   onClick={() => onSelectScreening(featured)}
-                  className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-white/20 uppercase"
+                  className="w-full bg-[#E60012] hover:bg-[#C40010] active:scale-95 text-white font-display text-xl tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-white/20 uppercase cursor-pointer"
                 >
                   <Ticket className="w-5 h-5" />
                   <span>GET SCREENING TICKETS</span>
@@ -179,8 +180,9 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
 
                   <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-end">
                     <button
+                      type="button"
                       onClick={() => onSelectScreening(sc)}
-                      className="bg-[#050505] hover:bg-[#E60012] text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase"
+                      className="bg-[#050505] hover:bg-[#E60012] active:scale-95 text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase cursor-pointer"
                     >
                       <span>GET SCREENING TICKETS</span>
                       <ArrowRight className="w-4 h-4" />

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { ShoppingBag, Menu, X, Ticket } from 'lucide-react';
 import { CartItem, Screening } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
@@ -21,11 +22,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   upcomingScreening,
   onOpenCart = () => {},
 }) => {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const activeScreening = upcomingScreening || getScreeningsStore()[0];
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  // Close mobile drawer automatically when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -111,6 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Link
                   key={link.name}
                   href={link.href}
+                  prefetch={true}
                   className="font-display text-sm xl:text-base font-bold tracking-tight text-white hover:text-[#E60012] transition-colors uppercase relative py-1 shrink-0"
                 >
                   {link.name}
@@ -183,8 +191,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Link
                   key={link.name}
                   href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-2xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2.5 flex items-center justify-between border-b border-white/5"
+                  prefetch={true}
+                  className="font-display text-2xl font-bold tracking-tight text-white hover:text-[#E60012] transition-colors py-2.5 flex items-center justify-between border-b border-white/5 active:text-[#E60012]"
                 >
                   <span>{link.name}</span>
                   <span className="text-xs font-sans text-[#E60012]">
@@ -197,8 +205,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="mt-8 pt-4 border-t border-white/10 flex flex-col gap-3 pb-6">
               <Link
                 href="/screenings"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xl font-bold tracking-tight py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] uppercase"
+                prefetch={true}
+                className="w-full bg-[#E60012] hover:bg-[#C40010] active:bg-[#B3000C] text-white font-display text-xl font-bold tracking-tight py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] uppercase"
               >
                 <Ticket className="w-5 h-5" />
                 <span>GET SCREENING TICKETS</span>
