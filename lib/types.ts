@@ -71,6 +71,8 @@ export interface ProductOrderRecord {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  deliveryOption?: 'Free pickup at screening' | 'Home delivery' | string;
+  shippingFee?: number;
   shippingAddress?: {
     address: string;
     city: string;

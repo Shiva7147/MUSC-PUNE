@@ -50,27 +50,27 @@ export const HeroSection: React.FC = () => {
         </div>
 
         {/* ALTERNATING SLOGAN HEADLINE (HINDI & ENGLISH) */}
-        <div className="min-h-[140px] sm:min-h-[180px] md:min-h-[220px] flex items-center justify-center">
+        <div className="min-h-[180px] sm:min-h-[220px] md:min-h-[260px] lg:min-h-[300px] flex items-center justify-center">
           <div
             className={`w-full text-center transition-all duration-500 transform ${
               fade ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
             }`}
           >
             {isHindi ? (
-              <div className="font-devanagari space-y-4 sm:space-y-6 md:space-y-7">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-normal leading-relaxed drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]">
+              <div className="font-devanagari space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-normal leading-relaxed drop-shadow-[0_4px_25px_rgba(0,0,0,0.95)]">
                   एक शहर, एक क्लब, एक प्रेम
                 </h1>
-                <div className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#E60012] tracking-wide leading-relaxed drop-shadow-[0_4px_30px_rgba(230,0,18,0.7)] pt-2 sm:pt-3">
+                <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#E60012] tracking-wide leading-relaxed drop-shadow-[0_6px_35px_rgba(230,0,18,0.7)] pt-3 sm:pt-5 md:pt-6">
                   मँचेस्टर युनायटेड
                 </div>
               </div>
             ) : (
-              <div className="font-display uppercase space-y-4 sm:space-y-6 md:space-y-7">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-wide leading-relaxed drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]">
+              <div className="font-display uppercase space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-wide leading-none drop-shadow-[0_4px_25px_rgba(0,0,0,0.95)]">
                   ONE CITY, ONE CLUB, ONE LOVE
                 </h1>
-                <div className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#E60012] tracking-wider leading-relaxed drop-shadow-[0_4px_30px_rgba(230,0,18,0.7)] pt-2 sm:pt-3">
+                <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#E60012] tracking-wider leading-none drop-shadow-[0_6px_35px_rgba(230,0,18,0.7)] pt-3 sm:pt-5 md:pt-6">
                   MANCHESTER UNITED
                 </div>
               </div>

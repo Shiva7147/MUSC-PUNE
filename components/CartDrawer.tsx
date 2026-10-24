@@ -47,9 +47,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-[60] overflow-hidden bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-        <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
-          <div className="w-screen max-w-md bg-[#171717] border-l border-white/10 text-white shadow-2xl flex flex-col justify-between">
+      <div className="fixed inset-0 z-[60] overflow-hidden">
+        {/* Backdrop click to close */}
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 cursor-pointer"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10 pointer-events-none">
+          <div className="w-screen max-w-md bg-[#171717] border-l border-white/10 text-white shadow-2xl flex flex-col justify-between pointer-events-auto">
             {/* Header */}
             <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">

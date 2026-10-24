@@ -11,6 +11,7 @@ import { HeroSection } from '@/sections/HeroSection';
 import { MembershipSection } from '@/sections/MembershipSection';
 import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { ProductQuickViewModal } from '@/components/ProductQuickViewModal';
+import { UniversalCheckoutModal } from '@/components/UniversalCheckoutModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { EnquiryModal } from '@/components/EnquiryModal';
 import { oldTraffordTours, galleryImages } from '@/lib/data';
@@ -37,6 +38,7 @@ export default function Home() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState<boolean>(false);
   const [enquiryOpen, setEnquiryOpen] = useState<boolean>(false);
+  const [isTourCheckoutOpen, setIsTourCheckoutOpen] = useState<boolean>(false);
 
   const bookTripUrl = tourConfig.bookingUrl || 'https://manutdpune.com/product/oldtrafford/';
 
@@ -274,15 +276,13 @@ export default function Home() {
               </h2>
             </div>
 
-            <a
-              href={bookTripUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/tours"
               className="inline-flex items-center gap-2 text-base font-display font-bold text-[#E60012] hover:text-white transition-colors uppercase tracking-tight"
             >
               <span>VIEW TRIP DETAILS</span>
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
 
           <div className="glass-card rounded-3xl overflow-hidden shadow-2xl relative border border-white/10 bg-[#171717]">
@@ -314,16 +314,21 @@ export default function Home() {
                 </div>
 
                 <div className="pt-3 border-t border-white/10 space-y-3">
-                  <a
-                    href={bookTripUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => setIsTourCheckoutOpen(true)}
                     className="w-full bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-base font-bold tracking-tight py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase cursor-pointer"
                   >
                     <Plane className="w-5 h-5 text-white" />
-                    <span>BOOK THE TRIP</span>
-                    <ExternalLink className="w-4 h-4 text-white/80" />
-                  </a>
+                    <span>BOOK THE TRIP (₹{(tourConfig.price ?? 185000).toLocaleString('en-IN')})</span>
+                  </button>
+                  <Link
+                    href="/tours"
+                    className="w-full bg-[#111111] hover:bg-[#222222] border border-white/10 text-white/80 hover:text-white font-display text-xs font-bold tracking-wider py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all uppercase"
+                  >
+                    <span>VIEW FULL ITINERARY & INCLUSIONS</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -357,7 +362,7 @@ export default function Home() {
             {products.map((prod) => (
               <div key={prod.id} className="glass-card rounded-3xl p-6 flex gap-6 items-center shadow-xl bg-[#171717] border border-white/10">
                 <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-black shrink-0 border border-white/10">
-                  <Image src={prod.image} alt={prod.name} fill className="object-cover" />
+                  <Image src={prod.image} alt={prod.name} fill unoptimized className="object-cover" />
                 </div>
                 <div className="space-y-3 flex-1">
                   <h4 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase">{prod.name}</h4>
@@ -455,6 +460,13 @@ export default function Home() {
         isOpen={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
         defaultSubject="Trip to Old Trafford Enquiry"
+      />
+
+      {/* Tour Checkout Modal */}
+      <UniversalCheckoutModal
+        isOpen={isTourCheckoutOpen}
+        onClose={() => setIsTourCheckoutOpen(false)}
+        mode="TOUR"
       />
 
       {/* Cart Drawer */}

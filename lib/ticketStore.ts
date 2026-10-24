@@ -118,13 +118,13 @@ if (typeof window !== 'undefined') {
     }
   });
 
-  // Periodic polling every 4s to reflect admin edits across all devices live
+  // Periodic polling every 15s to reflect admin edits across all devices live
   setInterval(() => {
     fetchScreeningsRemoteAsync();
     fetchProductsRemoteAsync();
     fetchGalleryRemoteAsync();
     fetchConfigRemoteAsync();
-  }, 4000);
+  }, 15000);
 }
 
 // Helper to sync ticket record via API route (which uses supabaseAdmin - bypasses RLS)
@@ -517,9 +517,11 @@ export const fetchScreeningsRemoteAsync = async (): Promise<Screening[]> => {
       const json = await res.json();
       if (json && json.screenings && Array.isArray(json.screenings) && json.screenings.length > 0) {
         const merged = applyScreeningOverrides(json.screenings);
-        screeningsMemory = merged;
-        saveStorage(SCREENINGS_STORAGE_KEY, merged);
-        notifyListeners();
+        if (JSON.stringify(merged) !== JSON.stringify(screeningsMemory)) {
+          screeningsMemory = merged;
+          saveStorage(SCREENINGS_STORAGE_KEY, merged);
+          notifyListeners();
+        }
         return merged;
       }
     }
@@ -603,9 +605,11 @@ export const fetchProductsRemoteAsync = async (): Promise<Product[]> => {
     if (res.ok) {
       const json = await res.json();
       if (json && json.products && Array.isArray(json.products)) {
-        productsMemory = json.products;
-        saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
-        notifyListeners();
+        if (JSON.stringify(json.products) !== JSON.stringify(productsMemory)) {
+          productsMemory = json.products;
+          saveStorage(PRODUCTS_STORAGE_KEY, productsMemory);
+          notifyListeners();
+        }
         return productsMemory;
       }
     }
@@ -726,9 +730,11 @@ export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
         const remoteIds = new Set(json.gallery.map((g: GalleryItem) => g.id));
         const missingDefaults = defaultGallery.filter((d) => !remoteIds.has(d.id));
         const merged = [...json.gallery, ...missingDefaults];
-        galleryMemory = merged;
-        saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
-        notifyListeners();
+        if (JSON.stringify(merged) !== JSON.stringify(galleryMemory)) {
+          galleryMemory = merged;
+          saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
+          notifyListeners();
+        }
         return galleryMemory;
       }
     }
@@ -828,6 +834,7 @@ export const fetchConfigRemoteAsync = async (): Promise<{ membership?: Membershi
     const res = await fetch('/api/config', { cache: 'no-store' });
     if (res.ok) {
       const json = await res.json();
+      let hasChanges = false;
       const mem = json?.membership || json?.membershipConfig;
       if (mem && typeof mem === 'object') {
         const mergedMem: MembershipConfig = {
@@ -838,26 +845,39 @@ export const fetchConfigRemoteAsync = async (): Promise<{ membership?: Membershi
             ...(mem.sizePrices || {}),
           },
         };
-        membershipConfigMemory = mergedMem;
-        saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+        if (JSON.stringify(mergedMem) !== JSON.stringify(membershipConfigMemory)) {
+          membershipConfigMemory = mergedMem;
+          saveStorage(MEMBERSHIP_CONFIG_KEY, membershipConfigMemory);
+          hasChanges = true;
+        }
       }
       const tour = json?.tour || json?.tourConfig;
       if (tour && typeof tour === 'object') {
-        tourConfigMemory = {
+        const mergedTour = {
           ...defaultTourConfig,
           ...tour,
         };
-        saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
+        if (JSON.stringify(mergedTour) !== JSON.stringify(tourConfigMemory)) {
+          tourConfigMemory = mergedTour;
+          saveStorage(TOUR_CONFIG_KEY, tourConfigMemory);
+          hasChanges = true;
+        }
       }
       const tax = json?.tax_config || json?.taxConfig;
       if (tax && typeof tax === 'object') {
-        siteTaxConfigMemory = {
+        const mergedTax = {
           ...defaultSiteTaxConfig,
           ...tax,
         };
-        saveStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+        if (JSON.stringify(mergedTax) !== JSON.stringify(siteTaxConfigMemory)) {
+          siteTaxConfigMemory = mergedTax;
+          saveStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+          hasChanges = true;
+        }
       }
-      notifyListeners();
+      if (hasChanges) {
+        notifyListeners();
+      }
       return { membership: membershipConfigMemory, tour: tourConfigMemory, taxConfig: siteTaxConfigMemory };
     }
   } catch (err) {

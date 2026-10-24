@@ -21,6 +21,7 @@ import {
   User,
 } from 'lucide-react';
 import { CartItem, ProductOrderRecord } from '@/lib/types';
+import { officialLogoUrl, officialMembershipImageUrl, defaultTourConfig } from '@/lib/data';
 import {
   getSiteTaxConfigStore,
   getMembershipConfigStore,
@@ -77,6 +78,9 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
   const [stateName, setStateName] = useState('Maharashtra');
   const [pincode, setPincode] = useState('');
 
+  // Merchandise Delivery Option: 'PICKUP' (Free at screening) vs 'HOME_DELIVERY' (Chargeable, ₹99)
+  const [deliveryOption, setDeliveryOption] = useState<'PICKUP' | 'HOME_DELIVERY'>('PICKUP');
+
   // Tour specific details
   const [passportName, setPassportName] = useState('');
   const [preferredBatch, setPreferredBatch] = useState(tourDetails?.batch || 'October 18 – 24, 2026');
@@ -101,10 +105,11 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Compute Base Total, Tax, Platform Fee, and Final Total
+  // Compute Base Total, Delivery Fee, Tax, Platform Fee, and Final Total
   let baseAmount = 0;
   let taxRate = 0.18;
   let feeRate = 0.03;
+  const deliveryFee = mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY' ? 99 : 0;
 
   if (mode === 'MERCHANDISE') {
     baseAmount = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -122,7 +127,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
 
   const taxAmount = Math.round(baseAmount * taxRate);
   const platformFee = Math.round(baseAmount * feeRate);
-  const totalAmount = baseAmount + taxAmount + platformFee;
+  const totalAmount = baseAmount + deliveryFee + taxAmount + platformFee;
 
   // Validation
   const validateForm = () => {
@@ -140,13 +145,13 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
       return false;
     }
 
-    if (mode === 'MERCHANDISE') {
+    if (mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY') {
       if (!streetAddress.trim()) {
-        setErrorMessage('Please enter your shipping address for merchandise delivery.');
+        setErrorMessage('Please enter your street address for home delivery.');
         return false;
       }
       if (!city.trim()) {
-        setErrorMessage('Please enter your city.');
+        setErrorMessage('Please enter your delivery city.');
         return false;
       }
       if (!pincode.trim() || pincode.trim().length < 6) {
@@ -197,6 +202,10 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
       customer_name: orderRecord.customerName,
       customer_email: orderRecord.customerEmail,
       customer_phone: orderRecord.customerPhone,
+      delivery_method: mode === 'MERCHANDISE'
+        ? (deliveryOption === 'PICKUP' ? 'Free pickup at screening (₹0)' : 'Home delivery (₹99)')
+        : 'N/A',
+      delivery_charge_inr: `₹${deliveryFee}`,
       subtotal_inr: `₹${orderRecord.baseAmount}`,
       tax_amount_inr: `₹${orderRecord.taxAmount}`,
       platform_fee_inr: `₹${orderRecord.platformFee}`,
@@ -204,20 +213,20 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
       items_ordered: itemsSummary,
       shipping_address: orderRecord.shippingAddress
         ? `${orderRecord.shippingAddress.address}, ${orderRecord.shippingAddress.city}, ${orderRecord.shippingAddress.state} - ${orderRecord.shippingAddress.pincode}`
-        : 'N/A (Screening / Membership Pickup)',
-      order_notes: orderRecord.notes || 'None',
+        : (mode === 'MERCHANDISE' ? 'Free pickup at next match screening venue (The Mills, Pune)' : 'N/A (Membership / Tour)'),
+      order_notes: orderRecord.notes || (deliveryOption === 'PICKUP' ? 'Supporter will collect at next screening desk' : 'Doorstep home delivery requested'),
       submitted_at: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
     };
 
     try {
-      await fetch(formspreeUrl, {
+      fetch(formspreeUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         body: JSON.stringify(formPayload),
-      });
+      }).catch((err) => console.warn('Formspree background dispatch warning:', err));
     } catch (err) {
       console.warn('Formspree dispatch notification attempt completed:', err);
     }
@@ -302,7 +311,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
           currency: orderData.currency || 'INR',
           name: 'MUSC Pune',
           description: `Official ${mode} Payment (${itemsList[0]?.name || 'Order'})`,
-          image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1787381769/WhatsApp_Image_2026-08-22_at_12.09.49_AM_cof7cr.jpg',
+          image: officialLogoUrl,
           order_id: orderData.orderId,
           prefill: {
             name: fullName,
@@ -340,8 +349,12 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
               customerName: fullName,
               customerEmail: email,
               customerPhone: phone,
+              deliveryOption: mode === 'MERCHANDISE'
+                ? (deliveryOption === 'PICKUP' ? 'Free pickup at screening' : 'Home delivery')
+                : undefined,
+              shippingFee: deliveryFee,
               shippingAddress:
-                mode === 'MERCHANDISE'
+                mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY'
                   ? {
                       address: streetAddress,
                       city,
@@ -354,14 +367,16 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
               taxAmount,
               platformFee,
               totalAmount,
-              notes: mode === 'TOUR' ? `Passport Name: ${passportName}` : undefined,
+              notes: mode === 'TOUR'
+                ? `Passport Name: ${passportName}`
+                : (deliveryOption === 'PICKUP' ? 'Free screening pickup' : 'Home delivery'),
               createdAt: new Date().toISOString(),
               status: 'PAID',
             };
 
             // Save to Store and Formspree
             addProductOrderToStore(finalOrder);
-            await dispatchToFormspree(finalOrder);
+            dispatchToFormspree(finalOrder).catch(() => {});
 
             setCompletedOrder(finalOrder);
             setOrderComplete(true);
@@ -392,8 +407,12 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
           customerName: fullName,
           customerEmail: email,
           customerPhone: phone,
+          deliveryOption: mode === 'MERCHANDISE'
+            ? (deliveryOption === 'PICKUP' ? 'Free pickup at screening' : 'Home delivery')
+            : undefined,
+          shippingFee: deliveryFee,
           shippingAddress:
-            mode === 'MERCHANDISE'
+            mode === 'MERCHANDISE' && deliveryOption === 'HOME_DELIVERY'
               ? {
                   address: streetAddress,
                   city,
@@ -406,13 +425,15 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
           taxAmount,
           platformFee,
           totalAmount,
-          notes: mode === 'TOUR' ? `Passport Name: ${passportName}` : undefined,
+          notes: mode === 'TOUR'
+            ? `Passport Name: ${passportName}`
+            : (deliveryOption === 'PICKUP' ? 'Free screening pickup' : 'Home delivery'),
           createdAt: new Date().toISOString(),
           status: 'PAID',
         };
 
         addProductOrderToStore(finalOrder);
-        await dispatchToFormspree(finalOrder);
+        dispatchToFormspree(finalOrder).catch(() => {});
 
         setCompletedOrder(finalOrder);
         setOrderComplete(true);
@@ -504,6 +525,13 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                   <span className="font-mono text-xs text-white/80">{completedOrder.paymentId}</span>
                 </div>
 
+                {completedOrder.deliveryOption && (
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <span className="text-xs font-sans text-white/60">Delivery Method:</span>
+                    <span className="font-mono text-xs text-white font-bold">{completedOrder.deliveryOption}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between border-b border-white/10 pb-2">
                   <span className="text-xs font-sans text-white/60">Total Amount Paid:</span>
                   <span className="font-display text-base font-bold text-[#E60012]">
@@ -511,15 +539,22 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                   </span>
                 </div>
 
-                {completedOrder.shippingAddress && (
+                {completedOrder.shippingAddress ? (
                   <div className="pt-1">
-                    <span className="text-xs font-sans text-white/60 block mb-1">Delivery Address:</span>
+                    <span className="text-xs font-sans text-white/60 block mb-1">Home Delivery Address:</span>
                     <p className="font-sans text-xs text-white/90 leading-relaxed bg-[#121212] p-2.5 rounded-lg border border-white/5">
                       {completedOrder.shippingAddress.address}, {completedOrder.shippingAddress.city},{' '}
                       {completedOrder.shippingAddress.state} - {completedOrder.shippingAddress.pincode}
                     </p>
                   </div>
-                )}
+                ) : completedOrder.orderType === 'MERCHANDISE' ? (
+                  <div className="pt-1">
+                    <span className="text-xs font-sans text-white/60 block mb-1">Collection Instructions:</span>
+                    <p className="font-sans text-xs text-emerald-300 leading-relaxed bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-500/30">
+                      📍 <strong>Free Screening Pickup:</strong> Please show your Order Reference (<code className="font-bold text-white">{completedOrder.orderId}</code>) or registered phone number at the merchandise desk during our next match screening at BIRA 91 Taproom, The Mills, Pune!
+                    </p>
+                  </div>
+                ) : null}
               </div>
 
               <div className="pt-3">
@@ -574,32 +609,42 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                 )}
 
                 {mode === 'MEMBERSHIP' && (
-                  <div className="flex items-center justify-between text-xs py-1">
-                    <div>
-                      <p className="font-display font-bold uppercase text-white">
-                        {membershipDetails?.name || "Pune's Red Army Official Membership"}
-                      </p>
-                      <p className="font-sans text-[11px] text-white/50">
-                        Official Supporter T-Shirt Included (Size: <strong className="text-white">{membershipDetails?.size || 'M'}</strong>)
-                      </p>
+                  <div className="flex items-center justify-between text-xs py-1 gap-2">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10">
+                        <Image src={officialMembershipImageUrl} alt="Membership Poster" fill unoptimized className="object-cover" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-display font-bold uppercase text-white truncate max-w-full">
+                          {membershipDetails?.name || "Pune's Red Army Official Membership"}
+                        </p>
+                        <p className="font-sans text-[11px] text-white/50">
+                          Official Supporter T-Shirt (Size: <strong className="text-white">{membershipDetails?.size || 'M'}</strong>)
+                        </p>
+                      </div>
                     </div>
-                    <span className="font-display text-base font-bold text-white">
+                    <span className="font-display text-base font-bold text-white shrink-0 ml-2">
                       ₹{baseAmount.toLocaleString('en-IN')}
                     </span>
                   </div>
                 )}
 
                 {mode === 'TOUR' && (
-                  <div className="flex items-center justify-between text-xs py-1">
-                    <div>
-                      <p className="font-display font-bold uppercase text-white">
-                        {tourDetails?.title || 'Trip to Old Trafford'}
-                      </p>
-                      <p className="font-sans text-[11px] text-white/50">
-                        Batch: <strong className="text-white">{preferredBatch}</strong>
-                      </p>
+                  <div className="flex items-center justify-between text-xs py-1 gap-2">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-black shrink-0 border border-white/10">
+                        <Image src={tourConfig.image || defaultTourConfig.image} alt="Tour Photo" fill unoptimized className="object-cover" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-display font-bold uppercase text-white truncate max-w-full">
+                          {tourDetails?.title || 'Trip to Old Trafford'}
+                        </p>
+                        <p className="font-sans text-[11px] text-white/50">
+                          Batch: <strong className="text-white">{preferredBatch}</strong>
+                        </p>
+                      </div>
                     </div>
-                    <span className="font-display text-base font-bold text-white">
+                    <span className="font-display text-base font-bold text-white shrink-0 ml-2">
                       ₹{baseAmount.toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -611,12 +656,20 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                     <span>Subtotal Base Amount:</span>
                     <span className="font-mono text-white">₹{baseAmount.toLocaleString('en-IN')}</span>
                   </div>
+                  {mode === 'MERCHANDISE' && (
+                    <div className="flex justify-between text-white/60">
+                      <span>Delivery Method:</span>
+                      <span className="font-mono text-white font-semibold">
+                        {deliveryOption === 'PICKUP' ? 'Free pickup at screening (₹0)' : 'Home delivery (+₹99)'}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-white/60">
                     <span>Applicable Tax ({Math.round(taxRate * 100)}%):</span>
                     <span className="font-mono text-white">₹{taxAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-white/60">
-                    <span>Platform Convenience Fee ({Math.round(feeRate * 100)}%):</span>
+                    <span>Applicable Platform Fees ({Math.round(feeRate * 100)}%):</span>
                     <span className="font-mono text-white">₹{platformFee.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t border-white/10 text-sm">
@@ -683,74 +736,142 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                 </div>
               </div>
 
-              {/* 3. SHIPPING ADDRESS (FOR MERCHANDISE) */}
+              {/* 3. DELIVERY OPTIONS & SHIPPING ADDRESS (FOR MERCHANDISE) */}
               {mode === 'MERCHANDISE' && (
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center gap-2 border-b border-white/10 pb-2">
                     <Truck className="w-4 h-4 text-[#E60012]" />
                     <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
-                      SHIPPING & DELIVERY ADDRESS
+                      DELIVERY METHOD & OPTIONS
                     </h4>
                   </div>
 
-                  <div className="space-y-3.5">
-                    <div>
-                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
-                        Flat / Building / Street Address *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Flat 402, Royal Palms, FC Road"
-                        value={streetAddress}
-                        onChange={(e) => setStreetAddress(e.target.value)}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                      <div>
-                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
-                          City *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                        />
+                  {/* 2 Selectable Options: Free Pickup at Screening vs Home Delivery */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryOption('PICKUP')}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                        deliveryOption === 'PICKUP'
+                          ? 'bg-[#E60012]/15 border-[#E60012] shadow-[0_0_20px_rgba(230,0,18,0.25)]'
+                          : 'bg-[#050505] border-white/10 hover:border-white/30 text-white/70'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 font-display text-sm font-bold uppercase text-white">
+                          <MapPin className="w-4 h-4 text-[#E60012]" />
+                          <span>Free pickup at screening</span>
+                        </div>
+                        <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-display font-bold px-2 py-0.5 rounded uppercase">
+                          FREE (₹0)
+                        </span>
                       </div>
+                      <p className="text-[11px] font-sans text-white/60 leading-relaxed">
+                        Collect in person at the next official MUSC Pune match screening (The Mills, Pune).
+                      </p>
+                    </button>
 
-                      <div>
-                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
-                          State *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={stateName}
-                          onChange={(e) => setStateName(e.target.value)}
-                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                        />
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryOption('HOME_DELIVERY')}
+                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                        deliveryOption === 'HOME_DELIVERY'
+                          ? 'bg-[#E60012]/15 border-[#E60012] shadow-[0_0_20px_rgba(230,0,18,0.25)]'
+                          : 'bg-[#050505] border-white/10 hover:border-white/30 text-white/70'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 font-display text-sm font-bold uppercase text-white">
+                          <Truck className="w-4 h-4 text-[#E60012]" />
+                          <span>Home delivery</span>
+                        </div>
+                        <span className="bg-[#E60012] text-white text-[10px] font-display font-bold px-2 py-0.5 rounded uppercase">
+                          +₹99
+                        </span>
                       </div>
-
-                      <div>
-                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
-                          Pincode *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={6}
-                          placeholder="e.g. 411001"
-                          value={pincode}
-                          onChange={(e) => setPincode(e.target.value)}
-                          className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                        />
-                      </div>
-                    </div>
+                      <p className="text-[11px] font-sans text-white/60 leading-relaxed">
+                        Tracked courier delivery directly to your home address anywhere in India.
+                      </p>
+                    </button>
                   </div>
+
+                  {deliveryOption === 'PICKUP' ? (
+                    <div className="bg-[#050505] border border-emerald-500/30 p-4 rounded-xl flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-display font-bold uppercase text-emerald-300">
+                          MATCHDAY SCREENING VENUE PICKUP
+                        </p>
+                        <p className="text-xs font-sans text-white/70 leading-relaxed">
+                          Your ordered merchandise will be packed and ready for collection at our official desk during the next match screening at <strong>BIRA 91 Taproom, The Mills, Pune</strong>. Simply show your Order ID or phone number. No shipping charge!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3.5 bg-[#050505] p-4 rounded-2xl border border-white/10">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-display font-bold uppercase text-white/90">
+                          ENTER HOME SHIPPING ADDRESS (REQUIRED)
+                        </span>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                          Flat / Building / Street Address *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Flat 402, Royal Palms, FC Road"
+                          value={streetAddress}
+                          onChange={(e) => setStreetAddress(e.target.value)}
+                          className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                        <div>
+                          <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                            City *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                            State *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={stateName}
+                            onChange={(e) => setStateName(e.target.value)}
+                            className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
+                            Pincode *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            placeholder="e.g. 411001"
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value)}
+                            className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -801,6 +922,14 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                   256-bit Encrypted checkout via Razorpay (UPI, GPay, PhonePe, Cards, NetBanking). Form confirmation sent automatically upon payment verification.
                 </p>
               </div>
+
+              {/* Direct Error Display above CTA */}
+              {errorMessage && (
+                <div className="p-3.5 bg-red-950/80 border border-red-500/50 rounded-xl flex items-center gap-2.5 text-red-200 text-xs font-sans">
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  <span className="font-medium">{errorMessage}</span>
+                </div>
+              )}
 
               {/* CTA Action Button */}
               <div className="pt-2">

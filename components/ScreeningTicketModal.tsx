@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText, AlertTriangle } from 'lucide-react';
 import { Screening } from '@/lib/types';
+import { officialLogoUrl } from '@/lib/data';
 import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore, getSiteTaxConfigStore } from '@/lib/ticketStore';
 import { generatePDFTicketPass } from '@/lib/pdfTicketGenerator';
 import { dispatchWhatsAppTicketMessage } from '@/lib/whatsappService';
@@ -220,6 +221,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
             currency: orderData.currency || 'INR',
             name: 'MUSC Pune',
             description: `${screening.matchTitle} (${quantity} Pass${quantity > 1 ? 'es' : ''})`,
+            image: officialLogoUrl,
             order_id: orderData.orderId,
             prefill: {
               name: name || 'Pune Red Supporter',

@@ -49,6 +49,14 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+button {
+  cursor: pointer;
+}
+
 /* High Contrast Input Placeholders */
 input::placeholder, textarea::placeholder {
   color: #A3A3A3 !important;
