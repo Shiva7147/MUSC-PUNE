@@ -44,9 +44,9 @@ export const HeroSection: React.FC = () => {
       {/* Hero Content Container */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
         {/* Sub-Badge Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#171717]/90 border border-white/20 text-[#F5F5F5] font-display text-xs sm:text-sm font-bold uppercase shadow-2xl backdrop-blur-md">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#E60012] animate-ping" />
-          <span>MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
+        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-[#171717]/90 border border-white/20 text-[#F5F5F5] font-display text-[10px] sm:text-xs md:text-sm font-bold uppercase shadow-2xl backdrop-blur-md max-w-full">
+          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#E60012] animate-ping shrink-0" />
+          <span className="truncate sm:overflow-visible">MANCHESTER UNITED SUPPORTERS CLUB • PUNE</span>
         </div>
 
         {/* ALTERNATING SLOGAN HEADLINE (HINDI & ENGLISH) */}

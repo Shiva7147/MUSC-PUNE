@@ -106,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     पुणे
                   </span>
                 </div>
-                <span className="text-[11px] sm:text-xs text-white/60 uppercase font-sans font-medium mt-0.5 truncate max-w-[130px] sm:max-w-none">
+                <span className="text-[10px] sm:text-xs text-white/70 uppercase font-sans font-semibold mt-0.5 whitespace-nowrap">
                   OFFICIAL SUPPORTERS CLUB
                 </span>
               </div>
@@ -174,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               <div>
                 <div className="font-display tracking-tight font-bold text-xl text-white">MUSC PUNE</div>
-                <div className="text-xs font-sans text-white/60 uppercase">PUNE&apos;S RED ARMY</div>
+                <div className="text-xs font-sans text-white/70 uppercase font-semibold">OFFICIAL SUPPORTERS CLUB</div>
               </div>
             </div>
             <button

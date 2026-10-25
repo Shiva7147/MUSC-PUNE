@@ -223,13 +223,19 @@ interface AdminAccount {
 
 const AUTHORIZED_ACCOUNTS: AdminAccount[] = [
   {
-    email: 'ibrahimred@gmail.com',
+    email: 'ebrahimred@gmail.com',
     pin: '1999',
     role: 'SUPER_ADMIN',
-    displayName: 'Ibrahim (Super Admin)',
+    displayName: 'Ebrahim Kondkar (Super Admin)',
   },
   {
     email: 'ebrahimmred@gmail.com',
+    pin: '1999',
+    role: 'SUPER_ADMIN',
+    displayName: 'Ebrahim Kondkar (Super Admin)',
+  },
+  {
+    email: 'ibrahimred@gmail.com',
     pin: '1999',
     role: 'SUPER_ADMIN',
     displayName: 'Ebrahim Kondkar (Super Admin)',
@@ -269,6 +275,7 @@ const AUTHORIZED_ACCOUNTS: AdminAccount[] = [
 export default function AdminDashboardPage() {
   const [adminEmailInput, setAdminEmailInput] = useState('');
   const [pinInput, setPinInput] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<'SUPER_ADMIN' | 'GATE_MARSHAL'>('SUPER_ADMIN');
   const [userDisplayName, setUserDisplayName] = useState<string>('Super Admin');
@@ -407,6 +414,7 @@ export default function AdminDashboardPage() {
   // Handle Admin Email + 4-Digit Passcode Login
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError(null);
     const cleanEmail = adminEmailInput.trim().toLowerCase();
     const cleanPin = pinInput.trim();
 
@@ -415,11 +423,13 @@ export default function AdminDashboardPage() {
       const emailMatches =
         acc.email.toLowerCase() === cleanEmail ||
         (cleanEmail === 'admin' && acc.email === 'admin') ||
-        (cleanEmail === 'ebrahim' && acc.email.includes('ebrahim'));
+        (cleanEmail === 'ebrahim' && acc.email.includes('ebrahim')) ||
+        (cleanEmail === 'ibrahim' && acc.email.includes('ibrahim'));
       return emailMatches && acc.pin === cleanPin;
     });
 
     if (account) {
+      setLoginError(null);
       setIsAuthenticated(true);
       setUserRole(account.role);
       setUserDisplayName(account.displayName);
@@ -432,7 +442,7 @@ export default function AdminDashboardPage() {
         setActiveTab('SCANNER');
       }
     } else {
-      alert('Invalid login credentials. Please check your authorized email and passcode PIN.');
+      setLoginError('Invalid login credentials. Please check your email and passcode PIN.');
     }
   };
 
@@ -1029,6 +1039,11 @@ export default function AdminDashboardPage() {
             </div>
 
             <form onSubmit={handlePinSubmit} className="space-y-4 text-left">
+              {loginError && (
+                <div className="p-3.5 bg-red-950/80 border border-red-500/50 rounded-xl text-red-200 text-xs font-sans animate-in fade-in">
+                  {loginError}
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-display text-white/90 font-bold uppercase mb-1.5">
                   ADMIN / MARSHAL EMAIL ADDRESS
@@ -3188,27 +3203,15 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase block">TRIP DURATION *</label>
-                      <input
-                        type="text"
-                        required
-                        value={tourConfig.duration}
-                        onChange={(e) => setTourConfig({ ...tourConfig, duration: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-display text-white/90 font-bold uppercase block">BOOKING / INQUIRY LINK</label>
-                      <input
-                        type="text"
-                        value={tourConfig.bookingUrl || ''}
-                        onChange={(e) => setTourConfig({ ...tourConfig, bookingUrl: e.target.value })}
-                        className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
-                      />
-                    </div>
+                  <div>
+                    <label className="text-xs font-display text-white/90 font-bold uppercase block">TRIP DURATION *</label>
+                    <input
+                      type="text"
+                      required
+                      value={tourConfig.duration}
+                      onChange={(e) => setTourConfig({ ...tourConfig, duration: e.target.value })}
+                      className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white font-sans mt-1"
+                    />
                   </div>
 
                   <ImageUploadOrUrlField

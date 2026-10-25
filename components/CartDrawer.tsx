@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Trash2, ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react';
 import { CartItem } from '@/lib/types';
-import { getSiteTaxConfigStore } from '@/lib/ticketStore';
+import { getSiteTaxConfigStore, fetchConfigRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 import { UniversalCheckoutModal } from './UniversalCheckoutModal';
 
 interface CartDrawerProps {
@@ -25,10 +25,25 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onClearCart,
 }) => {
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [siteTaxConfig, setSiteTaxConfig] = useState(getSiteTaxConfigStore());
+
+  useEffect(() => {
+    if (isOpen) {
+      setSiteTaxConfig(getSiteTaxConfigStore());
+      fetchConfigRemoteAsync().then((res) => {
+        if (res?.taxConfig) setSiteTaxConfig(res.taxConfig);
+      }).catch(() => {});
+      const unsubscribe = subscribeStore(() => {
+        setSiteTaxConfig(getSiteTaxConfigStore());
+      });
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const siteTaxConfig = getSiteTaxConfigStore();
   const baseTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const taxRate = siteTaxConfig.productsTaxRate ?? 0.18; // Applicable tax rate (e.g. 18%)
   const taxAmount = Math.round(baseTotal * taxRate);

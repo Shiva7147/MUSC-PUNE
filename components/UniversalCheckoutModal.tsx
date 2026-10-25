@@ -27,6 +27,8 @@ import {
   getMembershipConfigStore,
   getTourConfigStore,
   addProductOrderToStore,
+  fetchConfigRemoteAsync,
+  subscribeStore,
 } from '@/lib/ticketStore';
 
 export interface UniversalCheckoutModalProps {
@@ -100,6 +102,22 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
       setOrderComplete(false);
       setCompletedOrder(null);
       setErrorMessage(null);
+      fetchConfigRemoteAsync()
+        .then((res) => {
+          if (res?.taxConfig) setSiteTaxConfig(res.taxConfig);
+          if (res?.membership) setMembershipConfig(res.membership);
+          if (res?.tour) setTourConfig(res.tour);
+        })
+        .catch(() => {});
+
+      const unsubscribe = subscribeStore(() => {
+        setSiteTaxConfig(getSiteTaxConfigStore());
+        setMembershipConfig(getMembershipConfigStore());
+        setTourConfig(getTourConfigStore());
+      });
+      return () => {
+        unsubscribe();
+      };
     }
   }, [isOpen]);
 
@@ -117,12 +135,12 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
     feeRate = siteTaxConfig.productsPlatformFeeRate ?? 0.03;
   } else if (mode === 'MEMBERSHIP') {
     baseAmount = membershipDetails?.price || membershipConfig.basePrice || 999;
-    taxRate = membershipConfig.taxRate ?? siteTaxConfig.membershipTaxRate ?? 0.18;
-    feeRate = membershipConfig.platformFeeRate ?? siteTaxConfig.membershipPlatformFeeRate ?? 0.03;
+    taxRate = siteTaxConfig.membershipTaxRate ?? membershipConfig.taxRate ?? 0.18;
+    feeRate = siteTaxConfig.membershipPlatformFeeRate ?? membershipConfig.platformFeeRate ?? 0.03;
   } else if (mode === 'TOUR') {
     baseAmount = tourDetails?.price || tourConfig.price || 125000;
-    taxRate = tourConfig.taxRate ?? siteTaxConfig.toursTaxRate ?? 0.05;
-    feeRate = tourConfig.platformFeeRate ?? siteTaxConfig.toursPlatformFeeRate ?? 0.02;
+    taxRate = siteTaxConfig.toursTaxRate ?? tourConfig.taxRate ?? 0.05;
+    feeRate = siteTaxConfig.toursPlatformFeeRate ?? tourConfig.platformFeeRate ?? 0.02;
   }
 
   const taxAmount = Math.round(baseAmount * taxRate);
@@ -156,13 +174,6 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
       }
       if (!pincode.trim() || pincode.trim().length < 6) {
         setErrorMessage('Please enter a valid 6-digit postal pincode.');
-        return false;
-      }
-    }
-
-    if (mode === 'TOUR') {
-      if (!passportName.trim()) {
-        setErrorMessage('Please enter your full name as printed on your passport.');
         return false;
       }
     }
@@ -945,46 +956,6 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                           className="w-full bg-[#171717] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
                         />
                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. TOUR SPECIFIC PASSPORT DETAILS */}
-              {mode === 'TOUR' && (
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center gap-2 border-b border-white/10 pb-2">
-                    <Plane className="w-4 h-4 text-[#E60012]" />
-                    <h4 className="font-display text-sm font-bold uppercase tracking-wider text-white">
-                      PASSPORT & TRAVEL PREFERENCES
-                    </h4>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
-                        Full Name as per Passport *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="As shown in passport"
-                        value={passportName}
-                        onChange={(e) => setPassportName(e.target.value)}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-display text-white/80 font-bold uppercase mb-1">
-                        Preferred Batch
-                      </label>
-                      <input
-                        type="text"
-                        value={preferredBatch}
-                        onChange={(e) => setPreferredBatch(e.target.value)}
-                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-[#E60012]"
-                      />
                     </div>
                   </div>
                 </div>

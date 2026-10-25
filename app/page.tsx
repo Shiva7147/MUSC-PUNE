@@ -300,7 +300,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
                 <div className="absolute top-6 left-6">
                   <span className="badge-pune text-xs font-display px-3 py-1 rounded font-bold">
-                    ✈️ PNQ ➔ MANCHESTER (MAN)
+                    ✈️ Pune (PNQ) ➔ Manchester (MAN)
                   </span>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function Home() {
                     className="w-full bg-[#E60012] hover:bg-[#C40010] border border-white/20 text-white font-display text-base font-bold tracking-tight py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] uppercase cursor-pointer"
                   >
                     <Plane className="w-5 h-5 text-white" />
-                    <span>BOOK THE TRIP (₹{(tourConfig.price ?? 185000).toLocaleString('en-IN')})</span>
+                    <span>BOOK THE TRIP (₹{(tourConfig.price ?? 125000).toLocaleString('en-IN')})</span>
                   </button>
                   <Link
                     href="/tours"

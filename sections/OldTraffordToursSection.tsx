@@ -54,7 +54,7 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
           </div>
 
           <div className="badge-gold text-xs font-display px-3.5 py-1.5 rounded-lg font-bold shrink-0">
-            ✈️ PNQ ➔ MANCHESTER (MAN)
+            ✈️ Pune (PNQ) ➔ Manchester (MAN)
           </div>
         </div>
 
@@ -72,11 +72,6 @@ export const OldTraffordToursSection: React.FC<OldTraffordToursSectionProps> = (
                 className="object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#171717] via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#171717]/60 lg:to-[#171717]" />
-              <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2">
-                <span className="bg-[#E60012] text-white text-[10px] sm:text-xs font-display font-bold px-2.5 sm:px-3 py-1.5 rounded-md shadow-lg uppercase tracking-wider">
-                  AUTUMN 2026 DELEGATION
-                </span>
-              </div>
             </div>
 
             {/* Package Details & Inclusions */}

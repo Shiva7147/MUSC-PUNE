@@ -224,7 +224,7 @@ export const defaultTourConfig: TourConfig = {
   matchHighlights: ['Match Tickets', 'Stadium and Museum Tour', 'Accommodation'],
   includedFeatures: [
     'Guaranteed Home Match Ticket for Premier League Fixture at Old Trafford',
-    'Group Flight Assistance (PNQ ➔ MAN)',
+    'Group Flight Assistance (Pune [PNQ] ➔ Manchester [MAN])',
     'Hotel Accommodation near Old Trafford',
     'Exclusive Manchester Supporters Meetup',
     'Guided Stadium and Museum Tour'
@@ -236,7 +236,7 @@ export const defaultTourConfig: TourConfig = {
     'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best/v1789886640/IMG_7540.JPG_p9wuqu.jpg',
     'https://res.cloudinary.com/dy6mwk08r/image/upload/f_auto,q_auto:best/v1789886594/IMG_7495.JPG_ay4gmh.jpg'
   ],
-  description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from PNQ to Manchester to witness United live at the Theatre of Dreams with home match tickets, stadium and museum tour, and accommodation included.',
+  description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from Pune (PNQ) to Manchester (MAN) to witness United live at the Theatre of Dreams with home match tickets, stadium and museum tour, and accommodation included.',
   longDescription: [
     'For every Manchester United fan, visiting Old Trafford is the ultimate pilgrimage. MUSC Pune organises official group trips to Manchester, giving supporters from Pune the opportunity to experience the iconic Theatre of Dreams in person.',
     'Our group trips cover Premier League home fixtures, complete with stadium and museum tours, matchday atmosphere in Manchester, and shared experiences with fellow Reds.',
@@ -254,13 +254,13 @@ export const oldTraffordTours: TourPackage[] = [
     matchHighlights: ['Match Tickets', 'Stadium and Museum Tour', 'Accommodation'],
     includedFeatures: [
       'Guaranteed Match Ticket for Premier League Fixture',
-      'Group Flight Assistance (PNQ ➔ MAN)',
+      'Group Flight Assistance (Pune [PNQ] ➔ Manchester [MAN])',
       'Hotel Accommodation near Old Trafford',
       'Exclusive Manchester Supporters Meetup',
       'Guided Stadium and Museum Tour'
     ],
     image: 'https://res.cloudinary.com/dy6mwk08r/image/upload/v1786865406/WhatsApp_Image_2026-08-16_at_11.53.51_AM_13_arf4zr.jpg',
-    description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from PNQ to Manchester to witness United live at the Theatre of Dreams with match tickets, stadium and museum tour, and accommodation included.'
+    description: 'From Pune to Old Trafford. Fly out with fellow Pune supporters from Pune (PNQ) to Manchester (MAN) to witness United live at the Theatre of Dreams with match tickets, stadium and museum tour, and accommodation included.'
   }
 ];
 

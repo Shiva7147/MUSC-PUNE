@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { X, Ticket, Calendar, Clock, MapPin, CheckCircle, ArrowRight, User, Mail, Phone, Download, Minus, Plus, MessageCircle, FileText, AlertTriangle, Camera, ShieldCheck, CheckCircle2, CreditCard } from 'lucide-react';
-import { Screening } from '@/lib/types';
+import { Screening, SiteTaxConfig } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
-import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore, getSiteTaxConfigStore } from '@/lib/ticketStore';
+import { generateTicketPass, recordFailedPaymentAttempt, AdminTicketRecord, getMembershipConfigStore, getSiteTaxConfigStore, fetchConfigRemoteAsync, subscribeStore } from '@/lib/ticketStore';
 import { generatePDFTicketPass } from '@/lib/pdfTicketGenerator';
 import { dispatchWhatsAppTicketMessage } from '@/lib/whatsappService';
 
@@ -28,6 +28,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<AdminTicketRecord | null>(null);
   const [showSafetyPopup, setShowSafetyPopup] = useState(false);
+  const [siteTaxConfig, setSiteTaxConfig] = useState<SiteTaxConfig>(getSiteTaxConfigStore());
 
   // Safely record pending debit attempt if payment is interrupted or fails
   const handlePaymentInterrupted = async (reason?: string) => {
@@ -106,14 +107,32 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
     };
   }, [isOpen]);
 
+  // Refresh remote tax & platform fee configuration when opened & listen for live store changes
+  useEffect(() => {
+    if (isOpen) {
+      setSiteTaxConfig(getSiteTaxConfigStore());
+      fetchConfigRemoteAsync()
+        .then((res) => {
+          if (res?.taxConfig) setSiteTaxConfig(res.taxConfig);
+        })
+        .catch(() => {});
+
+      const unsubscribe = subscribeStore(() => {
+        setSiteTaxConfig(getSiteTaxConfigStore());
+      });
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  // Dynamic Taxes & Fees Calculation (Percentage Based)
-  const membershipConfig = getMembershipConfigStore();
+  // Dynamic Taxes & Fees Calculation (Percentage Based from Live Admin Store)
   const baseAmount = screening.price * quantity;
-  const taxRate = screening.taxRate ?? membershipConfig.taxRate ?? 0.18; // Applicable tax percentage
+  const taxRate = siteTaxConfig.screeningsTaxRate ?? screening.taxRate ?? 0.18; // Applicable screening tax percentage
   const taxAmount = Math.round(baseAmount * taxRate);
-  const platformFeeRate = screening.platformFeeRate ?? membershipConfig.platformFeeRate ?? 0.03; // Platform Fee percentage
+  const platformFeeRate = siteTaxConfig.screeningsPlatformFeeRate ?? screening.platformFeeRate ?? 0.03; // Applicable screening platform fee percentage
   const platformFeeAmount = Math.round(baseAmount * platformFeeRate);
   const totalAmount = baseAmount + taxAmount + platformFeeAmount;
 
