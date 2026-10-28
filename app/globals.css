@@ -212,3 +212,13 @@ p, span, li, button, input, label {
 ::-webkit-scrollbar-thumb:hover {
   background: #E60012;
 }
+
+/* iOS Safari Auto-Zoom Fix: Inputs must have at least 16px font-size on mobile screens to prevent auto-zooming */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+

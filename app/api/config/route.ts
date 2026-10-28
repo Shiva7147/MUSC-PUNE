@@ -9,8 +9,9 @@ export const revalidate = 0;
 let inMemoryMembership: MembershipConfig = { ...defaultMembershipConfig };
 let inMemoryTour: TourConfig = { ...defaultTourConfig };
 let inMemoryTax: SiteTaxConfig = { ...defaultSiteTaxConfig };
+let inMemoryOrders: any[] = [];
 
-// GET /api/config?key=membership | tour | tax_config
+// GET /api/config?key=membership | tour | tax_config | product_orders
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get('key');
@@ -22,6 +23,7 @@ export async function GET(request: Request) {
         const memRow = data.find((r: any) => r.key === 'membership_config');
         const tourRow = data.find((r: any) => r.key === 'tour_config');
         const taxRow = data.find((r: any) => r.key === 'tax_config');
+        const ordersRow = data.find((r: any) => r.key === 'product_orders');
         if (memRow && memRow.value && typeof memRow.value === 'object') {
           inMemoryMembership = {
             ...defaultMembershipConfig,
@@ -44,6 +46,9 @@ export async function GET(request: Request) {
             ...taxRow.value,
           };
         }
+        if (ordersRow && Array.isArray(ordersRow.value)) {
+          inMemoryOrders = ordersRow.value;
+        }
       }
     }
   } catch (err) {
@@ -59,6 +64,9 @@ export async function GET(request: Request) {
   if (key === 'tax_config' || key === 'tax') {
     return NextResponse.json({ taxConfig: inMemoryTax, tax_config: inMemoryTax }, { status: 200 });
   }
+  if (key === 'product_orders' || key === 'orders') {
+    return NextResponse.json({ product_orders: inMemoryOrders, productOrders: inMemoryOrders }, { status: 200 });
+  }
 
   return NextResponse.json(
     {
@@ -68,12 +76,14 @@ export async function GET(request: Request) {
       tourConfig: inMemoryTour,
       taxConfig: inMemoryTax,
       tax_config: inMemoryTax,
+      product_orders: inMemoryOrders,
+      productOrders: inMemoryOrders,
     },
     { status: 200 }
   );
 }
 
-// POST /api/config (Updates membership, tour, or tax config)
+// POST /api/config (Updates membership, tour, tax config, or product orders)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -82,6 +92,7 @@ export async function POST(request: Request) {
     const isMembership = key === 'membership' || key === 'membership_config';
     const isTour = key === 'tour' || key === 'tour_config';
     const isTax = key === 'tax' || key === 'tax_config';
+    const isOrders = key === 'product_orders' || key === 'orders';
 
     if (isMembership) {
       inMemoryMembership = {
@@ -126,16 +137,35 @@ export async function POST(request: Request) {
           updated_at: new Date().toISOString(),
         });
       }
+    } else if (isOrders) {
+      inMemoryOrders = Array.isArray(value) ? value : [];
+      if (supabaseAdmin) {
+        await supabaseAdmin.from('site_config').upsert({
+          key: 'product_orders',
+          value: inMemoryOrders,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    } else if (key && value !== undefined) {
+      if (supabaseAdmin) {
+        await supabaseAdmin.from('site_config').upsert({
+          key,
+          value,
+          updated_at: new Date().toISOString(),
+        });
+      }
     }
 
     return NextResponse.json({
       success: true,
       key,
-      value: isMembership ? inMemoryMembership : isTour ? inMemoryTour : inMemoryTax,
+      value,
       membership: inMemoryMembership,
       tour: inMemoryTour,
       taxConfig: inMemoryTax,
       tax_config: inMemoryTax,
+      product_orders: inMemoryOrders,
+      productOrders: inMemoryOrders,
     }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

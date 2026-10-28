@@ -72,6 +72,9 @@ export const upcomingScreenings: Screening[] = [
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 350,
+    redeemableAmount: 250,
+    entryFeeAmount: 100,
+    pricingSplitNotes: '₹250 redeemable on Food & Beverages at venue + ₹100 entry charge',
     activePhaseName: 'PHASE 1 - REGULAR RELEASE',
     phases: [
       { phaseName: 'PHASE 1 - REGULAR RELEASE', price: 350, isActive: true },
@@ -110,6 +113,9 @@ export const upcomingScreenings: Screening[] = [
     venueAddress: 'THE MILLS, Pune, Maharashtra',
     venueArea: 'THE MILLS / Central Pune',
     price: 300,
+    redeemableAmount: 200,
+    entryFeeAmount: 100,
+    pricingSplitNotes: '₹200 redeemable on Food & Beverages at venue + ₹100 entry charge',
     activePhaseName: 'PHASE 1 - REGULAR RELEASE',
     phases: [
       { phaseName: 'PHASE 1 - REGULAR RELEASE', price: 300, isActive: true },

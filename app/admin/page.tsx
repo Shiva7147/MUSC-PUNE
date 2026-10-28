@@ -57,6 +57,8 @@ import {
   getProductOrdersStore,
   approveDebitedPayment,
   toggleCheckInTicket,
+  updateTicketInStore,
+  deleteTicketFromStore,
   subscribeStore,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
@@ -310,6 +312,7 @@ export default function AdminDashboardPage() {
   const [galleryList, setGalleryList] = useState<GalleryItem[]>([]);
   const [editingScreening, setEditingScreening] = useState<Screening | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingTicket, setEditingTicket] = useState<AdminTicketRecord | null>(null);
 
   // New item form states
   const [newScreening, setNewScreening] = useState<Partial<Screening>>({
@@ -319,6 +322,8 @@ export default function AdminDashboardPage() {
     time: '09:00 PM IST',
     venueName: 'BIRA 91 Taproom, The Mills',
     price: 350,
+    redeemableAmount: 250,
+    entryFeeAmount: 100,
     status: 'UPCOMING',
     capacity: 250,
     remainingSeats: 250,
@@ -778,6 +783,8 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     if (!newScreening.matchTitle || !newScreening.date) return;
     const initialPrice = Number(newScreening.price) || 350;
+    const redeemable = newScreening.redeemableAmount !== undefined ? Number(newScreening.redeemableAmount) : Math.max(0, initialPrice - 100);
+    const entryFee = newScreening.entryFeeAmount !== undefined ? Number(newScreening.entryFeeAmount) : Math.max(0, initialPrice - redeemable);
     const item: Screening = {
       id: `screening-${Date.now()}`,
       matchTitle: newScreening.matchTitle,
@@ -792,24 +799,27 @@ export default function AdminDashboardPage() {
       venueAddress: 'THE MILLS, Pune',
       venueArea: 'THE MILLS / Central Pune',
       price: initialPrice,
+      redeemableAmount: redeemable,
+      entryFeeAmount: entryFee,
+      pricingSplitNotes: `₹${redeemable} Redeemable on F&B + ₹${entryFee} Entry Fee`,
       activePhaseName: 'PHASE 1 - REGULAR RELEASE',
       phases: [
-        { phaseName: 'PHASE 1 - REGULAR RELEASE', price: initialPrice, isActive: true },
-        { phaseName: 'PHASE 2 - ADVANCE TICKETS', price: initialPrice + 50, isActive: false },
-        { phaseName: 'PHASE 3 - FINAL RELEASE', price: initialPrice + 100, isActive: false },
+        { phaseName: 'PHASE 1 - REGULAR RELEASE', price: initialPrice, isActive: true, redeemableAmount: redeemable, entryFeeAmount: entryFee } as any,
+        { phaseName: 'PHASE 2 - ADVANCE TICKETS', price: initialPrice + 50, isActive: false, redeemableAmount: redeemable, entryFeeAmount: entryFee + 50 } as any,
+        { phaseName: 'PHASE 3 - FINAL RELEASE', price: initialPrice + 100, isActive: false, redeemableAmount: redeemable, entryFeeAmount: entryFee + 100 } as any,
       ],
       featured: false,
       status: 'UPCOMING',
       description: 'Official MUSC Pune screening event at BIRA 91 Taproom, The Mills.',
       gateOpening: '07:30 PM IST',
-      inclusions: ['Guaranteed Entry to Screening Arena', 'Redeemable Cover Voucher'],
+      inclusions: ['Guaranteed Entry to Screening Arena', `₹${redeemable} Redeemable on Food & Beverages`, 'Official Matchday Atmosphere'],
       rules: ['Digital QR Ticket Pass required for gate entry'],
       capacity: Number(newScreening.capacity) || 250,
       remainingSeats: Number(newScreening.capacity) || 250,
     };
     await addScreeningToStore(item);
     await fetchScreeningsRemoteAsync();
-    setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350, time: '09:00 PM IST', venueName: 'BIRA 91 Taproom, The Mills' });
+    setNewScreening({ matchTitle: '', competition: 'Premier League', date: '', price: 350, redeemableAmount: 250, entryFeeAmount: 100, time: '09:00 PM IST', venueName: 'BIRA 91 Taproom, The Mills' });
     alert('New event / screening created and saved to database successfully!');
   };
 
@@ -820,6 +830,23 @@ export default function AdminDashboardPage() {
     await fetchScreeningsRemoteAsync();
     setEditingScreening(null);
     alert(`Screening event "${editingScreening.matchTitle}" updated and synced live across the entire website!`);
+  };
+
+  const handleUpdateTicket = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTicket) return;
+    await updateTicketInStore(editingTicket);
+    await fetchRemoteTicketsAsync();
+    setEditingTicket(null);
+    alert(`Ticket #${editingTicket.ticketId} updated successfully and saved to Supabase!`);
+  };
+
+  const handleDeleteTicket = async (ticketId: string) => {
+    if (confirm(`Are you sure you want to permanently delete transaction #${ticketId}? This will remove the ticket from Supabase and the gate ledger.`)) {
+      await deleteTicketFromStore(ticketId);
+      await fetchRemoteTicketsAsync();
+      alert(`Transaction #${ticketId} deleted successfully.`);
+    }
   };
 
   const formatDateFromPicker = (isoDate: string): string => {
@@ -1956,9 +1983,71 @@ export default function AdminDashboardPage() {
                         <input
                           type="number"
                           value={newScreening.price || 350}
-                          onChange={(e) => setNewScreening({ ...newScreening, price: Number(e.target.value) })}
+                          onChange={(e) => {
+                            const p = Number(e.target.value);
+                            const rem = Math.max(0, p - 100);
+                            setNewScreening({
+                              ...newScreening,
+                              price: p,
+                              redeemableAmount: rem,
+                              entryFeeAmount: Math.min(100, p),
+                            });
+                          }}
                           className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
                         />
+                      </div>
+                    </div>
+
+                    {/* Ticket Price Split Breakdown */}
+                    <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 space-y-2">
+                      <div className="text-xs font-display font-bold text-amber-400 uppercase flex items-center justify-between">
+                        <span>🍽️ TICKET PRICE BREAKDOWN / SPLIT</span>
+                        <span className="text-[10px] text-white/50 lowercase font-sans">e.g. ₹400 F&B + ₹100 entry</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">
+                            REDEEMABLE ON F&B (₹)
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            placeholder="e.g. 250"
+                            value={newScreening.redeemableAmount ?? ''}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setNewScreening({
+                                ...newScreening,
+                                redeemableAmount: val,
+                                entryFeeAmount: newScreening.price ? Math.max(0, Number(newScreening.price) - val) : newScreening.entryFeeAmount
+                              });
+                            }}
+                            className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">
+                            ENTRY CHARGE (₹)
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            placeholder="e.g. 100"
+                            value={newScreening.entryFeeAmount ?? ''}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setNewScreening({
+                                ...newScreening,
+                                entryFeeAmount: val,
+                                redeemableAmount: newScreening.price ? Math.max(0, Number(newScreening.price) - val) : newScreening.redeemableAmount
+                              });
+                            }}
+                            className="w-full bg-[#050505] border border-white/15 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
+                          />
+                        </div>
+                      </div>
+                      <div className="text-[11px] font-sans text-white/60">
+                        Total Price: ₹{newScreening.price || 0} = ₹{newScreening.redeemableAmount ?? 0} (F&B Cover) + ₹{newScreening.entryFeeAmount ?? 0} (Entry Fee)
                       </div>
                     </div>
 
@@ -2202,9 +2291,71 @@ export default function AdminDashboardPage() {
                               type="number"
                               required
                               value={editingScreening.price}
-                              onChange={(e) => setEditingScreening({ ...editingScreening, price: Number(e.target.value) })}
+                              onChange={(e) => {
+                                const p = Number(e.target.value);
+                                const rem = Math.max(0, p - 100);
+                                setEditingScreening({
+                                  ...editingScreening,
+                                  price: p,
+                                  redeemableAmount: rem,
+                                  entryFeeAmount: Math.min(100, p),
+                                });
+                              }}
                               className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
                             />
+                          </div>
+                        </div>
+
+                        {/* Ticket Price Split Breakdown */}
+                        <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 space-y-2">
+                          <div className="text-xs font-display font-bold text-amber-400 uppercase flex items-center justify-between">
+                            <span>🍽️ TICKET PRICE BREAKDOWN / SPLIT</span>
+                            <span className="text-[10px] text-white/50 lowercase font-sans">e.g. ₹400 F&B + ₹100 entry</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-xs font-display text-white/90 font-bold uppercase block">
+                                REDEEMABLE ON F&B (₹)
+                              </label>
+                              <input
+                                type="number"
+                                min={0}
+                                placeholder="e.g. 400"
+                                value={editingScreening.redeemableAmount ?? ''}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setEditingScreening({
+                                    ...editingScreening,
+                                    redeemableAmount: val,
+                                    entryFeeAmount: editingScreening.price ? Math.max(0, Number(editingScreening.price) - val) : editingScreening.entryFeeAmount,
+                                  });
+                                }}
+                                className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-display text-white/90 font-bold uppercase block">
+                                ENTRY CHARGE (₹)
+                              </label>
+                              <input
+                                type="number"
+                                min={0}
+                                placeholder="e.g. 100"
+                                value={editingScreening.entryFeeAmount ?? ''}
+                                onChange={(e) => {
+                                  const val = Number(e.target.value);
+                                  setEditingScreening({
+                                    ...editingScreening,
+                                    entryFeeAmount: val,
+                                    redeemableAmount: editingScreening.price ? Math.max(0, Number(editingScreening.price) - val) : editingScreening.redeemableAmount,
+                                  });
+                                }}
+                                className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-2.5 text-sm text-white mt-1"
+                              />
+                            </div>
+                          </div>
+                          <div className="text-[11px] font-sans text-white/60">
+                            Total Price: ₹{editingScreening.price || 0} = ₹{editingScreening.redeemableAmount ?? 0} (F&B Cover) + ₹{editingScreening.entryFeeAmount ?? 0} (Entry Fee)
                           </div>
                         </div>
 
@@ -2475,6 +2626,28 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase block">PRODUCT DESCRIPTION</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Describe the merchandise features, fabric, sizing advice, etc..."
+                        value={newProduct.description || ''}
+                        onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-display text-white/90 font-bold uppercase block">HIGHLIGHTS / DETAILS (Comma-separated)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 100% Breathable Cotton, Official Club Crest, Regular Fit"
+                        value={Array.isArray(newProduct.details) ? newProduct.details.join(', ') : (newProduct.details || '')}
+                        onChange={(e) => setNewProduct({ ...newProduct, details: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })}
+                        className="w-full bg-[#050505] border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E60012]"
+                      />
+                    </div>
+
                     <ImageUploadOrUrlField
                       label="PRODUCT IMAGE"
                       value={newProduct.image || ''}
@@ -2697,6 +2870,28 @@ export default function AdminDashboardPage() {
                               </label>
                             </div>
                           </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">PRODUCT DESCRIPTION</label>
+                          <textarea
+                            rows={3}
+                            placeholder="Describe the merchandise features, fabric, sizing advice, etc..."
+                            value={editingProduct.description || ''}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">HIGHLIGHTS / DETAILS (Comma-separated)</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 100% Breathable Cotton, Official Club Crest, Regular Fit"
+                            value={Array.isArray(editingProduct.details) ? editingProduct.details.join(', ') : (editingProduct.details || '')}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, details: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
+                          />
                         </div>
 
                         <ImageUploadOrUrlField
@@ -2987,7 +3182,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[760px] text-left text-xs font-sans border-collapse">
+                        <table className="w-full min-w-[850px] text-left text-xs font-sans border-collapse">
                           <thead>
                             <tr className="border-b border-white/15 text-[#E60012] font-display uppercase tracking-wider">
                               <th className="py-3 px-3">TICKET ID</th>
@@ -2998,6 +3193,7 @@ export default function AdminDashboardPage() {
                               <th className="py-3 px-3">TOTAL</th>
                               <th className="py-3 px-3">PAYMENT / DEBIT STATUS</th>
                               <th className="py-3 px-3">GATE STATUS</th>
+                              <th className="py-3 px-3 text-right">ACTIONS</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/10 text-white/80 font-mono">
@@ -3055,12 +3251,163 @@ export default function AdminDashboardPage() {
                                     </span>
                                   )}
                                 </td>
+                                <td className="py-3 px-3 text-right whitespace-nowrap">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setEditingTicket(t)}
+                                      className="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 font-display text-[11px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow"
+                                      title="Edit Transaction"
+                                    >
+                                      <EditIcon className="w-3.5 h-3.5" />
+                                      <span>EDIT</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteTicket(t.ticketId)}
+                                      className="bg-red-950/70 hover:bg-red-900 border border-red-500/50 text-red-300 font-display text-[11px] font-bold p-1.5 rounded-lg flex items-center cursor-pointer transition-colors"
+                                      title="Delete Transaction"
+                                    >
+                                      <TrashIcon className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* EDIT TICKET TRANSACTION MODAL */}
+                {editingTicket && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="bg-[#171717] border border-white/20 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div>
+                          <div className="text-xs font-display text-[#E60012] font-bold uppercase">EDIT TRANSACTION</div>
+                          <h3 className="font-display text-2xl font-bold text-white uppercase">{editingTicket.ticketId}</h3>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEditingTicket(null)}
+                          className="text-white/60 hover:text-white p-2 rounded-lg bg-[#050505]"
+                        >
+                          <CloseIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <form onSubmit={handleUpdateTicket} className="space-y-4">
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">HOLDER NAME *</label>
+                          <input
+                            type="text"
+                            required
+                            value={editingTicket.userName}
+                            onChange={(e) => setEditingTicket({ ...editingTicket, userName: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1 focus:outline-none focus:border-[#E60012]"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">PHONE NUMBER *</label>
+                            <input
+                              type="text"
+                              required
+                              value={editingTicket.userPhone}
+                              onChange={(e) => setEditingTicket({ ...editingTicket, userPhone: e.target.value })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">EMAIL ADDRESS</label>
+                            <input
+                              type="email"
+                              value={editingTicket.userEmail || ''}
+                              onChange={(e) => setEditingTicket({ ...editingTicket, userEmail: e.target.value })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">TICKET QUANTITY *</label>
+                            <input
+                              type="number"
+                              required
+                              min={1}
+                              value={editingTicket.quantity}
+                              onChange={(e) => setEditingTicket({ ...editingTicket, quantity: Number(e.target.value) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">TOTAL AMOUNT (₹) *</label>
+                            <input
+                              type="number"
+                              required
+                              value={editingTicket.totalAmount}
+                              onChange={(e) => setEditingTicket({ ...editingTicket, totalAmount: Number(e.target.value) })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-4 py-3 text-sm text-white mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">PAYMENT STATUS</label>
+                            <select
+                              value={editingTicket.paymentStatus || 'SUCCESS'}
+                              onChange={(e) => setEditingTicket({ ...editingTicket, paymentStatus: e.target.value as any })}
+                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                            >
+                              <option value="SUCCESS">PAID (SUCCESS)</option>
+                              <option value="DEBIT_VERIFICATION_REQUIRED">DEBIT VERIFICATION</option>
+                              <option value="REFUNDED">REFUNDED</option>
+                              <option value="FAILED">FAILED</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">GATE CHECK-IN STATUS</label>
+                            <div className="flex items-center h-[46px] mt-1">
+                              <label className="flex items-center gap-2 cursor-pointer text-xs text-white/80">
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(editingTicket.checkedIn)}
+                                  onChange={(e) => setEditingTicket({
+                                    ...editingTicket,
+                                    checkedIn: e.target.checked,
+                                    checkedInAt: e.target.checked ? (editingTicket.checkedInAt || new Date().toLocaleTimeString('en-IN')) : undefined
+                                  })}
+                                  className="w-4 h-4 accent-[#E60012] rounded cursor-pointer"
+                                />
+                                <span>Admitted / Checked In</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => setEditingTicket(null)}
+                            className="flex-1 bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold py-3.5 rounded-xl uppercase"
+                          >
+                            CANCEL
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold py-3.5 rounded-xl uppercase shadow"
+                          >
+                            SAVE & SYNC TO SUPABASE
+                          </button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
                 )}
 

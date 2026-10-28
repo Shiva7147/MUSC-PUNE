@@ -18,6 +18,9 @@ export interface Screening {
   venueAddress: string;
   venueArea: string;
   price: number;
+  redeemableAmount?: number; // Cover redeemable against Food & Beverages (e.g. 400)
+  entryFeeAmount?: number;    // Entry charge (e.g. 100)
+  pricingSplitNotes?: string; // e.g. "₹400 redeemable on F&B at bar + ₹100 match entry charge"
   activePhaseName?: string;
   phases?: ScreeningPhase[];
   taxRate?: number; // Configurable tax rate percentage (default 0.18 for 18%)
@@ -177,6 +180,8 @@ export interface TicketBooking {
   date: string;
   time: string;
   ticketQuantity: number;
+  redeemableAmount?: number;
+  entryFeeAmount?: number;
   baseAmount: number;
   taxAmount: number;
   platformFee: number;

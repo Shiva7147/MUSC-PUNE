@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ShoppingBag, Plane, Camera, Tv, Users, ExternalLink } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Plane, Camera, Tv, Users, ExternalLink, Ticket } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { HeroMarquee } from '@/components/HeroMarquee';
@@ -231,9 +231,43 @@ export default function Home() {
                   <div>
                     <div className="text-xs font-display font-bold text-[#E60012] uppercase">{featuredScreening.competition}</div>
                     <h3 className="font-display text-4xl sm:text-5xl font-bold text-white mt-1 uppercase">{featuredScreening.matchTitle}</h3>
-                    <div className="mt-3 text-xs sm:text-sm font-sans text-white/80 space-y-1">
+
+                    {/* Live Seats Progress Bar */}
+                    {(() => {
+                      const totalCap = featuredScreening.capacity ?? 250;
+                      const remSeats = Math.max(0, featuredScreening.remainingSeats ?? 42);
+                      const filledPct = Math.min(100, Math.round(((totalCap - remSeats) / totalCap) * 100));
+                      return (
+                        <div className="mt-4 space-y-1.5">
+                          <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
+                            <span className="text-[#E60012] font-bold flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
+                              <span>🔥 LIVE: {filledPct}% SEATS FILLED ({remSeats} SEATS LEFT)</span>
+                            </span>
+                            <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} / {totalCap} REMAINING</span>
+                          </div>
+                          <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
+                            <div
+                              className="h-full bg-gradient-to-r from-amber-500 via-[#E60012] to-red-600 transition-all duration-700 ease-out"
+                              style={{ width: `${filledPct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="mt-4 text-xs sm:text-sm font-sans text-white/80 space-y-1.5 bg-[#050505] p-3.5 rounded-2xl border border-white/10">
                       <div>📅 {featuredScreening.date} • {featuredScreening.time}</div>
                       <div>📍 {featuredScreening.venueName}</div>
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between font-mono">
+                        <span className="text-white/60 font-sans text-xs">ENTRY PASS</span>
+                        <span className="text-white font-bold text-base">₹{featuredScreening.price}</span>
+                      </div>
+                      {(featuredScreening.redeemableAmount !== undefined || featuredScreening.entryFeeAmount !== undefined) && (
+                        <div className="text-[11px] font-sans font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-1 rounded-lg">
+                          🍽️ ₹{featuredScreening.redeemableAmount ?? Math.max(0, featuredScreening.price - (featuredScreening.entryFeeAmount ?? 0))} Redeemable on F&B + 🎟️ ₹{featuredScreening.entryFeeAmount ?? Math.max(0, featuredScreening.price - (featuredScreening.redeemableAmount ?? 0))} Entry
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -246,8 +280,8 @@ export default function Home() {
                       onClick={() => setSelectedScreening(featuredScreening)}
                       className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-base sm:text-lg font-bold tracking-tight py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(230,0,18,0.35)] transition-all hover:scale-[1.02] border border-white/20 uppercase cursor-pointer"
                     >
+                      <Ticket className="w-4 h-4" />
                       <span>GET SCREENING TICKETS</span>
-                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

@@ -9,11 +9,25 @@ export const revalidate = 0;
 let inMemoryScreenings: Screening[] = [...upcomingScreenings];
 
 // Helper to format Supabase DB row to Screening interface
-const formatScreeningRow = (row: any, bookedSeats: number = 0): Screening => {
+const formatScreeningRow = (row: any, bookedSeats: number = 0, splitMap: Record<string, any> = {}): Screening => {
   const capacity = Number(row.capacity) || 250;
   const dbRemaining = row.remaining_seats !== null && row.remaining_seats !== undefined ? Number(row.remaining_seats) : capacity;
   // Dynamic remaining seats subtracts booked tickets
   const remainingSeats = Math.max(0, Math.min(dbRemaining, capacity - bookedSeats));
+
+  const split = splitMap[row.id] || {};
+  const firstPhase = Array.isArray(row.phases) && row.phases[0] ? row.phases[0] : null;
+
+  const price = Number(row.price);
+  const redeemableAmount = split.redeemableAmount !== undefined
+    ? Number(split.redeemableAmount)
+    : (firstPhase?.redeemableAmount !== undefined ? Number(firstPhase.redeemableAmount) : (price >= 400 ? price - 100 : (price === 350 ? 250 : undefined)));
+
+  const entryFeeAmount = split.entryFeeAmount !== undefined
+    ? Number(split.entryFeeAmount)
+    : (firstPhase?.entryFeeAmount !== undefined ? Number(firstPhase.entryFeeAmount) : (redeemableAmount !== undefined ? Math.max(0, price - redeemableAmount) : undefined));
+
+  const pricingSplitNotes = split.notes || firstPhase?.pricingSplitNotes || (redeemableAmount !== undefined ? `₹${redeemableAmount} Redeemable on F&B + ₹${entryFeeAmount} Entry Fee` : undefined);
 
   return {
     id: row.id,
@@ -28,7 +42,10 @@ const formatScreeningRow = (row: any, bookedSeats: number = 0): Screening => {
     venueName: row.venue_name,
     venueAddress: row.venue_address || row.venue_name,
     venueArea: row.venue_area || 'Central Pune',
-    price: Number(row.price),
+    price,
+    redeemableAmount,
+    entryFeeAmount,
+    pricingSplitNotes,
     activePhaseName: row.active_phase_name,
     phases: row.phases || [],
     taxRate: row.tax_rate ? Number(row.tax_rate) : 0.18,
@@ -49,12 +66,14 @@ const formatScreeningRow = (row: any, bookedSeats: number = 0): Screening => {
 export async function GET() {
   try {
     if (supabaseAdmin) {
-      const [screeningsRes, ticketsRes] = await Promise.all([
+      const [screeningsRes, ticketsRes, splitsRes] = await Promise.all([
         supabaseAdmin.from('screenings').select('*'),
         supabaseAdmin.from('tickets').select('screening_id, match_title, quantity'),
+        supabaseAdmin.from('site_config').select('value').eq('key', 'screening_pricing_splits').single(),
       ]);
 
       const ticketsData = ticketsRes.data || [];
+      const splitMap = (splitsRes.data?.value && typeof splitsRes.data.value === 'object') ? splitsRes.data.value : {};
 
       if (!screeningsRes.error && screeningsRes.data && screeningsRes.data.length > 0) {
         inMemoryScreenings = screeningsRes.data.map((row: any) => {
@@ -70,7 +89,7 @@ export async function GET() {
             })
             .reduce((sum: number, t: any) => sum + (Number(t.quantity) || 1), 0);
 
-          return formatScreeningRow(row, bookedSeats);
+          return formatScreeningRow(row, bookedSeats, splitMap);
         });
         return NextResponse.json({ screenings: inMemoryScreenings }, { status: 200 });
       }
@@ -88,6 +107,10 @@ export async function POST(request: Request) {
     inMemoryScreenings = [item, ...inMemoryScreenings.filter((s) => s.id !== item.id)];
 
     if (supabaseAdmin) {
+      const updatedPhases = (item.phases && item.phases.length > 0)
+        ? item.phases.map((p, idx) => idx === 0 ? { ...p, redeemableAmount: item.redeemableAmount, entryFeeAmount: item.entryFeeAmount } : p)
+        : [{ phaseName: item.activePhaseName || 'PHASE 1', price: item.price, isActive: true, redeemableAmount: item.redeemableAmount, entryFeeAmount: item.entryFeeAmount }];
+
       const payload = {
         id: item.id,
         match_title: item.matchTitle,
@@ -103,7 +126,7 @@ export async function POST(request: Request) {
         venue_area: item.venueArea || 'Central Pune',
         price: item.price,
         active_phase_name: item.activePhaseName || 'PHASE 1',
-        phases: item.phases || [],
+        phases: updatedPhases,
         tax_rate: item.taxRate ?? 0.18,
         platform_fee: item.platformFeeRate ?? item.platformFee ?? 0.03,
         featured: Boolean(item.featured),
@@ -120,6 +143,24 @@ export async function POST(request: Request) {
       if (error) {
         console.error('Supabase screenings POST error:', error);
       }
+
+      // Sync pricing split into site_config
+      try {
+        const { data: currentSplits } = await supabaseAdmin.from('site_config').select('value').eq('key', 'screening_pricing_splits').single();
+        const splitObj = (currentSplits?.value && typeof currentSplits.value === 'object') ? currentSplits.value : {};
+        splitObj[item.id] = {
+          redeemableAmount: item.redeemableAmount,
+          entryFeeAmount: item.entryFeeAmount,
+          notes: item.pricingSplitNotes,
+        };
+        await supabaseAdmin.from('site_config').upsert({
+          key: 'screening_pricing_splits',
+          value: splitObj,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (splitErr) {
+        console.error('Supabase screening pricing split sync error:', splitErr);
+      }
     }
 
     return NextResponse.json({ success: true, screening: item }, { status: 201 });
@@ -135,6 +176,10 @@ export async function PUT(request: Request) {
     inMemoryScreenings = inMemoryScreenings.map((s) => (s.id === item.id ? { ...s, ...item } : s));
 
     if (supabaseAdmin) {
+      const updatedPhases = (item.phases && item.phases.length > 0)
+        ? item.phases.map((p, idx) => idx === 0 ? { ...p, redeemableAmount: item.redeemableAmount, entryFeeAmount: item.entryFeeAmount } : p)
+        : [{ phaseName: item.activePhaseName || 'PHASE 1', price: item.price, isActive: true, redeemableAmount: item.redeemableAmount, entryFeeAmount: item.entryFeeAmount }];
+
       const payload = {
         id: item.id,
         match_title: item.matchTitle,
@@ -150,7 +195,7 @@ export async function PUT(request: Request) {
         venue_area: item.venueArea || 'Central Pune',
         price: item.price,
         active_phase_name: item.activePhaseName || 'PHASE 1',
-        phases: item.phases || [],
+        phases: updatedPhases,
         tax_rate: item.taxRate ?? 0.18,
         platform_fee: item.platformFeeRate ?? item.platformFee ?? 0.03,
         featured: Boolean(item.featured),
@@ -166,6 +211,24 @@ export async function PUT(request: Request) {
       const { error } = await supabaseAdmin.from('screenings').upsert(payload);
       if (error) {
         console.error('Supabase screenings PUT error:', error);
+      }
+
+      // Sync pricing split into site_config
+      try {
+        const { data: currentSplits } = await supabaseAdmin.from('site_config').select('value').eq('key', 'screening_pricing_splits').single();
+        const splitObj = (currentSplits?.value && typeof currentSplits.value === 'object') ? currentSplits.value : {};
+        splitObj[item.id] = {
+          redeemableAmount: item.redeemableAmount,
+          entryFeeAmount: item.entryFeeAmount,
+          notes: item.pricingSplitNotes,
+        };
+        await supabaseAdmin.from('site_config').upsert({
+          key: 'screening_pricing_splits',
+          value: splitObj,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (splitErr) {
+        console.error('Supabase screening pricing split sync error:', splitErr);
       }
     }
 

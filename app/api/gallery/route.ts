@@ -22,11 +22,20 @@ const formatGalleryRow = (row: any): GalleryItem => ({
 export async function GET() {
   try {
     if (supabaseAdmin) {
-      const { data, error } = await supabaseAdmin.from('gallery').select('*').order('created_at', { ascending: false });
-      if (!error && data) {
-        const remoteIds = new Set(data.map((r: any) => r.id));
-        const missingDefaults = galleryImages.filter((d) => !remoteIds.has(d.id));
-        inMemoryGallery = [...data.map(formatGalleryRow), ...missingDefaults];
+      const [galRes, deletedRes] = await Promise.all([
+        supabaseAdmin.from('gallery').select('*').order('created_at', { ascending: false }),
+        supabaseAdmin.from('site_config').select('value').eq('key', 'deleted_gallery_ids').single(),
+      ]);
+
+      const deletedIds = new Set<string>(
+        deletedRes.data?.value && Array.isArray(deletedRes.data.value) ? deletedRes.data.value : []
+      );
+
+      if (!galRes.error && galRes.data) {
+        const remoteIds = new Set(galRes.data.map((r: any) => r.id));
+        const missingDefaults = galleryImages.filter((d) => !remoteIds.has(d.id) && !deletedIds.has(d.id));
+        const activeRemote = galRes.data.map(formatGalleryRow).filter((r: any) => !deletedIds.has(r.id));
+        inMemoryGallery = [...activeRemote, ...missingDefaults];
         return NextResponse.json({ gallery: inMemoryGallery }, { status: 200 });
       }
     }
@@ -43,6 +52,19 @@ export async function POST(request: Request) {
     inMemoryGallery = [item, ...inMemoryGallery.filter((g) => g.id !== item.id)];
 
     if (supabaseAdmin) {
+      // Un-delete if re-adding
+      try {
+        const { data: deletedRes } = await supabaseAdmin.from('site_config').select('value').eq('key', 'deleted_gallery_ids').single();
+        if (deletedRes?.value && Array.isArray(deletedRes.value) && deletedRes.value.includes(item.id)) {
+          const updated = deletedRes.value.filter((d: string) => d !== item.id);
+          await supabaseAdmin.from('site_config').upsert({
+            key: 'deleted_gallery_ids',
+            value: updated,
+            updated_at: new Date().toISOString(),
+          });
+        }
+      } catch {}
+
       await supabaseAdmin.from('gallery').upsert({
         id: item.id,
         title: item.title,
@@ -74,6 +96,21 @@ export async function DELETE(request: Request) {
 
     if (supabaseAdmin) {
       await supabaseAdmin.from('gallery').delete().eq('id', id);
+
+      // Record in site_config under deleted_gallery_ids so default images never resurrect
+      try {
+        const { data: deletedRes } = await supabaseAdmin.from('site_config').select('value').eq('key', 'deleted_gallery_ids').single();
+        const currentList: string[] = deletedRes?.value && Array.isArray(deletedRes.value) ? deletedRes.value : [];
+        if (!currentList.includes(id)) {
+          await supabaseAdmin.from('site_config').upsert({
+            key: 'deleted_gallery_ids',
+            value: [...currentList, id],
+            updated_at: new Date().toISOString(),
+          });
+        }
+      } catch (dErr) {
+        console.error('Record deleted_gallery_ids error:', dErr);
+      }
     }
 
     return NextResponse.json({ success: true, deletedId: id }, { status: 200 });

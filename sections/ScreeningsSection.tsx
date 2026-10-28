@@ -86,13 +86,14 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                 {/* Percentage Seat Tracker */}
                 <div className="mt-4 space-y-1.5">
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
-                    <span className="text-[#E60012] font-bold flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>🔥 {filledPct}% SEATS FILLED ({remPct}% REMAINING)</span>
+                    <span className="text-[#E60012] font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
+                      <span>🔥 LIVE: {filledPct}% SEATS FILLED ({remSeats} SEATS LEFT)</span>
                     </span>
+                    <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} / {totalCap} LEFT</span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
-                    <div className="h-full bg-[#E60012]" style={{ width: `${filledPct}%` }} />
+                    <div className="h-full bg-gradient-to-r from-amber-500 via-[#E60012] to-red-600 transition-all duration-500" style={{ width: `${filledPct}%` }} />
                   </div>
                 </div>
 
@@ -107,9 +108,22 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <span className="text-white/60">DATE & TIME</span>
                   <span className="text-white font-bold">{featured.date} • {featured.time}</span>
                 </div>
-                <div className="flex items-center justify-between pt-0.5">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
                   <span className="text-white/60">VENUE</span>
                   <span className="text-[#E60012] font-bold">{featured.venueName}</span>
+                </div>
+                <div className="flex flex-col gap-1.5 pt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 font-bold uppercase">ENTRY PASS PRICE</span>
+                    <span className="text-white font-mono font-black text-lg">₹{featured.price}</span>
+                  </div>
+                  {(featured.redeemableAmount !== undefined || featured.entryFeeAmount !== undefined) && (
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-sans font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg">
+                      <span>🍽️ ₹{featured.redeemableAmount ?? Math.max(0, featured.price - (featured.entryFeeAmount ?? 0))} Redeemable on F&B</span>
+                      <span className="text-white/40">•</span>
+                      <span>🎟️ ₹{featured.entryFeeAmount ?? Math.max(0, featured.price - (featured.redeemableAmount ?? 0))} Entry Fee</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -176,16 +190,31 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                         <span>{sc.venueName}</span>
                       </div>
                     </div>
+
+                    <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1">
+                      <div className="flex items-center justify-between text-xs font-mono font-bold">
+                        <span className="text-white/60 font-sans">TICKET PASS</span>
+                        <span className="text-white text-base">₹{sc.price}</span>
+                      </div>
+                      {(sc.redeemableAmount !== undefined || sc.entryFeeAmount !== undefined) && (
+                        <div className="text-[11px] font-sans font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-1 rounded">
+                          🍽️ ₹{sc.redeemableAmount ?? Math.max(0, sc.price - (sc.entryFeeAmount ?? 0))} F&B + 🎟️ ₹{sc.entryFeeAmount ?? Math.max(0, sc.price - (sc.redeemableAmount ?? 0))} Entry
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-end">
+                  <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-between gap-3">
+                    <span className="text-[11px] font-mono text-white/50">
+                      {scRem} seats left
+                    </span>
                     <button
                       type="button"
                       onClick={() => onSelectScreening(sc)}
                       className="bg-[#050505] hover:bg-[#E60012] active:scale-95 text-white font-display text-sm tracking-tight font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition-all border border-white/10 uppercase cursor-pointer"
                     >
+                      <Ticket className="w-4 h-4" />
                       <span>GET SCREENING TICKETS</span>
-                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

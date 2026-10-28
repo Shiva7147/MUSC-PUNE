@@ -30,6 +30,7 @@ const SCREENINGS_STORAGE_KEY = 'musc_pune_screenings_v1';
 const SCREENINGS_EDITS_KEY = 'musc_pune_screenings_edits_v1';
 const SCREENINGS_DELETED_KEY = 'musc_pune_screenings_deleted_v1';
 const GALLERY_STORAGE_KEY = 'musc_pune_gallery_v1';
+const GALLERY_DELETED_KEY = 'musc_pune_gallery_deleted_v1';
 const PRODUCTS_STORAGE_KEY = 'musc_pune_products_v1';
 const MEMBERSHIP_CONFIG_KEY = 'musc_pune_membership_config_v1';
 const TOUR_CONFIG_KEY = 'musc_pune_tour_config_v1';
@@ -61,6 +62,7 @@ const saveStorage = <T>(key: string, data: T) => {
 let ticketsMemory: AdminTicketRecord[] = loadStorage(TICKETS_STORAGE_KEY, []);
 const screeningEditsMemory: Record<string, Screening> = loadStorage(SCREENINGS_EDITS_KEY, {});
 let screeningDeletedMemory: string[] = loadStorage(SCREENINGS_DELETED_KEY, []);
+let galleryDeletedMemory: string[] = loadStorage(GALLERY_DELETED_KEY, []);
 let screeningsMemory: Screening[] = loadStorage(SCREENINGS_STORAGE_KEY, upcomingScreenings);
 let galleryMemory: GalleryItem[] = loadStorage(GALLERY_STORAGE_KEY, defaultGallery);
 let productsMemory: Product[] = loadStorage(PRODUCTS_STORAGE_KEY, defaultProducts);
@@ -299,6 +301,36 @@ export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> =>
     console.error('Fetch remote tickets error:', err);
   }
   return ticketsMemory;
+};
+
+export const updateTicketInStore = async (updated: AdminTicketRecord) => {
+  ticketsMemory = ticketsMemory.map((t) => (t.ticketId === updated.ticketId ? { ...t, ...updated } : t));
+  saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  notifyListeners();
+  try {
+    await fetch('/api/tickets', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+    fetchRemoteTicketsAsync().catch(() => {});
+  } catch (err) {
+    console.error('Update ticket error:', err);
+  }
+};
+
+export const deleteTicketFromStore = async (ticketId: string) => {
+  ticketsMemory = ticketsMemory.filter((t) => t.ticketId !== ticketId);
+  saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
+  notifyListeners();
+  try {
+    await fetch(`/api/tickets?ticketId=${encodeURIComponent(ticketId)}`, {
+      method: 'DELETE',
+    });
+    fetchRemoteTicketsAsync().catch(() => {});
+  } catch (err) {
+    console.error('Delete ticket error:', err);
+  }
 };
 
 export const verifyTicketScanAsync = async (
@@ -701,16 +733,17 @@ export const updateMembershipConfigStore = async (newConfig: MembershipConfig) =
 
 export const getGalleryStore = (): GalleryItem[] => {
   const stored = loadStorage(GALLERY_STORAGE_KEY, galleryMemory);
-  const cleanStored = stored.filter((g) => !g.id.startsWith('gal-pune-2026-'));
+  const deletedSet = new Set(galleryDeletedMemory);
+  const cleanStored = stored.filter((g) => !g.id.startsWith('gal-pune-2026-') && !deletedSet.has(g.id));
   const storedIds = new Set(cleanStored.map((g) => g.id));
-  const missingDefaults = defaultGallery.filter((g) => !storedIds.has(g.id));
+  const missingDefaults = defaultGallery.filter((g) => !storedIds.has(g.id) && !deletedSet.has(g.id));
   if (missingDefaults.length > 0 || cleanStored.length !== stored.length) {
     const merged = [...cleanStored, ...missingDefaults];
     saveStorage(GALLERY_STORAGE_KEY, merged);
     galleryMemory = merged;
     return merged;
   }
-  return stored;
+  return cleanStored;
 };
 
 export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
@@ -719,9 +752,11 @@ export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
     if (res.ok) {
       const json = await res.json();
       if (json && json.gallery && Array.isArray(json.gallery)) {
+        const deletedSet = new Set(galleryDeletedMemory);
         const remoteIds = new Set(json.gallery.map((g: GalleryItem) => g.id));
-        const missingDefaults = defaultGallery.filter((d) => !remoteIds.has(d.id));
-        const merged = [...json.gallery, ...missingDefaults];
+        const missingDefaults = defaultGallery.filter((d) => !remoteIds.has(d.id) && !deletedSet.has(d.id));
+        const activeList = json.gallery.filter((g: GalleryItem) => !deletedSet.has(g.id));
+        const merged = [...activeList, ...missingDefaults];
         if (JSON.stringify(merged) !== JSON.stringify(galleryMemory)) {
           galleryMemory = merged;
           saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
@@ -737,6 +772,10 @@ export const fetchGalleryRemoteAsync = async (): Promise<GalleryItem[]> => {
 };
 
 export const addGalleryItemToStore = async (newItem: GalleryItem) => {
+  if (galleryDeletedMemory.includes(newItem.id)) {
+    galleryDeletedMemory = galleryDeletedMemory.filter((id) => id !== newItem.id);
+    saveStorage(GALLERY_DELETED_KEY, galleryDeletedMemory);
+  }
   galleryMemory = [newItem, ...galleryMemory.filter((g) => g.id !== newItem.id)];
   saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
   notifyListeners();
@@ -753,11 +792,15 @@ export const addGalleryItemToStore = async (newItem: GalleryItem) => {
 };
 
 export const deleteGalleryItemFromStore = async (galleryId: string) => {
+  if (!galleryDeletedMemory.includes(galleryId)) {
+    galleryDeletedMemory = [...galleryDeletedMemory, galleryId];
+    saveStorage(GALLERY_DELETED_KEY, galleryDeletedMemory);
+  }
   galleryMemory = galleryMemory.filter((g) => g.id !== galleryId);
   saveStorage(GALLERY_STORAGE_KEY, galleryMemory);
   notifyListeners();
   try {
-    await fetch(`/api/gallery?id=${galleryId}`, {
+    await fetch(`/api/gallery?id=${encodeURIComponent(galleryId)}`, {
       method: 'DELETE',
     });
   } catch (err) {
@@ -815,10 +858,19 @@ export const getProductOrdersStore = (): ProductOrderRecord[] => {
   return loadStorage(PRODUCT_ORDERS_KEY, productOrdersMemory);
 };
 
-export const addProductOrderToStore = (order: ProductOrderRecord) => {
+export const addProductOrderToStore = async (order: ProductOrderRecord) => {
   productOrdersMemory = [order, ...productOrdersMemory.filter((o) => o.orderId !== order.orderId)];
   saveStorage(PRODUCT_ORDERS_KEY, productOrdersMemory);
   notifyListeners();
+  try {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'product_orders', value: productOrdersMemory }),
+    });
+  } catch (err) {
+    console.error('Sync product orders error:', err);
+  }
 };
 
 export const fetchConfigRemoteAsync = async (): Promise<{ membership?: MembershipConfig; tour?: TourConfig; taxConfig?: SiteTaxConfig }> => {
@@ -864,6 +916,16 @@ export const fetchConfigRemoteAsync = async (): Promise<{ membership?: Membershi
         if (JSON.stringify(mergedTax) !== JSON.stringify(siteTaxConfigMemory)) {
           siteTaxConfigMemory = mergedTax;
           saveStorage(SITE_TAX_CONFIG_KEY, siteTaxConfigMemory);
+          hasChanges = true;
+        }
+      }
+      const orders = json?.product_orders || json?.productOrders;
+      if (orders && Array.isArray(orders)) {
+        const localIds = new Set(productOrdersMemory.map((o) => o.orderId));
+        const newOrders = orders.filter((o: ProductOrderRecord) => !localIds.has(o.orderId));
+        if (newOrders.length > 0) {
+          productOrdersMemory = [...productOrdersMemory, ...newOrders];
+          saveStorage(PRODUCT_ORDERS_KEY, productOrdersMemory);
           hasChanges = true;
         }
       }

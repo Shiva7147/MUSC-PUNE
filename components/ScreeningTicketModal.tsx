@@ -432,6 +432,30 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   </div>
                 </div>
 
+                {/* Live Seat Availability */}
+                {(() => {
+                  const totalCap = screening.capacity ?? 250;
+                  const remSeats = Math.max(0, screening.remainingSeats ?? 42);
+                  const filledPct = Math.min(100, Math.round(((totalCap - remSeats) / totalCap) * 100));
+                  return (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-white/10 space-y-1.5">
+                      <div className="flex justify-between text-xs font-display">
+                        <span className="text-[#E60012] font-bold flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
+                          <span>🔥 LIVE SEATS: {filledPct}% BOOKED ({remSeats} SEATS LEFT)</span>
+                        </span>
+                        <span className="text-white/60 font-mono font-bold text-[11px]">{remSeats} / {totalCap} REMAINING</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-[#171717] overflow-hidden border border-white/10">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-500 via-[#E60012] to-red-600 transition-all duration-500"
+                          style={{ width: `${filledPct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Form */}
                 <form onSubmit={handleFormPreSubmit} className="space-y-4">
                   {/* Quantity Stepper (1 to 10) */}
@@ -514,17 +538,32 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                   </div>
 
                   {/* Taxes & Platform Fee Detailed Breakdown */}
-                  <div className="p-4 rounded-xl bg-[#050505] border border-white/10 space-y-1.5 text-xs font-sans">
+                  <div className="p-4 rounded-xl bg-[#050505] border border-white/10 space-y-2 text-xs font-sans">
                     <div className="flex justify-between text-white/70">
-                      <span>Base Price ({quantity} Ticket{quantity > 1 ? 's' : ''})</span>
+                      <span>Base Ticket Price ({quantity} Ticket{quantity > 1 ? 's' : ''})</span>
                       <span className="font-mono">₹{baseAmount.toLocaleString('en-IN')}</span>
                     </div>
+
+                    {(screening.redeemableAmount !== undefined || screening.entryFeeAmount !== undefined) && (
+                      <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-[11px] space-y-1">
+                        <div className="text-white/60 uppercase font-display font-bold text-[10px] tracking-wider">Per-Ticket Pricing Split</div>
+                        <div className="flex justify-between text-emerald-400 font-medium">
+                          <span>🍽️ Redeemable on Food & Beverages:</span>
+                          <span className="font-mono font-bold">₹{((screening.redeemableAmount ?? Math.max(0, screening.price - (screening.entryFeeAmount ?? 0))) * quantity).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-white/80 font-medium">
+                          <span>🎟️ Match Entry Charge:</span>
+                          <span className="font-mono font-bold">₹{((screening.entryFeeAmount ?? Math.max(0, screening.price - (screening.redeemableAmount ?? 0))) * quantity).toLocaleString('en-IN')}</span>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex justify-between text-white/70">
-                      <span>Applicable Taxes ({Math.round(taxRate * 100)}%)</span>
+                      <span>Screening Tax Rate ({Math.round(taxRate * 100)}%)</span>
                       <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
-                      <span>Applicable Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
+                      <span>Screening Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
                       <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between font-display text-base font-bold text-white pt-1">
@@ -540,7 +579,7 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                     className="w-full bg-[#E60012] hover:bg-[#C40010] text-white font-display text-lg tracking-tight font-bold py-4 px-6 rounded-2xl shadow-[0_8px_30px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] disabled:opacity-50 uppercase cursor-pointer min-h-[44px]"
                   >
                     <span>{loading ? 'PROCESSING PAYMENT...' : `PAY & CONFIRM PASS (₹${totalAmount.toLocaleString('en-IN')})`}</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <Ticket className="w-5 h-5" />
                   </button>
                 </form>
               </div>
