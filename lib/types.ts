@@ -2,6 +2,9 @@ export interface ScreeningPhase {
   phaseName: string; // e.g. "Phase 1 - Regular Release", "Phase 2", "Phase 3"
   price: number;
   isActive: boolean;
+  redeemableAmount?: number;
+  entryFeeAmount?: number;
+  pricingSplitNotes?: string;
 }
 
 export interface Screening {

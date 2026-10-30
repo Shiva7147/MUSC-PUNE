@@ -7,7 +7,7 @@ import { ScreeningsSection } from '@/sections/ScreeningsSection';
 import { ScreeningTicketModal } from '@/components/ScreeningTicketModal';
 import { CartDrawer } from '@/components/CartDrawer';
 import { Screening, CartItem } from '@/lib/types';
-import { getScreeningsStore, fetchScreeningsRemoteAsync, subscribeStore } from '@/lib/ticketStore';
+import { getScreeningsStore, fetchScreeningsRemoteAsync, subscribeStore, sortScreeningsChronologically } from '@/lib/ticketStore';
 
 export default function ScreeningsPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -16,15 +16,22 @@ export default function ScreeningsPage() {
   const [selectedScreening, setSelectedScreening] = useState<Screening | null>(null);
 
   const refreshScreenings = () => {
-    setScreenings(getScreeningsStore());
+    setScreenings(sortScreeningsChronologically(getScreeningsStore()));
   };
 
   useEffect(() => {
     refreshScreenings();
     fetchScreeningsRemoteAsync();
     const unsubscribe = subscribeStore(refreshScreenings);
+
+    // Heartbeat auto-poll for live seat updates across all connected fans
+    const pollInterval = setInterval(() => {
+      fetchScreeningsRemoteAsync();
+    }, 6000);
+
     return () => {
       unsubscribe();
+      clearInterval(pollInterval);
     };
   }, []);
 

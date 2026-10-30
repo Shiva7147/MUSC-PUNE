@@ -60,6 +60,8 @@ import {
   updateTicketInStore,
   deleteTicketFromStore,
   subscribeStore,
+  isSameMatch,
+  sortScreeningsChronologically,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
 import { Screening, GalleryItem, Product, MembershipConfig, TourConfig, SiteTaxConfig, ProductOrderRecord } from '@/lib/types';
@@ -411,8 +413,22 @@ export default function AdminDashboardPage() {
     }
 
     const unsubscribe = subscribeStore(refreshStoreData);
+
+    // Heartbeat auto-sync for live Gate Scanner & attendance counts
+    const pollInterval = setInterval(() => {
+      if (!editingScreeningRef.current && !editingProductRef.current) {
+        fetchScreeningsRemoteAsync().then((sc) => {
+          if (sc && sc.length > 0 && !editingScreeningRef.current) setScreenings(sc);
+        });
+        fetchRemoteTicketsAsync().then((remote) => {
+          if (remote && remote.length > 0) setTickets(remote);
+        });
+      }
+    }, 6000);
+
     return () => {
       unsubscribe();
+      clearInterval(pollInterval);
     };
   }, []);
 
@@ -962,19 +978,14 @@ export default function AdminDashboardPage() {
   // Overall Stats
   const checkedInCount = tickets.filter((t) => t.checkedIn).length;
 
-  // Active screening selection & live gate computations
-  const activeGateScreening = screenings.find((s) => s.id === selectedScreeningId) || screenings[0];
+  // Active screening selection & live gate computations (sorted chronologically)
+  const sortedScreenings = sortScreeningsChronologically(screenings);
+  const activeGateScreening = sortedScreenings.find((s) => s.id === selectedScreeningId) || sortedScreenings[0];
   const activeGateScreeningId = selectedScreeningId || activeGateScreening?.id || 'ALL';
 
   const gateTickets = tickets.filter((t) => {
     if (activeGateScreeningId === 'ALL') return true;
-    if (t.screeningId && t.screeningId === activeGateScreeningId) return true;
-    if (activeGateScreening?.matchTitle && t.matchTitle) {
-      const tm = t.matchTitle.toLowerCase();
-      const sm = activeGateScreening.matchTitle.toLowerCase();
-      return tm.includes(sm) || sm.includes(tm);
-    }
-    return false;
+    return isSameMatch(t.matchTitle, activeGateScreening?.matchTitle, t.screeningId, activeGateScreening?.id);
   });
 
   const gateCapacity = activeGateScreening?.capacity || 250;
@@ -1228,9 +1239,9 @@ export default function AdminDashboardPage() {
                         }}
                         className="bg-[#050505] border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white font-display font-bold uppercase focus:outline-none focus:border-[#E60012] cursor-pointer"
                       >
-                        {screenings.map((sc) => (
+                        {sortedScreenings.map((sc) => (
                           <option key={sc.id} value={sc.id}>
-                            {sc.matchTitle} ({sc.competition || 'Match'})
+                            {sc.matchTitle} ({sc.date ? sc.date.split(',')[0] || sc.date : sc.competition || 'Match'})
                           </option>
                         ))}
                         <option value="ALL">All Screenings (Global Gate)</option>

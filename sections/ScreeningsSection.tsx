@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Ticket, Calendar, MapPin, Flame, ArrowRight, Barcode, Sparkles, Users } from 'lucide-react';
 import { Screening } from '@/lib/types';
 import { upcomingScreenings } from '@/lib/data';
+import { sortScreeningsChronologically } from '@/lib/ticketStore';
 
 interface ScreeningsSectionProps {
   screenings: Screening[];
@@ -15,7 +16,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
   screenings,
   onSelectScreening,
 }) => {
-  const activeList = screenings && screenings.length > 0 ? screenings : upcomingScreenings;
+  const activeList = sortScreeningsChronologically(screenings && screenings.length > 0 ? screenings : upcomingScreenings);
   const featured = activeList.find((s) => s.featured) || activeList[0] || upcomingScreenings[0];
   const upcomingList = activeList.filter((s) => s.id !== featured.id);
 

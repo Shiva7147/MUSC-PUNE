@@ -71,6 +71,70 @@ let tourConfigMemory: TourConfig = loadStorage(TOUR_CONFIG_KEY, defaultTourConfi
 let siteTaxConfigMemory: SiteTaxConfig = loadStorage(SITE_TAX_CONFIG_KEY, defaultSiteTaxConfig);
 let productOrdersMemory: ProductOrderRecord[] = loadStorage(PRODUCT_ORDERS_KEY, []);
 
+// Helper to normalize team names for 100% resilient match comparisons
+export const normalizeTeamString = (str: string = ''): string => {
+  return str
+    .toLowerCase()
+    .replace(/manchester\s*united|man\s*utd|man\s*u|mufc/gi, 'mufc')
+    .replace(/chelsea\s*fc|chelsea/gi, 'chelsea')
+    .replace(/liverpool\s*fc|liverpool/gi, 'liverpool')
+    .replace(/arsenal\s*fc|arsenal/gi, 'arsenal')
+    .replace(/manchester\s*city|man\s*city|mcfc/gi, 'mcfc')
+    .replace(/tottenham\s*hotspur|tottenham|spurs/gi, 'spurs')
+    .replace(/aston\s*villa/gi, 'astonvilla')
+    .replace(/vs\.?|v\.?|-|\/|@/gi, ' ')
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim();
+};
+
+// Resilient match comparator that handles reversed home/away titles, abbreviations, and screening IDs
+export const isSameMatch = (
+  match1?: string,
+  match2?: string,
+  id1?: string,
+  id2?: string
+): boolean => {
+  if (id1 && id2 && id1 === id2) return true;
+  if (!match1 || !match2) return false;
+
+  const n1 = normalizeTeamString(match1);
+  const n2 = normalizeTeamString(match2);
+
+  if (n1 === n2 || n1.includes(n2) || n2.includes(n1)) return true;
+
+  const tokens1 = n1.split(/\s+/).filter(Boolean);
+  const tokens2 = n2.split(/\s+/).filter(Boolean);
+  const common = tokens1.filter((t) => tokens2.includes(t));
+  if (common.length >= 2) return true;
+
+  const opponents = ['chelsea', 'liverpool', 'arsenal', 'mcfc', 'spurs', 'astonvilla', 'newcastle', 'everton'];
+  for (const opp of opponents) {
+    if (n1.includes(opp) && n2.includes(opp)) return true;
+  }
+
+  return false;
+};
+
+// Parse match dates into timestamps for chronological sorting (earliest/most upcoming event first)
+export const parseScreeningDate = (dateStr?: string): number => {
+  if (!dateStr) return 9999999999999;
+  const parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) return parsed;
+  const match = dateStr.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).getTime();
+  }
+  return 9999999999999;
+};
+
+export const sortScreeningsChronologically = (list: Screening[]): Screening[] => {
+  return [...list].sort((a, b) => {
+    const timeA = parseScreeningDate(a.date);
+    const timeB = parseScreeningDate(b.date);
+    return timeA - timeB;
+  });
+};
+
 // Helper to apply user edits & deletions on top of base screenings list so edits NEVER get reverted
 export const applyScreeningOverrides = (baseList: Screening[]): Screening[] => {
   const deletedSet = new Set(screeningDeletedMemory);
@@ -78,7 +142,7 @@ export const applyScreeningOverrides = (baseList: Screening[]): Screening[] => {
   filtered = filtered.map((s) => (screeningEditsMemory[s.id] ? { ...s, ...screeningEditsMemory[s.id] } : s));
   const baseIds = new Set(filtered.map((s) => s.id));
   const additions = Object.values(screeningEditsMemory).filter((s) => !baseIds.has(s.id) && !deletedSet.has(s.id));
-  return [...additions, ...filtered];
+  return sortScreeningsChronologically([...additions, ...filtered]);
 };
 
 // LISTENERS FOR REACTIVE UPDATES ACROSS COMPONENTS
@@ -122,15 +186,17 @@ if (typeof window !== 'undefined') {
 }
 
 // Helper to sync ticket record via API route (which uses supabaseAdmin - bypasses RLS)
-const syncTicketToSupabase = async (record: AdminTicketRecord) => {
+export const syncTicketToSupabase = async (record: AdminTicketRecord): Promise<boolean> => {
   try {
-    fetch('/api/tickets', {
+    const res = await fetch('/api/tickets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(record),
-    }).catch(() => {});
+    });
+    return res.ok;
   } catch (err) {
     console.error('Ticket sync error:', err);
+    return false;
   }
 };
 
@@ -185,12 +251,13 @@ export const generateTicketPass = async (
 
   ticketsMemory = [record, ...ticketsMemory];
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
-  syncTicketToSupabase(record);
+  // Guarantee persistent storage to Supabase
+  await syncTicketToSupabase(record);
 
   // Automatically update the counter for total number of seats filled/remaining
   try {
     const currentScreenings = getScreeningsStore();
-    const targetSc = currentScreenings.find((s) => s.id === screening.id || s.matchTitle.toLowerCase() === screening.matchTitle.toLowerCase());
+    const targetSc = currentScreenings.find((s) => isSameMatch(s.matchTitle, screening.matchTitle, s.id, screening.id));
     if (targetSc) {
       const currentRemaining = targetSc.remainingSeats !== undefined ? targetSc.remainingSeats : (targetSc.capacity || 250);
       const updatedRemaining = Math.max(0, currentRemaining - quantity);
@@ -198,7 +265,7 @@ export const generateTicketPass = async (
         ...targetSc,
         remainingSeats: updatedRemaining,
       };
-      updateScreeningInStore(updatedSc);
+      await updateScreeningInStore(updatedSc);
     }
   } catch (err) {
     console.error('Failed to update screening seats remaining:', err);
@@ -291,9 +358,11 @@ export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> =>
         const remoteIds = new Set(json.tickets.map((t: AdminTicketRecord) => t.ticketId));
         const localOnly = ticketsMemory.filter((t) => !remoteIds.has(t.ticketId));
         const merged = [...json.tickets, ...localOnly];
-        ticketsMemory = merged;
-        saveStorage(TICKETS_STORAGE_KEY, merged);
-        notifyListeners();
+        if (JSON.stringify(merged) !== JSON.stringify(ticketsMemory)) {
+          ticketsMemory = merged;
+          saveStorage(TICKETS_STORAGE_KEY, merged);
+          notifyListeners();
+        }
         return merged;
       }
     }

@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseClient';
 import { upcomingScreenings } from '@/lib/data';
 import { Screening } from '@/lib/types';
+import { isSameMatch, sortScreeningsChronologically } from '@/lib/ticketStore';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-let inMemoryScreenings: Screening[] = [...upcomingScreenings];
+let inMemoryScreenings: Screening[] = sortScreeningsChronologically([...upcomingScreenings]);
 
 // Helper to format Supabase DB row to Screening interface
 const formatScreeningRow = (row: any, bookedSeats: number = 0, splitMap: Record<string, any> = {}): Screening => {
@@ -78,26 +79,33 @@ export async function GET() {
       if (!screeningsRes.error && screeningsRes.data && screeningsRes.data.length > 0) {
         inMemoryScreenings = screeningsRes.data.map((row: any) => {
           const bookedSeats = ticketsData
-            .filter((t: any) => {
-              if (t.screening_id && row.id && t.screening_id === row.id) return true;
-              if (t.match_title && row.match_title) {
-                const tm = t.match_title.toLowerCase();
-                const rm = row.match_title.toLowerCase();
-                return tm.includes(rm) || rm.includes(tm);
-              }
-              return false;
-            })
+            .filter((t: any) => isSameMatch(t.match_title, row.match_title, t.screening_id, row.id))
             .reduce((sum: number, t: any) => sum + (Number(t.quantity) || 1), 0);
 
           return formatScreeningRow(row, bookedSeats, splitMap);
         });
-        return NextResponse.json({ screenings: inMemoryScreenings }, { status: 200 });
+        const sorted = sortScreeningsChronologically(inMemoryScreenings);
+        return NextResponse.json({ screenings: sorted }, { status: 200 });
+      } else {
+        // Fallback when table has no custom rows yet
+        const computed = inMemoryScreenings.map((sc) => {
+          const bookedSeats = ticketsData
+            .filter((t: any) => isSameMatch(t.match_title, sc.matchTitle, t.screening_id, sc.id))
+            .reduce((sum: number, t: any) => sum + (Number(t.quantity) || 1), 0);
+          const capacity = sc.capacity || 250;
+          return {
+            ...sc,
+            remainingSeats: Math.max(0, capacity - bookedSeats),
+          };
+        });
+        const sorted = sortScreeningsChronologically(computed);
+        return NextResponse.json({ screenings: sorted }, { status: 200 });
       }
     }
   } catch (err) {
     console.error('API GET Screenings error:', err);
   }
-  return NextResponse.json({ screenings: inMemoryScreenings }, { status: 200 });
+  return NextResponse.json({ screenings: sortScreeningsChronologically(inMemoryScreenings) }, { status: 200 });
 }
 
 // POST /api/screenings - CREATE New Screening

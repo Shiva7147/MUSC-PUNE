@@ -26,6 +26,7 @@ import {
   fetchGalleryRemoteAsync,
   fetchConfigRemoteAsync,
   subscribeStore,
+  sortScreeningsChronologically,
 } from '@/lib/ticketStore';
 
 export default function Home() {
@@ -43,7 +44,7 @@ export default function Home() {
   const bookTripUrl = tourConfig.bookingUrl || 'https://manutdpune.com/product/oldtrafford/';
 
   const refreshStoreData = () => {
-    setScreenings(getScreeningsStore());
+    setScreenings(sortScreeningsChronologically(getScreeningsStore()));
     setProducts(getProductsStore());
     setGalleryList(getGalleryStore());
     setTourConfig(getTourConfigStore());
@@ -56,12 +57,20 @@ export default function Home() {
     fetchGalleryRemoteAsync();
     fetchConfigRemoteAsync();
     const unsubscribe = subscribeStore(refreshStoreData);
+
+    // Heartbeat auto-poll for live seat updates across all connected fans
+    const pollInterval = setInterval(() => {
+      fetchScreeningsRemoteAsync();
+    }, 6000);
+
     return () => {
       unsubscribe();
+      clearInterval(pollInterval);
     };
   }, []);
 
-  const featuredScreening = screenings.find((s) => s.featured) || screenings[0];
+  const sortedScreenings = sortScreeningsChronologically(screenings);
+  const featuredScreening = sortedScreenings.find((s) => s.featured) || sortedScreenings[0];
   const featuredTour = tourConfig;
 
   const handleAddToCart = (product: Product, size: string, quantity: number) => {
