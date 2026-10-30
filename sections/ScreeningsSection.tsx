@@ -20,10 +20,11 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
   const featured = activeList.find((s) => s.featured) || activeList[0] || upcomingScreenings[0];
   const upcomingList = activeList.filter((s) => s.id !== featured.id);
 
-  // Percentage calculations
-  const totalCap = featured.capacity ?? 250;
-  const remSeats = featured.remainingSeats ?? 42;
-  const filledPct = Math.min(100, Math.round(((totalCap - remSeats) / totalCap) * 100));
+  // Seat calculations
+  const totalCap = featured.capacity ?? 50;
+  const remSeats = Math.max(0, featured.remainingSeats ?? 47);
+  const soldSeats = Math.max(0, totalCap - remSeats);
+  const filledPct = Math.min(100, Math.round((soldSeats / totalCap) * 100));
   const remPct = 100 - filledPct;
 
   return (
@@ -84,14 +85,14 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   {featured.matchTitle}
                 </h3>
 
-                {/* Percentage Seat Tracker */}
+                {/* Seat Tracker */}
                 <div className="mt-4 space-y-1.5">
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
                     <span className="text-[#E60012] font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
-                      <span>🔥 LIVE: {filledPct}% SEATS FILLED</span>
+                      <span>🔥 LIVE: {soldSeats} TICKETS SOLD ({filledPct}% FILLED)</span>
                     </span>
-                    <span className="text-white/60 font-mono text-[11px] font-bold">{100 - filledPct}% AVAILABLE</span>
+                    <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} AVAILABLE ({remPct}%)</span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
                     <div className="h-full bg-gradient-to-r from-amber-500 via-[#E60012] to-red-600 transition-all duration-500" style={{ width: `${filledPct}%` }} />
@@ -160,9 +161,10 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {upcomingList.map((sc) => {
-              const scCap = sc.capacity ?? 200;
-              const scRem = sc.remainingSeats ?? 88;
-              const scFilledPct = Math.min(100, Math.round(((scCap - scRem) / scCap) * 100));
+              const scCap = sc.capacity ?? 30;
+              const scRem = Math.max(0, sc.remainingSeats ?? 30);
+              const scSold = Math.max(0, scCap - scRem);
+              const scFilledPct = Math.min(100, Math.round((scSold / scCap) * 100));
 
               return (
                 <div
@@ -173,7 +175,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                     <div className="flex items-center justify-between text-xs font-display text-white/60 mb-2">
                       <span>{sc.competition}</span>
                       <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#E60012] border border-[#E60012]/30 font-bold uppercase">
-                        {scFilledPct}% FILLED
+                        {scSold} SOLD ({scFilledPct}%)
                       </span>
                     </div>
 

@@ -243,17 +243,18 @@ export default function Home() {
 
                     {/* Live Seats Progress Bar */}
                     {(() => {
-                      const totalCap = featuredScreening.capacity ?? 250;
-                      const remSeats = Math.max(0, featuredScreening.remainingSeats ?? 42);
-                      const filledPct = Math.min(100, Math.round(((totalCap - remSeats) / totalCap) * 100));
+                      const totalCap = featuredScreening.capacity ?? 50;
+                      const remSeats = Math.max(0, featuredScreening.remainingSeats ?? 47);
+                      const soldSeats = Math.max(0, totalCap - remSeats);
+                      const filledPct = Math.min(100, Math.round((soldSeats / totalCap) * 100));
                       return (
                         <div className="mt-4 space-y-1.5">
                           <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
                             <span className="text-[#E60012] font-bold flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
-                              <span>🔥 LIVE: {filledPct}% SEATS FILLED</span>
+                              <span>🔥 LIVE: {soldSeats} TICKETS SOLD ({filledPct}% FILLED)</span>
                             </span>
-                            <span className="text-white/60 font-mono text-[11px] font-bold">{100 - filledPct}% AVAILABLE</span>
+                            <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} AVAILABLE ({100 - filledPct}%)</span>
                           </div>
                           <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
                             <div

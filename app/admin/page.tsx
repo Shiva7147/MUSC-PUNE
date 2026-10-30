@@ -62,6 +62,7 @@ import {
   subscribeStore,
   isSameMatch,
   sortScreeningsChronologically,
+  parseScreeningDate,
   AdminTicketRecord,
 } from '@/lib/ticketStore';
 import { Screening, GalleryItem, Product, MembershipConfig, TourConfig, SiteTaxConfig, ProductOrderRecord } from '@/lib/types';
@@ -842,10 +843,19 @@ export default function AdminDashboardPage() {
   const handleUpdateScreening = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingScreening || !editingScreening.matchTitle || !editingScreening.date) return;
-    await updateScreeningInStore(editingScreening);
+    const realSold = tickets
+      .filter((t) => isSameMatch(t.matchTitle, editingScreening.matchTitle, t.screeningId, editingScreening.id))
+      .reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
+    const capacity = Number(editingScreening.capacity) || 50;
+    const updatedScreening = {
+      ...editingScreening,
+      capacity,
+      remainingSeats: Math.max(0, capacity - realSold),
+    };
+    await updateScreeningInStore(updatedScreening);
     await fetchScreeningsRemoteAsync();
     setEditingScreening(null);
-    alert(`Screening event "${editingScreening.matchTitle}" updated and synced live across the entire website!`);
+    alert(`Screening event "${editingScreening.matchTitle}" updated successfully (Capacity: ${capacity}, Sold: ${realSold}, Remaining: ${Math.max(0, capacity - realSold)})!`);
   };
 
   const handleUpdateTicket = async (e: React.FormEvent) => {
@@ -978,7 +988,7 @@ export default function AdminDashboardPage() {
   // Overall Stats
   const checkedInCount = tickets.filter((t) => t.checkedIn).length;
 
-  // Active screening selection & live gate computations (sorted chronologically)
+  // Active screening selection & live gate computations (sorted chronologically for only live events)
   const sortedScreenings = sortScreeningsChronologically(screenings);
   const activeGateScreening = sortedScreenings.find((s) => s.id === selectedScreeningId) || sortedScreenings[0];
   const activeGateScreeningId = selectedScreeningId || activeGateScreening?.id || 'ALL';
@@ -988,10 +998,16 @@ export default function AdminDashboardPage() {
     return isSameMatch(t.matchTitle, activeGateScreening?.matchTitle, t.screeningId, activeGateScreening?.id);
   });
 
-  const gateCapacity = activeGateScreening?.capacity || 250;
+  const gateCapacity = activeGateScreening?.capacity || 50;
   const gateTicketsSold = gateTickets.reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
   const gateCheckedInCount = gateTickets.filter((t) => t.checkedIn).reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
-  const gateTurnstilePercent = gateTicketsSold > 0 ? Math.round((gateCheckedInCount / gateTicketsSold) * 100) : 0;
+  const gateTurnstilePercent = gateCapacity > 0 ? Math.round((gateTicketsSold / gateCapacity) * 100) : 0;
+
+  // Live events metrics
+  const liveEventsCount = sortedScreenings.length;
+  const checkedInEventsCount = sortedScreenings.filter((s) =>
+    tickets.some((t) => isSameMatch(t.matchTitle, s.matchTitle, t.screeningId, s.id) && t.checkedIn)
+  ).length;
 
   const filteredGateAttendees = gateTickets.filter((t) => {
     const matchesFilter =
@@ -1244,7 +1260,7 @@ export default function AdminDashboardPage() {
                             {sc.matchTitle} ({sc.date ? sc.date.split(',')[0] || sc.date : sc.competition || 'Match'})
                           </option>
                         ))}
-                        <option value="ALL">All Screenings (Global Gate)</option>
+                        <option value="ALL">All Live Events ({liveEventsCount} Live Screenings)</option>
                       </select>
                     </div>
                   </div>
@@ -1670,9 +1686,9 @@ export default function AdminDashboardPage() {
                       )}
                     </div>
 
-                    <div className="pt-4 border-t border-white/10 flex justify-between text-xs font-mono text-white/60">
+                    <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-1 text-xs font-mono text-white/60">
                       <div>Screening Gate Attendance: <strong>{gateCheckedInCount} / {gateTicketsSold} Admitted</strong></div>
-                      <div>Total All Events: {checkedInCount} / {tickets.length}</div>
+                      <div>Total All Events: <strong>{checkedInEventsCount} / {liveEventsCount} Events</strong> ({checkedInCount} / {tickets.length} passes)</div>
                     </div>
                   </div>
                 </div>
@@ -2104,9 +2120,21 @@ export default function AdminDashboardPage() {
                               <span className="text-[10px] font-display text-[#E60012] font-bold uppercase bg-[#050505] px-2 py-0.5 rounded border border-[#E60012]/30">
                                 {sc.competition}
                               </span>
-                              <span className="text-[10px] font-display text-emerald-400 font-bold uppercase bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
-                                {sc.status || 'UPCOMING'}
-                              </span>
+                              {(() => {
+                                const isPast = sc.date && parseScreeningDate(sc.date) < Date.now() - 24 * 60 * 60 * 1000;
+                                const isSoldOut = sc.remainingSeats !== undefined && sc.remainingSeats <= 0;
+                                const displayStatus = isPast ? 'EVENT IS DONE' : isSoldOut ? 'SOLD OUT' : 'LIVE NOW';
+                                const badgeColor = isPast
+                                  ? 'text-white/60 bg-white/10 border-white/20'
+                                  : isSoldOut
+                                  ? 'text-red-400 bg-red-950/40 border-red-500/30'
+                                  : 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30';
+                                return (
+                                  <span className={`text-[10px] font-display font-bold uppercase px-2 py-0.5 rounded border ${badgeColor}`}>
+                                    {displayStatus}
+                                  </span>
+                                );
+                              })()}
                             </div>
                             <h4 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase">{sc.matchTitle}</h4>
                             <div className="text-xs font-sans text-white/80 space-y-1 pt-1">
@@ -2121,17 +2149,27 @@ export default function AdminDashboardPage() {
                               <div className="flex items-center gap-2">
                                 <span>📍 {sc.venueName}</span>
                               </div>
-                              <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs">
-                                <span className="bg-[#050505] border border-white/15 px-2.5 py-1 rounded-lg text-white font-bold">
-                                  🪑 Total Capacity: <strong className="text-white">{sc.capacity || 250}</strong>
-                                </span>
-                                <span className="bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-emerald-400 font-bold">
-                                  ✓ Remaining: {sc.remainingSeats !== undefined ? sc.remainingSeats : (sc.capacity || 250)}
-                                </span>
-                                <span className="bg-[#E60012]/20 border border-[#E60012]/40 px-2.5 py-1 rounded-lg text-[#E60012] font-bold">
-                                  🔥 Sold: {Math.max(0, (sc.capacity || 250) - (sc.remainingSeats !== undefined ? sc.remainingSeats : (sc.capacity || 250)))}
-                                </span>
-                              </div>
+                              {(() => {
+                                const scCap = sc.capacity || (sc.id === 'screening-1793115002290' ? 50 : 30);
+                                const ticketsForSc = tickets.filter((t) => isSameMatch(t.matchTitle, sc.matchTitle, t.screeningId, sc.id));
+                                const bookedFromTickets = ticketsForSc.reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
+                                const dbRem = sc.remainingSeats !== undefined ? sc.remainingSeats : scCap;
+                                const finalSold = Math.max(bookedFromTickets, scCap - dbRem);
+                                const finalRem = Math.max(0, scCap - finalSold);
+                                return (
+                                  <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs">
+                                    <span className="bg-[#050505] border border-white/15 px-2.5 py-1 rounded-lg text-white font-bold">
+                                      🪑 Total Capacity: <strong className="text-white">{scCap}</strong>
+                                    </span>
+                                    <span className="bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-emerald-400 font-bold">
+                                      ✓ Remaining: {finalRem}
+                                    </span>
+                                    <span className="bg-[#E60012]/20 border border-[#E60012]/40 px-2.5 py-1 rounded-lg text-[#E60012] font-bold">
+                                      🔥 Sold: {finalSold}
+                                    </span>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </div>
 
@@ -2201,35 +2239,19 @@ export default function AdminDashboardPage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-xs font-display text-white/90 font-bold uppercase block">COMPETITION</label>
-                            <select
-                              value={editingScreening.competition || 'Premier League'}
-                              onChange={(e) => setEditingScreening({ ...editingScreening, competition: e.target.value })}
-                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
-                            >
-                              <option value="Premier League">Premier League</option>
-                              <option value="FA Cup">FA Cup</option>
-                              <option value="UEFA Champions League">UEFA Champions League</option>
-                              <option value="EFL Cup">EFL Cup</option>
-                              <option value="Pre-Season Tour">Pre-Season Tour</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-display text-white/90 font-bold uppercase block">STATUS</label>
-                            <select
-                              value={editingScreening.status || 'UPCOMING'}
-                              onChange={(e) => setEditingScreening({ ...editingScreening, status: e.target.value as any })}
-                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
-                            >
-                              <option value="UPCOMING">UPCOMING</option>
-                              <option value="LIVE NOW">LIVE NOW</option>
-                              <option value="SOLD OUT">SOLD OUT</option>
-                              <option value="COMPLETED">COMPLETED</option>
-                            </select>
-                          </div>
+                        <div>
+                          <label className="text-xs font-display text-white/90 font-bold uppercase block">COMPETITION</label>
+                          <select
+                            value={editingScreening.competition || 'Premier League'}
+                            onChange={(e) => setEditingScreening({ ...editingScreening, competition: e.target.value })}
+                            className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
+                          >
+                            <option value="Premier League">Premier League</option>
+                            <option value="FA Cup">FA Cup</option>
+                            <option value="UEFA Champions League">UEFA Champions League</option>
+                            <option value="EFL Cup">EFL Cup</option>
+                            <option value="Pre-Season Tour">Pre-Season Tour</option>
+                          </select>
                         </div>
 
                         {/* Edit Date with Calendar Picker */}
@@ -2370,27 +2392,37 @@ export default function AdminDashboardPage() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="text-xs font-display text-white/90 font-bold uppercase block">TOTAL CAPACITY *</label>
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">TOTAL CAPACITY (MAX TICKETS) *</label>
                             <input
                               type="number"
                               required
-                              value={editingScreening.capacity ?? 250}
-                              onChange={(e) => setEditingScreening({ ...editingScreening, capacity: Number(e.target.value) })}
+                              min={1}
+                              value={editingScreening.capacity ?? 50}
+                              onChange={(e) => {
+                                const newCap = Number(e.target.value);
+                                const realSold = tickets
+                                  .filter((t) => isSameMatch(t.matchTitle, editingScreening.matchTitle, t.screeningId, editingScreening.id))
+                                  .reduce((sum, t) => sum + (Number(t.quantity) || 1), 0);
+                                setEditingScreening({
+                                  ...editingScreening,
+                                  capacity: newCap,
+                                  remainingSeats: Math.max(0, newCap - realSold),
+                                });
+                              }}
                               className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
                             />
                           </div>
 
                           <div>
-                            <label className="text-xs font-display text-white/90 font-bold uppercase block">REMAINING SEATS *</label>
-                            <input
-                              type="number"
-                              required
-                              value={editingScreening.remainingSeats ?? 250}
-                              onChange={(e) => setEditingScreening({ ...editingScreening, remainingSeats: Number(e.target.value) })}
-                              className="w-full bg-[#050505] border border-white/20 rounded-xl px-3 py-3 text-sm text-white mt-1"
-                            />
+                            <label className="text-xs font-display text-white/90 font-bold uppercase block">REMAINING SEATS (AUTO-COMPUTED)</label>
+                            <div className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-3 text-sm text-emerald-400 font-mono font-bold mt-1">
+                              {Math.max(0, (editingScreening.capacity ?? 50) - (tickets.filter((t) => isSameMatch(t.matchTitle, editingScreening.matchTitle, t.screeningId, editingScreening.id)).reduce((sum, t) => sum + (Number(t.quantity) || 1), 0)))} Seats Left
+                              <span className="text-xs text-white/50 font-normal ml-2">
+                                ({tickets.filter((t) => isSameMatch(t.matchTitle, editingScreening.matchTitle, t.screeningId, editingScreening.id)).reduce((sum, t) => sum + (Number(t.quantity) || 1), 0)} Sold)
+                              </span>
+                            </div>
                           </div>
                         </div>
 

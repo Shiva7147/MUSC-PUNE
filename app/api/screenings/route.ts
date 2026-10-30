@@ -11,7 +11,9 @@ let inMemoryScreenings: Screening[] = sortScreeningsChronologically([...upcoming
 
 // Helper to format Supabase DB row to Screening interface
 const formatScreeningRow = (row: any, bookedSeats: number = 0, splitMap: Record<string, any> = {}): Screening => {
-  const capacity = Number(row.capacity) || 250;
+  const capacity = (row.id === 'screening-1793115002290' || (row.match_title && row.match_title.toLowerCase().includes('chelsea')))
+    ? 50
+    : (Number(row.capacity) || 250);
   const dbRemaining = row.remaining_seats !== null && row.remaining_seats !== undefined ? Number(row.remaining_seats) : capacity;
   // Dynamic remaining seats subtracts booked tickets
   const remainingSeats = Math.max(0, Math.min(dbRemaining, capacity - bookedSeats));

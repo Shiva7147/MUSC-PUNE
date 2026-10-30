@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { ShoppingBag, Menu, X, Ticket } from 'lucide-react';
 import { CartItem, Screening } from '@/lib/types';
 import { officialLogoUrl } from '@/lib/data';
-import { getScreeningsStore } from '@/lib/ticketStore';
+import { getScreeningsStore, sortScreeningsChronologically } from '@/lib/ticketStore';
 import { TopEventScroller } from './TopEventScroller';
 
 interface NavbarProps {
@@ -25,7 +25,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const activeScreening = upcomingScreening || getScreeningsStore()[0];
+  const sortedScreenings = sortScreeningsChronologically(getScreeningsStore());
+  const activeScreening = upcomingScreening || sortedScreenings[0];
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
