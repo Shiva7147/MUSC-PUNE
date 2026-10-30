@@ -252,9 +252,9 @@ export default function Home() {
                           <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
                             <span className="text-[#E60012] font-bold flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
-                              <span>🔥 LIVE: {soldSeats} TICKETS SOLD ({filledPct}% FILLED)</span>
+                              <span>🔥 LIVE: {filledPct}% SEATS FILLED</span>
                             </span>
-                            <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} AVAILABLE ({100 - filledPct}%)</span>
+                            <span className="text-white/60 font-mono text-[11px] font-bold">{100 - filledPct}% AVAILABLE</span>
                           </div>
                           <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
                             <div

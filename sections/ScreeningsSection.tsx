@@ -90,9 +90,9 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
                     <span className="text-[#E60012] font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
-                      <span>🔥 LIVE: {soldSeats} TICKETS SOLD ({filledPct}% FILLED)</span>
+                      <span>🔥 LIVE: {filledPct}% SEATS FILLED</span>
                     </span>
-                    <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} AVAILABLE ({remPct}%)</span>
+                    <span className="text-white/60 font-mono text-[11px] font-bold">{remPct}% AVAILABLE</span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
                     <div className="h-full bg-gradient-to-r from-amber-500 via-[#E60012] to-red-600 transition-all duration-500" style={{ width: `${filledPct}%` }} />
@@ -175,7 +175,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                     <div className="flex items-center justify-between text-xs font-display text-white/60 mb-2">
                       <span>{sc.competition}</span>
                       <span className="px-2.5 py-0.5 rounded bg-[#050505] text-[#E60012] border border-[#E60012]/30 font-bold uppercase">
-                        {scSold} SOLD ({scFilledPct}%)
+                        {scFilledPct}% SEATS FILLED
                       </span>
                     </div>
 
@@ -209,7 +209,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
 
                   <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-between gap-3">
                     <span className="text-[11px] font-mono text-white/50">
-                      {100 - scFilledPct}% available
+                      {100 - scFilledPct}% AVAILABLE
                     </span>
                     <button
                       type="button"
