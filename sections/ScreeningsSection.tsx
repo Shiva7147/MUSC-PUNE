@@ -88,9 +88,9 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
                   <div className="flex flex-wrap items-center justify-between text-xs font-display gap-1">
                     <span className="text-[#E60012] font-bold flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
-                      <span>🔥 LIVE: {filledPct}% SEATS FILLED ({remSeats} SEATS LEFT)</span>
+                      <span>🔥 LIVE: {filledPct}% SEATS FILLED</span>
                     </span>
-                    <span className="text-white/60 font-mono text-[11px] font-bold">{remSeats} / {totalCap} LEFT</span>
+                    <span className="text-white/60 font-mono text-[11px] font-bold">{100 - filledPct}% AVAILABLE</span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-[#050505] overflow-hidden border border-white/10">
                     <div className="h-full bg-gradient-to-r from-amber-500 via-[#E60012] to-red-600 transition-all duration-500" style={{ width: `${filledPct}%` }} />
@@ -206,7 +206,7 @@ export const ScreeningsSection: React.FC<ScreeningsSectionProps> = ({
 
                   <div className="pt-4 border-t border-dashed border-white/15 flex items-center justify-between gap-3">
                     <span className="text-[11px] font-mono text-white/50">
-                      {scRem} seats left
+                      {100 - scFilledPct}% available
                     </span>
                     <button
                       type="button"

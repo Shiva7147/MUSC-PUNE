@@ -676,7 +676,7 @@ export const UniversalCheckoutModal: React.FC<UniversalCheckoutModalProps> = ({
                     </div>
                   )}
                   <div className="flex justify-between text-white/60">
-                    <span>Applicable Tax ({Math.round(taxRate * 100)}%):</span>
+                    <span>Applicable Tax Rate ({Math.round(taxRate * 100)}%):</span>
                     <span className="font-mono text-white">₹{taxAmount.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-white/60">

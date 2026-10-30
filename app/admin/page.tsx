@@ -908,14 +908,14 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     await updateSiteTaxConfigStore(siteTaxConfig);
     await fetchConfigRemoteAsync();
-    alert('Screening Tax Rate and Screening Platform Fee saved and live across all match screening passes!');
+    alert('Applicable Tax Rate and Applicable Platform Fees saved and live across all match screening passes!');
   };
 
   const handleSaveMerchandiseTax = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateSiteTaxConfigStore(siteTaxConfig);
     await fetchConfigRemoteAsync();
-    alert('Merchandise Tax Rate and Platform Fee saved and live across shop checkout!');
+    alert('Applicable Tax Rate and Applicable Platform Fees saved and live across shop checkout!');
   };
 
   const handleSaveMembershipTaxAndPricing = async (e: React.FormEvent) => {
@@ -923,7 +923,7 @@ export default function AdminDashboardPage() {
     await updateMembershipConfigStore(membershipConfig);
     await updateSiteTaxConfigStore(siteTaxConfig);
     await fetchConfigRemoteAsync();
-    alert('Membership Size Pricing, Tax Rate, and Platform Fee saved and live across membership checkout!');
+    alert('Membership Size Pricing, Applicable Tax Rate, and Applicable Platform Fees saved and live across membership checkout!');
   };
 
   const handleSaveFormspreeEndpoint = async (e: React.FormEvent) => {
@@ -938,7 +938,7 @@ export default function AdminDashboardPage() {
     await updateTourConfigStore(tourConfig);
     await updateSiteTaxConfigStore(siteTaxConfig);
     await fetchConfigRemoteAsync();
-    alert('Old Trafford Group Trip configuration, price, tax rate, and platform fee saved live!');
+    alert('Old Trafford Group Trip configuration, price, Applicable Tax Rate, and Applicable Platform Fees saved live!');
   };
 
   const handleCreateGal = async (e: React.FormEvent) => {
@@ -1823,7 +1823,7 @@ export default function AdminDashboardPage() {
                         SCREENINGS FINANCIAL SETTINGS
                       </span>
                       <h2 className="font-display text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">
-                        SCREENING TAX & PLATFORM FEE SETTINGS
+                        APPLICABLE TAX & PLATFORM FEE SETTINGS
                       </h2>
                     </div>
                     <span className="text-xs font-mono text-[#E60012] bg-[#E60012]/15 px-3 py-1 rounded-lg border border-[#E60012]/30 w-fit">
@@ -1834,7 +1834,7 @@ export default function AdminDashboardPage() {
                   <form onSubmit={handleSaveScreeningsTax} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENING TAX RATE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -1849,7 +1849,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">SCREENING PLATFORM FEES (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE PLATFORM FEES (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -1869,7 +1869,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-6 py-3 rounded-xl transition-all uppercase cursor-pointer"
                       >
-                        SAVE SCREENING TAX SETTINGS
+                        SAVE APPLICABLE TAX & PLATFORM FEE SETTINGS
                       </button>
                     </div>
                   </form>
@@ -2417,7 +2417,7 @@ export default function AdminDashboardPage() {
                         MERCHANDISE FINANCIAL SETTINGS
                       </span>
                       <h2 className="font-display text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">
-                        MERCHANDISE TAX & PLATFORM FEE SETTINGS
+                        APPLICABLE TAX & PLATFORM FEE SETTINGS
                       </h2>
                     </div>
                     <span className="text-xs font-mono text-emerald-400 bg-emerald-950/40 px-3 py-1 rounded-lg border border-emerald-500/30 w-fit">
@@ -2428,7 +2428,7 @@ export default function AdminDashboardPage() {
                   <form onSubmit={handleSaveMerchandiseTax} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">MERCHANDISE TAX RATE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -2443,7 +2443,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">MERCHANDISE PLATFORM FEE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE PLATFORM FEES (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -2463,7 +2463,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-6 py-3 rounded-xl transition-all uppercase cursor-pointer"
                       >
-                        SAVE MERCHANDISE TAX SETTINGS
+                        SAVE APPLICABLE TAX & PLATFORM FEE SETTINGS
                       </button>
                     </div>
                   </form>
@@ -2477,7 +2477,7 @@ export default function AdminDashboardPage() {
                         SUPPORTERS CLUB MEMBERSHIP
                       </span>
                       <h2 className="font-display text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">
-                        MEMBERSHIP SIZING & TAX SLAB
+                        MEMBERSHIP SIZING & APPLICABLE TAX & PLATFORM FEE SETTINGS
                       </h2>
                     </div>
                     <span className="text-xs font-mono text-amber-400 bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-500/30 w-fit">
@@ -2511,7 +2511,7 @@ export default function AdminDashboardPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP TAX RATE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE TAX RATE (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -2527,7 +2527,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase">MEMBERSHIP PLATFORM FEE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase">APPLICABLE PLATFORM FEES (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -2548,7 +2548,7 @@ export default function AdminDashboardPage() {
                         type="submit"
                         className="bg-[#E60012] hover:bg-[#C40010] text-white font-display text-xs font-bold px-6 py-3 rounded-xl transition-all uppercase cursor-pointer"
                       >
-                        SAVE MEMBERSHIP PRICING & TAX SETTINGS
+                        SAVE MEMBERSHIP PRICING & APPLICABLE TAX SETTINGS
                       </button>
                     </div>
                   </form>
@@ -3597,7 +3597,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase block">TOUR TAX RATE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase block">APPLICABLE TAX RATE (%)</label>
                         <input
                           type="number"
                           step="1"
@@ -3613,7 +3613,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-display text-white/90 font-bold uppercase block">TOUR PLATFORM FEE (%)</label>
+                        <label className="text-xs font-display text-white/90 font-bold uppercase block">APPLICABLE PLATFORM FEES (%)</label>
                         <input
                           type="number"
                           step="1"

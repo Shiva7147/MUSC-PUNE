@@ -442,9 +442,9 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                       <div className="flex justify-between text-xs font-display">
                         <span className="text-[#E60012] font-bold flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-[#E60012] animate-ping" />
-                          <span>🔥 LIVE SEATS: {filledPct}% BOOKED ({remSeats} SEATS LEFT)</span>
+                          <span>🔥 LIVE SEATS: {filledPct}% BOOKED</span>
                         </span>
-                        <span className="text-white/60 font-mono font-bold text-[11px]">{remSeats} / {totalCap} REMAINING</span>
+                        <span className="text-white/60 font-mono font-bold text-[11px]">{100 - filledPct}% AVAILABLE</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-[#171717] overflow-hidden border border-white/10">
                         <div
@@ -559,11 +559,11 @@ export const ScreeningTicketModal: React.FC<ScreeningTicketModalProps> = ({
                     )}
 
                     <div className="flex justify-between text-white/70">
-                      <span>Screening Tax Rate ({Math.round(taxRate * 100)}%)</span>
+                      <span>Applicable Tax Rate ({Math.round(taxRate * 100)}%)</span>
                       <span className="font-mono">₹{taxAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between text-white/70 pb-1.5 border-b border-white/10">
-                      <span>Screening Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
+                      <span>Applicable Platform Fees ({Math.round(platformFeeRate * 100)}%)</span>
                       <span className="font-mono">₹{platformFeeAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between font-display text-base font-bold text-white pt-1">

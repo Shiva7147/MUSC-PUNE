@@ -1,14 +1,14 @@
 import { Screening, Product, TourPackage, TourConfig, GalleryItem, FanChant, TeamMember, MembershipConfig, SiteTaxConfig } from './types';
 
 export const defaultSiteTaxConfig: SiteTaxConfig = {
-  screeningsTaxRate: 0.18,       // 18% Screening Tax Rate for match screenings
-  screeningsPlatformFeeRate: 0.03, // 3% Screening Platform Fee
-  productsTaxRate: 0.18,         // 18% Merchandise Tax Rate
-  productsPlatformFeeRate: 0.03, // 3% Merchandise Platform Fee
-  membershipTaxRate: 0.18,       // 18% Membership Tax Rate
-  membershipPlatformFeeRate: 0.03, // 3% Membership Platform Fee
-  toursTaxRate: 0.05,            // 5% Tour Tax Rate
-  toursPlatformFeeRate: 0.02,    // 2% Tour Platform Fee
+  screeningsTaxRate: 0.18,       // 18% Applicable Tax Rate for match screenings
+  screeningsPlatformFeeRate: 0.03, // 3% Applicable Platform Fees
+  productsTaxRate: 0.18,         // 18% Applicable Tax Rate
+  productsPlatformFeeRate: 0.03, // 3% Applicable Platform Fees
+  membershipTaxRate: 0.18,       // 18% Applicable Tax Rate
+  membershipPlatformFeeRate: 0.03, // 3% Applicable Platform Fees
+  toursTaxRate: 0.05,            // 5% Applicable Tax Rate
+  toursPlatformFeeRate: 0.02,    // 2% Applicable Platform Fees
   formspreeEndpoint: 'https://formspree.io/f/xrppgvbv',
 };
 
