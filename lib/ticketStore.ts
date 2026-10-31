@@ -209,7 +209,7 @@ if (typeof window !== 'undefined') {
 // Helper to sync ticket record via API route (which uses supabaseAdmin - bypasses RLS)
 export const syncTicketToSupabase = async (record: AdminTicketRecord): Promise<boolean> => {
   try {
-    const res = await fetch('/api/tickets', {
+    const res = await fetch(`/api/tickets?_t=${Date.now()}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(record),
@@ -372,19 +372,20 @@ export const getTicketStore = (): AdminTicketRecord[] => {
 
 export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> => {
   try {
-    const res = await fetch('/api/tickets', { cache: 'no-store' });
+    const res = await fetch(`/api/tickets?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+      },
+    });
     if (res.ok) {
       const json = await res.json();
       if (json.tickets && Array.isArray(json.tickets)) {
-        const remoteIds = new Set(json.tickets.map((t: AdminTicketRecord) => t.ticketId));
-        const localOnly = ticketsMemory.filter((t) => !remoteIds.has(t.ticketId));
-        const merged = [...json.tickets, ...localOnly];
-        if (JSON.stringify(merged) !== JSON.stringify(ticketsMemory)) {
-          ticketsMemory = merged;
-          saveStorage(TICKETS_STORAGE_KEY, merged);
-          notifyListeners();
-        }
-        return merged;
+        ticketsMemory = json.tickets;
+        saveStorage(TICKETS_STORAGE_KEY, json.tickets);
+        notifyListeners();
+        return json.tickets;
       }
     }
   } catch (err) {
@@ -398,7 +399,7 @@ export const updateTicketInStore = async (updated: AdminTicketRecord) => {
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
   notifyListeners();
   try {
-    await fetch('/api/tickets', {
+    await fetch(`/api/tickets?_t=${Date.now()}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updated),
@@ -414,7 +415,7 @@ export const deleteTicketFromStore = async (ticketId: string) => {
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
   notifyListeners();
   try {
-    await fetch(`/api/tickets?ticketId=${encodeURIComponent(ticketId)}`, {
+    await fetch(`/api/tickets?ticketId=${encodeURIComponent(ticketId)}&_t=${Date.now()}`, {
       method: 'DELETE',
     });
     fetchRemoteTicketsAsync().catch(() => {});
@@ -460,29 +461,14 @@ export const verifyTicketScanAsync = async (
     return false;
   };
 
-  // 1. Check local memory first
-  let allTickets = getTicketStore();
+  // Always query fresh tickets from Supabase so there are ZERO cache issues
+  let allTickets = await fetchRemoteTicketsAsync();
   let foundIndex = allTickets.findIndex(isMatchingRecord);
 
-  // 2. If not found in local memory, query via API route (uses supabaseAdmin - bypasses RLS)
+  // Fallback to local memory if offline
   if (foundIndex === -1) {
-    try {
-      const res = await fetch('/api/tickets', { cache: 'no-store' });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.tickets && Array.isArray(json.tickets)) {
-          const remoteMatch = json.tickets.find(isMatchingRecord);
-          if (remoteMatch) {
-            ticketsMemory = [remoteMatch, ...ticketsMemory];
-            saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
-            allTickets = ticketsMemory;
-            foundIndex = 0;
-          }
-        }
-      }
-    } catch (err) {
-      console.error('API query error during scan:', err);
-    }
+    allTickets = getTicketStore();
+    foundIndex = allTickets.findIndex(isMatchingRecord);
   }
 
   if (foundIndex === -1) {
@@ -508,43 +494,81 @@ export const verifyTicketScanAsync = async (
     };
   }
 
-  // 5. Admit supporter and stamp turnstile timestamp
-  const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  // 5. Admit supporter and stamp turnstile timestamp with valid ISO 8601 string
+  const nowIso = new Date().toISOString();
   target.checkedIn = true;
-  target.checkedInAt = nowStr;
+  target.checkedInAt = nowIso;
   target.checkedInBy = adminName;
 
   allTickets[foundIndex] = target;
   ticketsMemory = allTickets;
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
-  syncTicketToSupabase(target);
   notifyListeners();
+
+  // Directly update Supabase with valid ISO timestamp
+  try {
+    await fetch(`/api/tickets?_t=${Date.now()}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ticketId: target.ticketId,
+        checkedIn: true,
+        checkedInAt: nowIso,
+        checkedInBy: adminName,
+      }),
+    });
+  } catch (err) {
+    console.error('Failed to sync ticket check-in to Supabase:', err);
+  }
 
   return {
     status: 'VALID',
     ticket: target,
-    checkedInAt: nowStr,
+    checkedInAt: nowIso,
   };
 };
 
 // Toggle Check-In status manually from gate ledger
 export const toggleCheckInTicket = async (ticketId: string, adminName: string = 'Gate Admin 1') => {
-  const allTickets = getTicketStore();
-  const index = allTickets.findIndex((t) => t.ticketId === ticketId);
+  let allTickets = getTicketStore();
+  let index = allTickets.findIndex((t) => t.ticketId === ticketId);
+  if (index === -1) {
+    allTickets = await fetchRemoteTicketsAsync();
+    index = allTickets.findIndex((t) => t.ticketId === ticketId);
+  }
   if (index === -1) return null;
 
   const target = allTickets[index];
   const newCheckedIn = !target.checkedIn;
-  const nowStr = newCheckedIn ? new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : undefined;
+  const nowIso = newCheckedIn ? new Date().toISOString() : undefined;
   target.checkedIn = newCheckedIn;
-  target.checkedInAt = nowStr;
+  target.checkedInAt = nowIso;
   target.checkedInBy = newCheckedIn ? adminName : undefined;
 
   allTickets[index] = target;
   ticketsMemory = allTickets;
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
-  syncTicketToSupabase(target);
   notifyListeners();
+
+  // Await direct PUT to Supabase
+  try {
+    const res = await fetch(`/api/tickets?_t=${Date.now()}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ticketId: target.ticketId,
+        checkedIn: newCheckedIn,
+        checkedInAt: nowIso || null,
+        checkedInBy: newCheckedIn ? adminName : null,
+      }),
+    });
+    if (!res.ok) {
+      console.error('Failed to update ticket check-in in Supabase:', await res.text());
+    }
+  } catch (err) {
+    console.error('Error updating check-in in Supabase:', err);
+  }
+
   return target;
 };
 
@@ -581,21 +605,31 @@ export const verifyTicketScan = (
     };
   }
 
-  const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const nowIso = new Date().toISOString();
   target.checkedIn = true;
-  target.checkedInAt = nowStr;
+  target.checkedInAt = nowIso;
   target.checkedInBy = adminName;
 
   allTickets[foundIndex] = target;
   ticketsMemory = allTickets;
   saveStorage(TICKETS_STORAGE_KEY, ticketsMemory);
-  syncTicketToSupabase(target);
   notifyListeners();
+
+  fetch(`/api/tickets?_t=${Date.now()}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ticketId: target.ticketId,
+      checkedIn: true,
+      checkedInAt: nowIso,
+      checkedInBy: adminName,
+    }),
+  }).catch((err) => console.error('Background sync error:', err));
 
   return {
     status: 'VALID',
     ticket: target,
-    checkedInAt: nowStr,
+    checkedInAt: nowIso,
   };
 };
 

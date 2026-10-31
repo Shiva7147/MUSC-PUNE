@@ -4,7 +4,13 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// GET /api/tickets - Fetch all tickets from Supabase
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
+// GET /api/tickets - Fetch all tickets from Supabase with zero cache
 export async function GET() {
   try {
     const { data, error } = await supabaseAdmin
@@ -13,7 +19,7 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500, headers: NO_CACHE_HEADERS });
     }
 
     // Format fields to match AdminTicketRecord interface
@@ -37,9 +43,9 @@ export async function GET() {
       checkedInBy: t.checked_in_by,
     }));
 
-    return NextResponse.json({ tickets: formatted }, { status: 200 });
+    return NextResponse.json({ tickets: formatted }, { status: 200, headers: NO_CACHE_HEADERS });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 }
 
@@ -47,6 +53,16 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+
+    let validCheckedInAt: string | null = null;
+    if (body.checkedIn) {
+      if (body.checkedInAt) {
+        const d = new Date(body.checkedInAt);
+        validCheckedInAt = isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+      } else {
+        validCheckedInAt = new Date().toISOString();
+      }
+    }
 
     const payload = {
       ticket_id: body.ticketId,
@@ -63,24 +79,24 @@ export async function POST(request: Request) {
       qr_data_url: body.qrDataUrl,
       payment_status: body.paymentStatus || 'SUCCESS',
       checked_in: Boolean(body.checkedIn),
-      checked_in_at: body.checkedInAt || null,
-      checked_in_by: body.checkedInBy || null,
+      checked_in_at: validCheckedInAt,
+      checked_in_by: body.checkedIn ? (body.checkedInBy || 'Gate Admin') : null,
     };
 
     const { data, error } = await supabaseAdmin
       .from('tickets')
-      .upsert(payload)
+      .upsert(payload, { onConflict: 'ticket_id' })
       .select();
 
     if (error) {
       console.error('API Ticket Upsert Error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500, headers: NO_CACHE_HEADERS });
     }
 
-    return NextResponse.json({ success: true, data }, { status: 201 });
+    return NextResponse.json({ success: true, data }, { status: 201, headers: NO_CACHE_HEADERS });
   } catch (err: any) {
     console.error('API Route Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 }
 
@@ -91,7 +107,7 @@ export async function PUT(request: Request) {
     const ticketId = body.ticketId || body.ticket_id;
 
     if (!ticketId) {
-      return NextResponse.json({ error: 'Missing ticketId' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing ticketId' }, { status: 400, headers: NO_CACHE_HEADERS });
     }
 
     const payload: any = {};
@@ -101,9 +117,35 @@ export async function PUT(request: Request) {
     if (body.quantity !== undefined) payload.quantity = Number(body.quantity);
     if (body.totalAmount !== undefined) payload.total_amount = Number(body.totalAmount);
     if (body.paymentStatus !== undefined) payload.payment_status = body.paymentStatus;
-    if (body.checkedIn !== undefined) payload.checked_in = Boolean(body.checkedIn);
-    if (body.checkedInAt !== undefined) payload.checked_in_at = body.checkedInAt;
-    if (body.checkedInBy !== undefined) payload.checked_in_by = body.checkedInBy;
+    
+    // Explicitly handle check-in with valid ISO timestamps
+    if (body.checkedIn !== undefined) {
+      const isChecked = Boolean(body.checkedIn);
+      payload.checked_in = isChecked;
+      if (isChecked) {
+        if (body.checkedInAt) {
+          const d = new Date(body.checkedInAt);
+          payload.checked_in_at = isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+        } else {
+          payload.checked_in_at = new Date().toISOString();
+        }
+        if (body.checkedInBy !== undefined) payload.checked_in_by = body.checkedInBy;
+      } else {
+        payload.checked_in_at = null;
+        payload.checked_in_by = null;
+      }
+    } else if (body.checkedInAt !== undefined) {
+      if (body.checkedInAt) {
+        const d = new Date(body.checkedInAt);
+        payload.checked_in_at = isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+      } else {
+        payload.checked_in_at = null;
+      }
+    }
+
+    if (body.checkedInBy !== undefined && payload.checked_in_by === undefined) {
+      payload.checked_in_by = body.checkedInBy;
+    }
     if (body.matchTitle !== undefined) payload.match_title = body.matchTitle;
     if (body.venue !== undefined) payload.venue = body.venue;
 
@@ -115,13 +157,13 @@ export async function PUT(request: Request) {
 
     if (error) {
       console.error('API Ticket PUT Error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500, headers: NO_CACHE_HEADERS });
     }
 
-    return NextResponse.json({ success: true, data }, { status: 200 });
+    return NextResponse.json({ success: true, data }, { status: 200, headers: NO_CACHE_HEADERS });
   } catch (err: any) {
     console.error('API Ticket PUT Route Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 }
 
@@ -132,7 +174,7 @@ export async function DELETE(request: Request) {
     const ticketId = searchParams.get('ticketId') || searchParams.get('id');
 
     if (!ticketId) {
-      return NextResponse.json({ error: 'Missing ticketId' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing ticketId' }, { status: 400, headers: NO_CACHE_HEADERS });
     }
 
     const { error } = await supabaseAdmin
@@ -142,12 +184,12 @@ export async function DELETE(request: Request) {
 
     if (error) {
       console.error('API Ticket DELETE Error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500, headers: NO_CACHE_HEADERS });
     }
 
-    return NextResponse.json({ success: true, deletedTicketId: ticketId }, { status: 200 });
+    return NextResponse.json({ success: true, deletedTicketId: ticketId }, { status: 200, headers: NO_CACHE_HEADERS });
   } catch (err: any) {
     console.error('API Ticket DELETE Route Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 }

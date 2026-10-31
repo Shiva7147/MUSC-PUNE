@@ -26,7 +26,10 @@ import {
   Pencil as EditIcon,
   Clock as ClockIcon,
   X as CloseIcon,
+  RefreshCw as RefreshIcon,
+  SwitchCamera as FlipCameraIcon,
 } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 import {
   getTicketStore,
   verifyTicketScan,
@@ -277,6 +280,17 @@ const AUTHORIZED_ACCOUNTS: AdminAccount[] = [
   },
 ];
 
+const formatCheckInTime = (dateStr?: string): string => {
+  if (!dateStr) return 'Gate';
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+  } catch {}
+  return dateStr;
+};
+
 export default function AdminDashboardPage() {
   const [adminEmailInput, setAdminEmailInput] = useState('');
   const [pinInput, setPinInput] = useState('');
@@ -302,6 +316,9 @@ export default function AdminDashboardPage() {
   const [gateSearchQuery, setGateSearchQuery] = useState('');
   const [gateFilter, setGateFilter] = useState<'ALL' | 'CHECKED_IN' | 'AWAITING'>('ALL');
   const [cameraActive, setCameraActive] = useState(false);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string>('');
   const [scanPaused, setScanPaused] = useState(false);
   const isProcessingScanRef = useRef(false);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
@@ -415,7 +432,27 @@ export default function AdminDashboardPage() {
 
     const unsubscribe = subscribeStore(refreshStoreData);
 
-    // Heartbeat auto-sync for live Gate Scanner & attendance counts
+    // 1. Supabase Real-Time Channel Subscription (instant push for ticket check-ins & new sales)
+    let realtimeChannel: any = null;
+    try {
+      realtimeChannel = supabase
+        .channel('admin-gate-realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'tickets' },
+          (payload) => {
+            console.log('⚡ Real-time ticket update event received from Supabase:', payload.eventType);
+            fetchRemoteTicketsAsync().then((remote) => {
+              if (remote && remote.length > 0) setTickets(remote);
+            });
+          }
+        )
+        .subscribe();
+    } catch (realtimeErr) {
+      console.warn('Realtime subscription fallback to polling:', realtimeErr);
+    }
+
+    // 2. High-frequency dual-layer heartbeat auto-sync (every 2.5s) ensuring zero caching issues
     const pollInterval = setInterval(() => {
       if (!editingScreeningRef.current && !editingProductRef.current) {
         fetchScreeningsRemoteAsync().then((sc) => {
@@ -425,11 +462,16 @@ export default function AdminDashboardPage() {
           if (remote && remote.length > 0) setTickets(remote);
         });
       }
-    }, 6000);
+    }, 2500);
 
     return () => {
       unsubscribe();
       clearInterval(pollInterval);
+      if (realtimeChannel) {
+        try {
+          supabase.removeChannel(realtimeChannel);
+        } catch {}
+      }
     };
   }, []);
 
@@ -468,8 +510,9 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Start Camera Scanner with multi-lens fallback and single-scan mutex
-  const startCameraScanner = async () => {
+  // Start Camera Scanner with multi-lens fallback, QR optimization, and autofocus
+  const startCameraScanner = async (overrideFacing?: 'environment' | 'user') => {
+    const targetMode = overrideFacing || facingMode;
     setScanPaused(false);
     setCameraError(null);
     isProcessingScanRef.current = false;
@@ -486,28 +529,20 @@ export default function AdminDashboardPage() {
         html5QrCodeRef.current = null;
       }
 
-      const scanner = new Html5Qrcode('qr-reader-viewport');
+      // Initialize Html5Qrcode dedicated strictly to QR codes for blazing fast detection
+      const scanner = new Html5Qrcode('qr-reader-viewport', {
+        formatsToSupport: [0], // 0 = QR_CODE only
+        verbose: false,
+      });
       html5QrCodeRef.current = scanner;
 
-      let cameraConfig: any = { facingMode: 'environment' };
-      try {
-        const cameras = await Html5Qrcode.getCameras();
-        if (cameras && cameras.length > 0) {
-          const backCam = cameras.find((c) => /back|rear|environment|wide/i.test(c.label)) || cameras[cameras.length - 1];
-          if (backCam) {
-            cameraConfig = backCam.id;
-          }
-        }
-      } catch {
-        // use default facingMode
-      }
-
       const qrConfig = {
-        fps: 12,
-        qrbox: (w: number, h: number) => ({
-          width: Math.floor(Math.min(w * 0.85, 320)),
-          height: Math.floor(Math.min(h * 0.85, 320)),
-        }),
+        fps: 10,
+        qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          const boxSize = Math.floor(minEdge * 0.9);
+          return { width: boxSize, height: boxSize };
+        },
       };
 
       const onScanSuccess = (decodedText: string) => {
@@ -517,10 +552,22 @@ export default function AdminDashboardPage() {
       };
 
       try {
-        await scanner.start(cameraConfig, qrConfig, onScanSuccess, () => {});
-      } catch (firstErr) {
-        console.warn('Camera ID start failed, trying fallback to environment facingMode:', firstErr);
-        await scanner.start({ facingMode: 'environment' }, qrConfig, onScanSuccess, () => {});
+        await scanner.start({ facingMode: targetMode }, qrConfig, onScanSuccess, () => {});
+      } catch (modeErr) {
+        console.warn('Primary camera facingMode failed, checking available cameras:', modeErr);
+        try {
+          const cameras = await Html5Qrcode.getCameras();
+          if (cameras && cameras.length > 0) {
+            const chosenCam = targetMode === 'environment'
+              ? cameras.find((c) => /back|rear|environment|wide/i.test(c.label)) || cameras[0]
+              : cameras.find((c) => /front|user|selfie/i.test(c.label)) || cameras[cameras.length - 1];
+            await scanner.start(chosenCam.id, qrConfig, onScanSuccess, () => {});
+          } else {
+            throw modeErr;
+          }
+        } catch (fallbackErr) {
+          throw fallbackErr;
+        }
       }
 
       setCameraActive(true);
@@ -528,8 +575,19 @@ export default function AdminDashboardPage() {
       console.error('Camera Scanner Error:', err);
       setCameraActive(false);
       setCameraError(
-        'Camera could not be accessed. This can happen if permissions are blocked or when using an insecure HTTP address. You can always use the Phone / Ticket ID box below for instant verification!'
+        'Camera could not be accessed. Please ensure camera permissions are allowed in your browser settings (tap the lock icon in the browser address bar). You can also use the Instant Phone Number / Ticket ID box below for 1-click verification!'
       );
+    }
+  };
+
+  const handleToggleCameraFacing = async () => {
+    const nextMode = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(nextMode);
+    if (cameraActive) {
+      await stopCameraScanner();
+      setTimeout(() => {
+        startCameraScanner(nextMode);
+      }, 250);
     }
   };
 
@@ -573,7 +631,7 @@ export default function AdminDashboardPage() {
       setScanPaused(true);
     }
 
-    const res = await verifyTicketScanAsync(codeToTest, 'Gate Admin 1');
+    const res = await verifyTicketScanAsync(codeToTest, userDisplayName || 'Gate Admin 1');
 
     // Cross-check if ticket is for the selected gate screening
     const activeSc = screenings.find((s) => s.id === selectedScreeningId) || screenings[0];
@@ -596,6 +654,24 @@ export default function AdminDashboardPage() {
       }
     }
 
+    if (res.status === 'VALID' && res.ticket) {
+      // Physical haptic vibration feedback on phones
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try {
+          navigator.vibrate([100, 50, 100]);
+        } catch {}
+      }
+
+      // Optimistically update tickets state so the Attendee Ledger and "ADMITTED" tab update in 0ms!
+      setTickets((prev) =>
+        prev.map((t) => (t.ticketId === res.ticket!.ticketId ? { ...t, checkedIn: true, checkedInAt: res.checkedInAt, checkedInBy: userDisplayName || 'Gate Admin 1' } : t))
+      );
+      // Re-fetch in background to ensure 100% server consistency
+      fetchRemoteTicketsAsync().then((updated) => {
+        if (updated) setTickets(updated);
+      });
+    }
+
     setScanResult(res);
   };
 
@@ -607,22 +683,54 @@ export default function AdminDashboardPage() {
     await startCameraScanner();
   };
 
-  // Manual Check-In toggle from inline gate ledger
+  // Manual Check-In toggle from inline gate ledger with instant optimistic UI
   const handleToggleGateCheckIn = async (ticketId: string) => {
-    await toggleCheckInTicket(ticketId, 'Gate Admin 1');
+    const nowIso = new Date().toISOString();
+    // 1. Instant optimistic update so badge turns green and Admitted tab increments immediately!
+    setTickets((prev) =>
+      prev.map((t) => {
+        if (t.ticketId === ticketId) {
+          const newCheckedIn = !t.checkedIn;
+          return {
+            ...t,
+            checkedIn: newCheckedIn,
+            checkedInAt: newCheckedIn ? nowIso : undefined,
+            checkedInBy: newCheckedIn ? (userDisplayName || 'Gate Admin 1') : undefined,
+          };
+        }
+        return t;
+      })
+    );
+
+    // 2. Persist to Supabase
+    await toggleCheckInTicket(ticketId, userDisplayName || 'Gate Admin 1');
     const updated = await fetchRemoteTicketsAsync();
     if (updated) setTickets(updated);
+  };
+
+  // Manual Force-Sync for Live Gate Records
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    try {
+      const updated = await fetchRemoteTicketsAsync();
+      if (updated) setTickets(updated);
+      setLastSyncedAt(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    } catch (err) {
+      console.error('Manual sync error:', err);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   // Instant Gate Approval & Check-In for Interrupted / Debited Payments
   const handleApproveDebitAndAdmit = async (ticket: AdminTicketRecord) => {
     await approveDebitedPayment(ticket.ticketId);
-    await toggleCheckInTicket(ticket.ticketId, 'Gate Admin 1');
-    const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    await toggleCheckInTicket(ticket.ticketId, userDisplayName || 'Gate Admin 1');
+    const nowIso = new Date().toISOString();
     setScanResult({
       status: 'VALID',
-      ticket: { ...ticket, paymentStatus: 'SUCCESS', checkedIn: true, checkedInAt: nowStr },
-      checkedInAt: nowStr,
+      ticket: { ...ticket, paymentStatus: 'SUCCESS', checkedIn: true, checkedInAt: nowIso },
+      checkedInAt: nowIso,
     });
     const updated = await fetchRemoteTicketsAsync();
     if (updated) setTickets(updated);
@@ -1352,20 +1460,31 @@ export default function AdminDashboardPage() {
                       <div className="flex items-center gap-2">
                         {!cameraActive ? (
                           <button
-                            onClick={startCameraScanner}
+                            onClick={() => startCameraScanner()}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-all hover:scale-105"
                           >
                             <CamIcon className="w-4 h-4" />
                             <span>START CAMERA</span>
                           </button>
                         ) : (
-                          <button
-                            onClick={stopCameraScanner}
-                            className="bg-red-600 hover:bg-red-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer"
-                          >
-                            <XIcon className="w-4 h-4" />
-                            <span>STOP CAMERA</span>
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={handleToggleCameraFacing}
+                              className="bg-[#050505] hover:bg-neutral-900 border border-white/20 text-white font-display text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-all"
+                              title="Flip camera lens"
+                            >
+                              <FlipCameraIcon className="w-4 h-4 text-[#E60012]" />
+                              <span className="hidden sm:inline">{facingMode === 'environment' ? 'FRONT LENS' : 'REAR LENS'}</span>
+                            </button>
+                            <button
+                              onClick={stopCameraScanner}
+                              className="bg-red-600 hover:bg-red-700 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow cursor-pointer"
+                            >
+                              <XIcon className="w-4 h-4" />
+                              <span>STOP CAMERA</span>
+                            </button>
+                          </>
                         )}
 
                         <label className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow">
@@ -1394,7 +1513,7 @@ export default function AdminDashboardPage() {
                         <div className="flex gap-2 pt-1">
                           <button
                             type="button"
-                            onClick={startCameraScanner}
+                            onClick={() => startCameraScanner()}
                             className="bg-amber-600 hover:bg-amber-500 text-white font-display text-xs font-bold px-3.5 py-1.5 rounded-xl uppercase cursor-pointer"
                           >
                             RETRY CAMERA
@@ -1493,7 +1612,7 @@ export default function AdminDashboardPage() {
                               <div><strong>Razorpay Ref:</strong> <span className="text-emerald-400">{scanResult.ticket.paymentId}</span></div>
                             )}
                             <div><strong>Venue:</strong> {scanResult.ticket?.venue}</div>
-                            <div><strong>Admitted Timestamp:</strong> {scanResult.checkedInAt}</div>
+                            <div><strong>Admitted Timestamp:</strong> {formatCheckInTime(scanResult.checkedInAt)}</div>
                           </div>
 
                           <button
@@ -1520,7 +1639,7 @@ export default function AdminDashboardPage() {
                               {scanResult.ticket?.userName}
                             </h4>
                             <p className="text-xs text-red-300 font-sans mt-1">
-                              This QR pass was already admitted at <strong>{scanResult.checkedInAt}</strong>
+                              This QR pass was already admitted at <strong>{formatCheckInTime(scanResult.checkedInAt)}</strong>
                             </p>
                           </div>
 
@@ -1539,7 +1658,7 @@ export default function AdminDashboardPage() {
                           <div className="text-left text-xs font-mono bg-[#050505] p-4 rounded-xl border border-white/10 space-y-1.5 text-white/80">
                             <div><strong>Ticket ID:</strong> {scanResult.ticket?.ticketId}</div>
                             <div><strong>Phone:</strong> {scanResult.ticket?.userPhone}</div>
-                            <div><strong>First Admitted At:</strong> {scanResult.checkedInAt}</div>
+                            <div><strong>First Admitted At:</strong> {formatCheckInTime(scanResult.checkedInAt)}</div>
                           </div>
 
                           <button
@@ -1709,13 +1828,26 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
 
-                    <button
-                      onClick={() => exportTicketsToCSV(activeGateScreening?.matchTitle)}
-                      className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow cursor-pointer shrink-0 uppercase"
-                    >
-                      <DownIcon className="w-4 h-4 text-[#E60012]" />
-                      <span>EXPORT SCREENING CSV</span>
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleManualSync}
+                        disabled={isSyncing}
+                        className="bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/40 text-white font-display text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-2 shadow cursor-pointer uppercase transition-all"
+                        title="Force refresh live database records"
+                      >
+                        <RefreshIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-white' : 'text-emerald-300'}`} />
+                        <span>{isSyncing ? 'SYNCING...' : 'REAL-TIME SYNC'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => exportTicketsToCSV(activeGateScreening?.matchTitle)}
+                        className="bg-[#050505] hover:bg-black border border-white/20 text-white font-display text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow cursor-pointer shrink-0 uppercase"
+                      >
+                        <DownIcon className="w-4 h-4 text-[#E60012]" />
+                        <span>EXPORT CSV</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Filter & Search Bar */}
@@ -1807,7 +1939,7 @@ export default function AdminDashboardPage() {
                                 {t.checkedIn ? (
                                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40 text-[11px] font-display font-bold uppercase">
                                     <CheckIcon className="w-3.5 h-3.5" />
-                                    <span>Admitted @ {t.checkedInAt || 'Gate'}</span>
+                                    <span>Admitted @ {formatCheckInTime(t.checkedInAt)}</span>
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/60 text-amber-300 border border-amber-500/40 text-[11px] font-display font-bold uppercase">
@@ -3186,7 +3318,7 @@ export default function AdminDashboardPage() {
                                 <td className="py-3 px-3">
                                   {t.checkedIn ? (
                                     <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
-                                      CHECKED IN ({t.checkedInAt?.slice(11, 16) || 'ADMITTED'})
+                                      CHECKED IN ({formatCheckInTime(t.checkedInAt)})
                                     </span>
                                   ) : (
                                     <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
@@ -3286,7 +3418,7 @@ export default function AdminDashboardPage() {
                                 <td className="py-3 px-3">
                                   {t.checkedIn ? (
                                     <span className="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
-                                      CHECKED IN ({t.checkedInAt?.slice(11, 16) || 'ADMITTED'})
+                                      CHECKED IN ({formatCheckInTime(t.checkedInAt)})
                                     </span>
                                   ) : (
                                     <span className="bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-display px-2 py-0.5 rounded font-bold uppercase">
@@ -3424,7 +3556,7 @@ export default function AdminDashboardPage() {
                                   onChange={(e) => setEditingTicket({
                                     ...editingTicket,
                                     checkedIn: e.target.checked,
-                                    checkedInAt: e.target.checked ? (editingTicket.checkedInAt || new Date().toLocaleTimeString('en-IN')) : undefined
+                                    checkedInAt: e.target.checked ? (editingTicket.checkedInAt || new Date().toISOString()) : undefined
                                   })}
                                   className="w-4 h-4 accent-[#E60012] rounded cursor-pointer"
                                 />
