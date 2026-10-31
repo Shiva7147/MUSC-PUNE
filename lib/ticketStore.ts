@@ -382,9 +382,12 @@ export const fetchRemoteTicketsAsync = async (): Promise<AdminTicketRecord[]> =>
     if (res.ok) {
       const json = await res.json();
       if (json.tickets && Array.isArray(json.tickets)) {
-        ticketsMemory = json.tickets;
-        saveStorage(TICKETS_STORAGE_KEY, json.tickets);
-        notifyListeners();
+        const hasChanged = JSON.stringify(json.tickets) !== JSON.stringify(ticketsMemory);
+        if (hasChanged) {
+          ticketsMemory = json.tickets;
+          saveStorage(TICKETS_STORAGE_KEY, json.tickets);
+          notifyListeners();
+        }
         return json.tickets;
       }
     }

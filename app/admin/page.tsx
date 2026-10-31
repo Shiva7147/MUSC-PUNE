@@ -443,7 +443,9 @@ export default function AdminDashboardPage() {
           (payload) => {
             console.log('⚡ Real-time ticket update event received from Supabase:', payload.eventType);
             fetchRemoteTicketsAsync().then((remote) => {
-              if (remote && remote.length > 0) setTickets(remote);
+              if (remote && remote.length > 0) {
+                setTickets((prev) => (JSON.stringify(prev) !== JSON.stringify(remote) ? remote : prev));
+              }
             });
           }
         )
@@ -452,17 +454,21 @@ export default function AdminDashboardPage() {
       console.warn('Realtime subscription fallback to polling:', realtimeErr);
     }
 
-    // 2. High-frequency dual-layer heartbeat auto-sync (every 2.5s) ensuring zero caching issues
+    // 2. High-frequency dual-layer heartbeat auto-sync (every 5s) ensuring zero caching issues & low CPU
     const pollInterval = setInterval(() => {
       if (!editingScreeningRef.current && !editingProductRef.current) {
         fetchScreeningsRemoteAsync().then((sc) => {
-          if (sc && sc.length > 0 && !editingScreeningRef.current) setScreenings(sc);
+          if (sc && sc.length > 0 && !editingScreeningRef.current) {
+            setScreenings((prev) => (JSON.stringify(prev) !== JSON.stringify(sc) ? sc : prev));
+          }
         });
         fetchRemoteTicketsAsync().then((remote) => {
-          if (remote && remote.length > 0) setTickets(remote);
+          if (remote && remote.length > 0) {
+            setTickets((prev) => (JSON.stringify(prev) !== JSON.stringify(remote) ? remote : prev));
+          }
         });
       }
-    }, 2500);
+    }, 5000);
 
     return () => {
       unsubscribe();
@@ -510,12 +516,20 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Start Camera Scanner with multi-lens fallback, QR optimization, and autofocus
+  // Start Camera Scanner safely with multi-lens fallback and robust error handling
   const startCameraScanner = async (overrideFacing?: 'environment' | 'user') => {
     const targetMode = overrideFacing || facingMode;
     setScanPaused(false);
     setCameraError(null);
     isProcessingScanRef.current = false;
+
+    // Check that viewport element exists before proceeding
+    const viewportEl = document.getElementById('qr-reader-viewport');
+    if (!viewportEl) {
+      setCameraError('Camera viewport element is not ready. Please try again.');
+      return;
+    }
+
     try {
       if (html5QrCodeRef.current) {
         try {
@@ -529,20 +543,12 @@ export default function AdminDashboardPage() {
         html5QrCodeRef.current = null;
       }
 
-      // Initialize Html5Qrcode dedicated strictly to QR codes for blazing fast detection
-      const scanner = new Html5Qrcode('qr-reader-viewport', {
-        formatsToSupport: [0], // 0 = QR_CODE only
-        verbose: false,
-      });
+      // Initialize Html5Qrcode with false verbosity flag to prevent BarcodeDetector exceptions
+      const scanner = new Html5Qrcode('qr-reader-viewport', false);
       html5QrCodeRef.current = scanner;
 
       const qrConfig = {
         fps: 10,
-        qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
-          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-          const boxSize = Math.floor(minEdge * 0.9);
-          return { width: boxSize, height: boxSize };
-        },
       };
 
       const onScanSuccess = (decodedText: string) => {
@@ -551,10 +557,15 @@ export default function AdminDashboardPage() {
         handleVerifyCode(decodedText);
       };
 
+      let started = false;
       try {
         await scanner.start({ facingMode: targetMode }, qrConfig, onScanSuccess, () => {});
+        started = true;
       } catch (modeErr) {
-        console.warn('Primary camera facingMode failed, checking available cameras:', modeErr);
+        console.warn('FacingMode camera start failed, trying device list:', modeErr);
+      }
+
+      if (!started) {
         try {
           const cameras = await Html5Qrcode.getCameras();
           if (cameras && cameras.length > 0) {
@@ -562,12 +573,15 @@ export default function AdminDashboardPage() {
               ? cameras.find((c) => /back|rear|environment|wide/i.test(c.label)) || cameras[0]
               : cameras.find((c) => /front|user|selfie/i.test(c.label)) || cameras[cameras.length - 1];
             await scanner.start(chosenCam.id, qrConfig, onScanSuccess, () => {});
-          } else {
-            throw modeErr;
+            started = true;
           }
-        } catch (fallbackErr) {
-          throw fallbackErr;
+        } catch (camListErr) {
+          console.warn('Camera list fallback failed:', camListErr);
         }
+      }
+
+      if (!started) {
+        throw new Error('Could not start video stream with available devices');
       }
 
       setCameraActive(true);
